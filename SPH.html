@@ -60,8 +60,8 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
         }
 
         @media (max-width: 600px) {
@@ -158,6 +158,34 @@ for each timestep:
         <li>Support for <strong>batched simulations</strong> to evaluate multiple pouring angles concurrently.</li>
         <li>Deep-dive analysis on cache contention during batching.</li>
     </ul>
+    <h3>Fallback Goals</h3>
+    <ul>
+        <li>If development takes longer than expected, we may reduce the scope to 2D, which preserves the core algorithmic structure while simplifying implementation and debugging</li>
+    </ul>
+    <h3>Performance Goals</h3>
+    <ul>
+        <li>At this point it is hard to set specific performace targets as the workload characteristics will only become clear after initial implementation. 
+        We will refine performance goals as the limitations of our program become more clear.</li>
+    </ul>
+    <h3>Demo plan</h3>
+    <ul>
+        <li>A live demo of liquid being poured from one container to another</li>
+    </ul>
+    <h3>Analysis Goals</h3>
+    <ul>
+        <li>How do particle distribution patterns (e.g., sparse streams vs dense regions) affect performance?</li>
+        <li>How significant are memory bandwidth and cache effects in limiting performance?</li>
+        <li>How does grid resolution/cell size affect performance and load balancing?</li>
+        <li>How does varying the number of particles processed per thread affect GPU utilization, memory access patterns, and overall runtime?</li>
+        <li>What portion of runtime is spent in each stage (grid build, neighbor search, density, forces, integration), and which stage becomes the bottleneck as problem size increases?</li>
+        <li>How do different parallelization strategies (single simulation vs batched simulations) affect efficiency?</li>
+    </ul>
+    <h3>System Capabilities and Expected Outcomes</h3>
+    <ul>
+        <li>Effective use of GPU parallelism for particle based simulation</li>
+        <li>Measurable speedup over a baseline implementation</li>
+        <li>A detailed understanding of the performance bottlenecks in this type of workload.</li>
+    </ul>
 </section>
 
 <section id="resources">
@@ -171,9 +199,42 @@ for each timestep:
 
 <section id="platform">
     <h2>Platform Choice</h2>
-    <p>We chose the GHC lab machines because CUDA is the industry standard for this type of data-parallel workload. GPUs are uniquely suited to handle the thousands of particles required for realistic pouring while allowing us to study low-level hardware effects like memory access patterns and warp execution.</p>
+    <p>We will implement our system on the GHC lab machines, which provide NVIDIA GPUs with CUDA support. This platform is well suited for our workload because SPH fluid simulation is highly data parallel, with most computation occurring independently per particle. CUDA allows us to naturally assign particles to GPU threads and execute density, and force computations in parallel, at a large scale.  Additionally, GPUs are designed to handle high throughput workloads with many concurrent threads, which matches the structure of SPH where thousands of particles must be processed each timestep.</p>
+    <p>Our project specifically targets challenges such as irregular particle distributions, memory bandwidth pressure, and warp divergence, all of which are important performance considerations on modern GPU architectures. Using this platform allows us to both exploit the available parallelism and study how well the workload maps to the GPU’s execution and memory model.</p>
 </section>
 
+<section id="resources">
+    <h2>Schedule</h2>
+    <ul>
+        <li><strong>Week 1 (Mar 26 - Apr 1):</strong>
+        <ul>
+        <li> Start reading reference papers and repositories. Start coding basic sequential algorithm as a base for water pouring. No environment integration yet.</li> 
+        </li>
+        </ul>
+        <li><strong>Week 2 (Apr 2 - Apr 8):  </strong> 
+        <ul>
+          <li>Complete the sequential simulation for a small number of particles and validate its behavior. Extend the system to include the pouring environment, such as transferring fluid from one cup to another with adjustable tilt angles and fill levels. Begin introducing parallelization by designing and implementing initial CUDA kernels for key components, while ensuring consistency with the sequential version.</li>
+        </ul>
+        </li>
+        <li><strong>Week 3 (Apr 9 - Apr 15): </strong> 
+        <ul>
+        <li>Milestone report due April 14th</li>
+        <li>Focus on getting a working parallel version of the simulation. Implement core CUDA kernels for neighbor search and force computation, and ensure correctness compared to the sequential baseline. Begin basic performance measurements and identify major bottlenecks such as warp divergence or memory access patterns. Prepare initial results and analysis for the milestone report.</li>
+        </ul>
+        </li>  
+        <li><strong>Week 4 (Apr 16 - Apr 22): </strong>
+        <ul>
+        <li>Optimize and refine the parallel implementation. Experiment with different strategies to reduce warp divergence and improve load balance, such as adjusting spatial grid updates or particle batching. Begin exploring running multiple simulations concurrently and analyze the impact on memory bandwidth and cache behavior. Collect more detailed performance data and compare different design choices.</li>
+        </ul>
+        </li>
+        <li><strong>Week 5 (Apr 23 - Apr 30): </strong>
+        <ul>
+        <li>Final Report due April 30th</li>
+        <li>Finalize experiments and evaluate results across all configurations. Focus on analyzing tradeoffs between performance, scalability, and simulation behavior. Generate plots and visualizations to clearly present findings. Complete the final report, summarizing key insights, challenges, and lessons learned from the project.</li>
+        </ul>
+        </li>
+    </ul>
+</section>
 <footer>
     <p>15-418/618 Parallel Computer Architecture and Programming | Spring 2026</p>
 </footer>

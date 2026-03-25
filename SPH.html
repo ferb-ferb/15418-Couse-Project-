@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPU Accelerated SPH Fluid Pouring Simulation</title>
+    <style>
+        :root {
+            --primary-blue: #961b1b;
+            --bg-gray: #f8f9fa;
+            --text-dark: #333;
+            --code-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        header {
+            border-bottom: 2px solid var(--primary-blue);
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 { color: var(--primary-blue); margin-bottom: 10px; }
+        h2 { color: var(--primary-blue); border-left: 5px solid var(--primary-blue); padding-left: 15px; margin-top: 40px; }
+        h3 { color: #555; margin-top: 25px; }
+        h4 { color: #080707; margin-top: 25px; }
+
+        .url-box { background: var(--bg-gray); padding: 10px; border-radius: 5px; font-family: monospace; }
+
+        section { margin-bottom: 30px; }
+
+        .challenge-card {
+            background: #968f8f;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #262424;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-container { grid-template-columns: 1fr; }
+        }
+
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>GPU Accelerated SPH for Fluid Pouring Simulation</h1>
+    <p class="url-box">URL: [Insert Project Page Link Here]</p>
+</header>
+
+<section id="summary">
+    <h2>Summary</h2>
+    <p>We will implement a GPU accelerated Smoothed Particle Hydrodynamics (SPH) CUDA-based fluid simulator for modeling liquid pouring scenarios, targeting GPUs on the GHC machines. Our focus is on parallelizing particle interactions and analyzing performance challenges such as memory bandwidth limitations, warp divergence, and load imbalance. We will evaluate how different GPU implementations and batching strategies affect scalability and efficiency.</p>
+</section>
+
+<section id="background">
+    <h2>Background</h2>
+    <p>SPH is a particle-based method where fluid is represented as a set of discrete particles. Rather than a fixed grid, SPH estimates fluid properties by combining contributions from nearby particles using a weighted average. This makes it ideal for splashing and pouring flows.</p>
+    <p>At a high level, each simulation timestep consists of several stages. First, for every particle, the simulator finds nearby particles within a fixed radius. Using those neighbors, it computes local density and pressure. Then it computes forces on each particle, including pressure forces, viscosity, gravity, and collisions with container boundaries. Finally, it updates each particle’s velocity and position based on these forces, moving the simulation forward in time. This process repeats every timestep, and in a pouring scenario, it captures behavior like liquid forming a stream, hitting a surface, and spreading or splashing.</p>
+    <p>This workload has clear opportunities for parallelism. Most of the work is done per particle, so we can assign one particle to each thread. A key operation is neighbor search, which means finding which nearby particles are close enough to affect a given particle. To avoid checking every particle against every other particle, the simulation space is divided into a spatial hash, and each particle is placed into a grid cell based on its position. Then, when processing one particle, we only need to check particles in its own cell and nearby cells, which makes the computation much more efficient. </p>
+    <p>In our implementation, we plan to parallelize the main SPH stages on a GPU. Grid construction, density and pressure computation, force computation, and the final timestep integration. However, although SPH appears highly parallel, the workload is not uniform. In a pouring simulation, particles are unevenly distributed. Some regions are sparse (like in a falling stream), while others are very dense (like where the liquid lands). This means some threads do much more work than others, and memory access becomes irregular. These effects can lead to warp divergence, load imbalance, and poor memory performance, which are the key challenges we aim to analyze in this project.</p>
+</section>
+
+<section id="pseudocode">
+    <h2>Pseudocode</h2>
+    <pre>
+for each timestep:
+    // Spatial Hashing
+    for each particle i:
+        cell_i = cell containing particle i
+        add particle i to cell_i
+
+    // Compute density and pressure for all particle
+    for each particle i:
+        neighbors = find_neighbors(i, spatial_grid)
+        density_i = sum(neighbor_contributions)
+        pressure_i = compute_pressure(density_i)
+
+    // Compute forces using already-computed densities/pressures
+    for each particle i:
+        force_i = sum(pressure_viscosity_interactions)
+        force_i += gravity and wall collisions
+
+    // Move particles forward
+    for each particle i:
+        velocity_i += force_i * dt
+        position_i += velocity_i * dt
+    </pre>
+</section>
+
+<section id="challenges">
+    <h2>The Challenge</h2>
+    The idea of a SPH fluid simulation for pouring specifically, introduces a unique set of challenges and constraints that sets the project apart from classic parallel SPH projects.
+    <div class="grid-container">
+        <div class="challenge-card">
+            <h4>Warp Divergence & Load Imbalance</h4>
+            <p>Pouring a thin stream of liquid from one cup into another creates a severe warp divergence problem, where threads operating on sparse parts of the grid cell, such as the thin stream in mid-air, will likely finish calculation far before threads operating on denser parts of the cell such as the point where the stream lands in the pool inside the recipient cup, as well as the dense bodies inside both cups. Also, with liquid being poured from cup to cup there will be significant splashing, which will present us with a challenge of balancing the tradeoffs of how frequently we rebuild the spatial hash to maintain load balance.</p>
+        </div>
+        <div class="challenge-card">
+            <h4>Neighbor search and spatial hash rebuilding</h4>
+            <p>SPH relies heavily on finding nearby particles efficiently. As specified previously, particle distributions may change rapidly from dense fluid to a thin stream and then to splashing regions. This makes the spatial grid quickly outdated. Rebuilding it too often adds overhead, while rebuilding too infrequently makes neighbor searches slower and increases imbalance. Choosing when and how often to rebuild becomes a key challenge.</p>
+        </div>
+        <div class="challenge-card">
+          <h4>Memory Bandwidth & Cache Pressure</h4>
+          <p>To push the memory hierarchy even further, we propose running a number of these simulations concurrently on the same GPU in batches (motivated by the need to evaluate multiple pour angles for MPC). While parallelizing independent trajectories is traditionally trivial, forcing them to share the cache and memory bandwidth while dynamically allocating spatial grids for SPH introduces severe cache thrashing and contention, which we will have to actively manage</p>
+        </div>
+      </div>
+</section>
+
+<section id="goals">
+    <h2>Goals and Deliverables</h2>
+    <h3>Plan to Achieve</h3>
+    <ul>
+        <li>Full 3D SPH pipeline on the GPU (Spatial grid, neighbor search, forces, integration).</li>
+        <li>Real-time simulation speed for standard pouring scenarios.</li>
+        <li>Efficient CUDA kernels handling irregular particle distributions.</li>
+    </ul>
+
+    <h3>Hope to Achieve</h3>
+    <ul>
+        <li>Support for <strong>batched simulations</strong> to evaluate multiple pouring angles concurrently.</li>
+        <li>Deep-dive analysis on cache contention during batching.</li>
+    </ul>
+</section>
+
+<section id="resources">
+    <h2>Resources</h2>
+    <ul>
+        <li><strong>Codebase:</strong> <a href="https://github.com/vagifaliyev/SPH-Solver">SPH-Solver (Sequential Baseline)</a></li>
+        <li><strong>Reference:</strong> <a href="https://www.cs.cmu.edu/afs/cs/academic/class/15418-s12/www/competition/www.andrew.cmu.edu/user/cgbrugge/418/parallel_sph_writeup.pdf">Parallel SPH CMU Writeup</a></li>
+        <li><strong>Hardware:</strong> GHC Machines (NVIDIA RTX 2080)</li>
+    </ul>
+</section>
+
+<section id="platform">
+    <h2>Platform Choice</h2>
+    <p>We chose the GHC lab machines because CUDA is the industry standard for this type of data-parallel workload. GPUs are uniquely suited to handle the thousands of particles required for realistic pouring while allowing us to study low-level hardware effects like memory access patterns and warp execution.</p>
+</section>
+
+<footer>
+    <p>15-418/618 Parallel Computer Architecture and Programming | Spring 2026</p>
+</footer>
+
+</body>
+</html>

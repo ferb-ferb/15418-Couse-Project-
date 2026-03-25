@@ -82,6 +82,7 @@
 
 <header>
     <h1>GPU Accelerated SPH for Fluid Pouring Simulation</h1>
+    <p>Yashoditya Watal & Athan Ferber</p>
     <p class="url-box">URL: [Insert Project Page Link Here]</p>
 </header>
 
@@ -169,7 +170,7 @@ for each timestep:
     </ul>
     <h3>Demo plan</h3>
     <ul>
-        <li>A live demo of liquid being poured from one container to another</li>
+        <li>A live demo of a simulation of liquid being poured from one container to another</li>
     </ul>
     <h3>Analysis Goals</h3>
     <ul>
@@ -192,8 +193,17 @@ for each timestep:
     <h2>Resources</h2>
     <ul>
         <li><strong>Codebase:</strong> <a href="https://github.com/vagifaliyev/SPH-Solver">SPH-Solver (Sequential Baseline)</a></li>
+        <ul>
+          <li>We plan to use this basic sequential implementation of SPH to guide our initial sequential baseline</li>
+        </ul>
         <li><strong>Reference:</strong> <a href="https://www.cs.cmu.edu/afs/cs/academic/class/15418-s12/www/competition/www.andrew.cmu.edu/user/cgbrugge/418/parallel_sph_writeup.pdf">Parallel SPH CMU Writeup</a></li>
+        <ul>
+          <li>We plan to reference this previous course project for possible insight into challenges of parallelizing the algorithm<li>
+        </ul>
         <li><strong>Hardware:</strong> GHC Machines (NVIDIA RTX 2080)</li>
+        <ul>
+          <li>We are targeting NVIDIA GPUs on the GHC machines</li>
+        </ul>
     </ul>
 </section>
 

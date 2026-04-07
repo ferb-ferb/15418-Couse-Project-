@@ -10,12 +10,12 @@
 const int NUM_PARTICLES_1D = 10;     // 10x10x10 cube
 const float H = 0.1f;                // Smoothing radius
 const float GRAVITY = -9.81f;        // Gravity acceleration
-const float DT = 0.0002f;            // Time step
+const float DT = 0.001f;            // Time step
 const float PI = 3.1415926535f;
 const float MASS = 0.125f;           // Mass of a single particle
 const float REST_DENS = 1000.0f;     // Rest density of water
-const float GAS_CONST = 800.0f;     // Pressure stiffness
-const float VISCOSITY = 250.0f;      // Viscosity coefficient
+const float GAS_CONST = 500.0f;     // Pressure stiffness
+const float VISCOSITY = 50.0f;      // Viscosity coefficient
 const float EPS = 1e-6f;             // Small epsilon for safe division
 
 // constant for density estimation
@@ -71,7 +71,7 @@ void initParticles() {
 
         // Set particle position
         p.x = i * spacing;
-        p.y = j * spacing + 1.0f;
+        p.y = j * spacing + 0.03f;
         p.z = k * spacing;
 
         // Set initial velocity

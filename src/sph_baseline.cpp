@@ -5,36 +5,44 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
 
 /* SIMULATION CONSTANTS  */
-const int NUM_PARTICLES_1D = 10;     // 10x10x10 cube
-const float H = 0.1f;                // Smoothing radius
+
+// Simulation Constants
+const int FRAME_COUNT = 1000;     // Total number of frames to simulate
+const float STARTING_HEIGHT = 0.1f;  // Initial height of the particle block
+const int NUM_PARTICLES_1D = 11;     // 10x10x10 cube
+const int SUBSTEPS_PER_FRAME = 5;
+const float SPACING_MULTIPLIER = 0.75f; // Multiplier to reduce initial spacing and increase density
+const float POS_JITTER_CONST = 0.3f; 
+const float VEL_JITTER_CONST = 0.05f;
+
+// Physics Constants
+const float H = 0.13f;                // Smoothing radius
 const float GRAVITY = -9.81f;        // Gravity acceleration
-const float DT = 0.001f;            // Time step
+const float DT = 0.0003f;            // Time step
 const float PI = 3.1415926535f;
-const float MASS = 0.125f;           // Mass of a single particle
-const float REST_DENS = 1000.0f;     // Rest density of water
-const float GAS_CONST = 500.0f;     // Pressure stiffness
-const float VISCOSITY = 50.0f;      // Viscosity coefficient
+const float MASS = 0.1f;           // Mass of a single particle
+const float REST_DENS = 104.0f;     // Rest density of water
+const float GAS_CONST = 100.0f;     // Pressure stiffness
+const float VISCOSITY = 25.0f;      // Viscosity coefficient
 const float EPS = 1e-6f;             // Small epsilon for safe division
+const float VELOCITY_DAMPING = 0.9995f; // Damping factor for velocities
 
-// constant for density estimation
-const float POLY6 = 315.0f / (64.0f * PI * std::pow(H, 9));
+// Calculated Constants
+const float POLY6 = 315.0f / (64.0f * PI * std::pow(H, 9)); // density estimation
+const float SPIKY_GRAD = -45.0f / (PI * std::pow(H, 6)); // pressure gradient
+const float VISC_LAP = 45.0f / (PI * std::pow(H, 6)); // viscosity Laplacian
 
-//constant for pressure gradient
-const float SPIKY_GRAD = -45.0f / (PI * std::pow(H, 6));
-
-// constant for viscosity Laplacian
-const float VISC_LAP = 45.0f / (PI * std::pow(H, 6));
-
-// BOX CONSTANTS
+// Boundary box Constants 
 const float BOX_X_MIN = 0.0f;
 const float BOX_X_MAX = 1.0f;
 const float BOX_Y_MIN = 0.0f;
 const float BOX_Y_MAX = 2.0f;
 const float BOX_Z_MIN = 0.0f;
 const float BOX_Z_MAX = 1.0f;
-const float BOUNDARY_DAMPING = -0.5f;
+const float BOUNDARY_DAMPING = -0.1f;
 
 // Particle struct
 struct Particle {
@@ -45,9 +53,8 @@ struct Particle {
   bool is_boundary;
 };
 
+// Global data structures 
 std::vector<Particle> particles;
-
-/* Initialize Particles */
 
 /*
 // JITTER: We add a microscopic random offset to every particle.
@@ -61,7 +68,7 @@ float jitter_z = static_cast<float>(rand()) / RAND_MAX * 0.01f; */
 void initParticles() {
 
   // Set spacing between particles
-  float spacing = H * 0.65f;
+  float spacing = H * SPACING_MULTIPLIER; 
 
   // Create a cube of particles
   for (int i = 0; i < NUM_PARTICLES_1D; i++) {
@@ -69,15 +76,21 @@ void initParticles() {
       for (int k = 0; k < NUM_PARTICLES_1D; k++) {
         Particle p;
 
+        // Add a tiny random offset to break perfect grid symmetry
+        float jitter_scale = POS_JITTER_CONST * spacing;
+        float jitter_x = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * jitter_scale;
+        float jitter_y = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * jitter_scale;
+        float jitter_z = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * jitter_scale;
+
         // Set particle position
-        p.x = i * spacing;
-        p.y = j * spacing + 0.03f;
-        p.z = k * spacing;
+        p.x = i * spacing + jitter_x;
+        p.y = j * spacing + STARTING_HEIGHT + jitter_y;
+        p.z = k * spacing + jitter_z;
 
         // Set initial velocity
-        p.vx = 0.0f;
-        p.vy = 0.0f;
-        p.vz = 0.0f;
+        p.vx = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * VEL_JITTER_CONST;
+        p.vy = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * VEL_JITTER_CONST;
+        p.vz = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * VEL_JITTER_CONST;
 
         // Set initial force
         p.fx = 0.0f;
@@ -166,9 +179,9 @@ void computeForces() {
       }
 
       // Compute displacement from j to i
-      float dx = p_j.x - p_i.x;
-      float dy = p_j.y - p_i.y;
-      float dz = p_j.z - p_i.z;
+      float dx = p_i.x - p_j.x;
+      float dy = p_i.y - p_j.y;
+      float dz = p_i.z - p_j.z;
 
       // Compute squared distance
       float r2 = dx * dx + dy * dy + dz * dz;
@@ -194,7 +207,7 @@ void computeForces() {
       // Compute pressure force contribution
       float h_minus_r = H - r;
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
-      float pressure_term = -MASS * (p_i.p + p_j.p) / (2.0f * std::max(p_j.rho, EPS));
+      float pressure_term = -MASS * (p_i.p / std::max(p_i.rho * p_i.rho, EPS) + p_j.p / std::max(p_j.rho * p_j.rho, EPS));
 
       pressure_fx += pressure_term * grad_coeff * dir_x;
       pressure_fy += pressure_term * grad_coeff * dir_y;
@@ -236,9 +249,9 @@ void integrate() {
     p.vz += az * DT;
 
     // Apply slight damping for stability
-    p.vx *= 0.999f;
-    p.vy *= 0.999f;
-    p.vz *= 0.999f;
+    p.vx *= VELOCITY_DAMPING;
+    p.vy *= VELOCITY_DAMPING;
+    p.vz *= VELOCITY_DAMPING;
 
     // Update position using velocity
     p.x += p.vx * DT;
@@ -308,42 +321,94 @@ void exportCSV(int frame) {
   // Close file
   file.close();
 }
+/* *** DEBUG FUNCTIONS *** */
 
-// Prints a few useful statistics for debugging
 void printStats(int frame) {
-  // Track min and max density
   float min_rho = particles[0].rho;
   float max_rho = particles[0].rho;
-
-  // Track min and max pressure
   float min_p = particles[0].p;
   float max_p = particles[0].p;
 
-  // Scan all particles
+  float sum_rho = 0.0f;
+  float sum_speed = 0.0f;
+  float max_speed = 0.0f;
+
   for (const auto &p : particles) {
     min_rho = std::min(min_rho, p.rho);
     max_rho = std::max(max_rho, p.rho);
     min_p = std::min(min_p, p.p);
     max_p = std::max(max_p, p.p);
+
+    sum_rho += p.rho;
+
+    float speed = std::sqrt(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz);
+    sum_speed += speed;
+    max_speed = std::max(max_speed, speed);
   }
 
-  // Print summary line
-  std::cout << "Frame " << frame << " | rho: [" << min_rho << ", " << max_rho
-            << "] | p: [" << min_p << ", " << max_p << "]" << std::endl;
+  float avg_rho = sum_rho / particles.size();
+  float avg_speed = sum_speed / particles.size();
+
+  std::cout << "Frame " << frame
+            << " | rho: [" << min_rho << ", " << max_rho << "] avg=" << avg_rho
+            << " | p: [" << min_p << ", " << max_p << "]"
+            << " | speed avg=" << avg_speed << " max=" << max_speed
+            << std::endl;
+}
+
+// Prints the initial density and pressure statistics after initialization
+void printInitialDensityStats() {
+  // Compute density and pressure once for the initial particle layout
+  computeDensityPressure();
+
+  // Initialize min, max, and sum values
+  float min_rho = particles[0].rho;
+  float max_rho = particles[0].rho;
+  float sum_rho = 0.0f;
+
+  float min_p = particles[0].p;
+  float max_p = particles[0].p;
+  float sum_p = 0.0f;
+
+  // Scan all particles
+  for (const auto &p : particles) {
+    min_rho = std::min(min_rho, p.rho);
+    max_rho = std::max(max_rho, p.rho);
+    sum_rho += p.rho;
+
+    min_p = std::min(min_p, p.p);
+    max_p = std::max(max_p, p.p);
+    sum_p += p.p;
+  }
+
+  // Compute averages
+  float avg_rho = sum_rho / particles.size();
+  float avg_p = sum_p / particles.size();
+
+  // Print summary
+  std::cout << "Initial density stats | rho: [" << min_rho << ", " << max_rho
+            << "] avg = " << avg_rho
+            << " | p: [" << min_p << ", " << max_p
+            << "] avg = " << avg_p << std::endl;
 }
 
 // Runs the baseline SPH simulation and exports frames
 int main() {
+
+  // Seed RNG for jitter
+  // srand(time(nullptr)); //random each time 
+  srand(0); //deterministic for debugging
   
   std::cout << "Generating particle block..." << std::endl;
 
   // Create initial particle configuration
   initParticles();
+  printInitialDensityStats();
 
   std::cout << "Successfully created " << particles.size() << " particles." << std::endl;
 
   // Set the number of frames to simulate
-  int total_frames = 200;
+  int total_frames = FRAME_COUNT;
 
   std::cout << "Starting simulation for " << total_frames << " frames..." << std::endl;
 
@@ -353,24 +418,21 @@ int main() {
   // Run the simulation loop
   for (int frame = 1; frame <= total_frames; frame++) {
 
-    // Compute density and pressure from neighbors
-    computeDensityPressure();
+    // Run multiple internal physics steps before exporting this frame
+    for (int step = 0; step < SUBSTEPS_PER_FRAME; step++) {
+      computeDensityPressure();
+      computeForces();
+      integrate();
+    }
 
-    // Compute fluid and gravity forces
-    computeForces();
-
-    // Move particles forward by one timestep
-    integrate();
-
-    // Save the updated particle state
+    // Save the updated particle state once per exported frame
     exportCSV(frame);
 
-    // Print progress every 20 frames
+    // Print progress every 20 exported frames
     if (frame % 20 == 0) {
       std::cout << "Calculated frame " << frame << std::endl;
       printStats(frame);
     }
-
   }
 
   // Print completion message

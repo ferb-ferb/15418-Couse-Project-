@@ -11,38 +11,47 @@
 
 // Simulation Constants
 const int FRAME_COUNT = 1000;     // Total number of frames to simulate
-const float STARTING_HEIGHT = 0.1f;  // Initial height of the particle block
-const int NUM_PARTICLES_1D = 11;     // 10x10x10 cube
 const int SUBSTEPS_PER_FRAME = 5;
-const float SPACING_MULTIPLIER = 0.75f; // Multiplier to reduce initial spacing and increase density
 const float POS_JITTER_CONST = 0.3f; 
 const float VEL_JITTER_CONST = 0.05f;
 
 // Physics Constants
-const float H = 0.13f;                // Smoothing radius
+const float H_DENS = 0.13f;   // Radius used for density estimation
+const float H_FORCE = 0.05f;  // Smaller radius used for pressure/viscosity forces
 const float GRAVITY = -9.81f;        // Gravity acceleration
 const float DT = 0.0003f;            // Time step
 const float PI = 3.1415926535f;
 const float MASS = 0.1f;           // Mass of a single particle
-const float REST_DENS = 104.0f;     // Rest density of water
-const float GAS_CONST = 100.0f;     // Pressure stiffness
-const float VISCOSITY = 25.0f;      // Viscosity coefficient
+const float REST_DENS = 900.0f;     // Rest density of water
+const float GAS_CONST = 60.0f;     // Pressure stiffness
+const float VISCOSITY = 30.0f;      // Viscosity coefficient
 const float EPS = 1e-6f;             // Small epsilon for safe division
 const float VELOCITY_DAMPING = 0.9995f; // Damping factor for velocities
 
 // Calculated Constants
-const float POLY6 = 315.0f / (64.0f * PI * std::pow(H, 9)); // density estimation
-const float SPIKY_GRAD = -45.0f / (PI * std::pow(H, 6)); // pressure gradient
-const float VISC_LAP = 45.0f / (PI * std::pow(H, 6)); // viscosity Laplacian
+const float POLY6 = 315.0f / (64.0f * PI * std::pow(H_DENS, 9)); // density estimation
+const float SPIKY_GRAD = -45.0f / (PI * std::pow(H_FORCE, 6)); // pressure gradient
+const float VISC_LAP = 45.0f / (PI * std::pow(H_FORCE, 6)); // viscosity Laplacian
+
+// Initial sphere shape parameters
+const float INITIAL_SPHERE_CENTER_X = 0.35f;
+const float INITIAL_SPHERE_CENTER_Y = 0.45f;
+const float INITIAL_SPHERE_CENTER_Z = 0.35f;
+
+// THESE DEFINE THE INITIAL SIZE AND RESOLUTION OF THE PARTICLE SPHERE
+const float INITIAL_SPHERE_RADIUS = 0.20f;
+const float INITIAL_PARTICLE_SPACING = 0.029f; 
 
 // Boundary box Constants 
 const float BOX_X_MIN = 0.0f;
-const float BOX_X_MAX = 1.0f;
+const float BOX_X_MAX = 0.6f;
 const float BOX_Y_MIN = 0.0f;
 const float BOX_Y_MAX = 2.0f;
 const float BOX_Z_MIN = 0.0f;
-const float BOX_Z_MAX = 1.0f;
-const float BOUNDARY_DAMPING = -0.1f;
+const float BOX_Z_MAX = 0.6f;
+const float WALL_EPS = 0.001f;          // Push particles slightly off the wall
+const float WALL_RESTITUTION = 0.8f;    // Fraction of normal velocity kept after bounce
+const float WALL_TANGENTIAL_DAMPING = 0.995f; // Slight damping along the wall
 
 // Particle struct
 struct Particle {
@@ -56,55 +65,68 @@ struct Particle {
 // Global data structures 
 std::vector<Particle> particles;
 
-/*
-// JITTER: We add a microscopic random offset to every particle.
-// If they are perfectly aligned in a flawless grid, the physics engine
-// will divide by zero later when they perfectly collide.
-float jitter_x = static_cast<float>(rand()) / RAND_MAX * 0.01f;
-float jitter_y = static_cast<float>(rand()) / RAND_MAX * 0.01f;
-float jitter_z = static_cast<float>(rand()) / RAND_MAX * 0.01f; */
-
-// Initializes a 3D block of particles above the floor
+// Initializes particles inside a fixed-size sphere using a fixed particle spacing
 void initParticles() {
 
-  // Set spacing between particles
-  float spacing = H * SPACING_MULTIPLIER; 
+  // Use direct world-space spacing
+  float spacing = INITIAL_PARTICLE_SPACING;
 
-  // Create a cube of particles
-  for (int i = 0; i < NUM_PARTICLES_1D; i++) {
-    for (int j = 0; j < NUM_PARTICLES_1D; j++) {
-      for (int k = 0; k < NUM_PARTICLES_1D; k++) {
+  // Sphere center
+  float center_x = INITIAL_SPHERE_CENTER_X;
+  float center_y = INITIAL_SPHERE_CENTER_Y;
+  float center_z = INITIAL_SPHERE_CENTER_Z;
+
+  // Number of lattice steps needed to cover the sphere radius
+  int steps = static_cast<int>(std::ceil(INITIAL_SPHERE_RADIUS / spacing));
+
+  // Build a lattice around the sphere center and keep only points inside the sphere
+  for (int i = -steps; i <= steps; i++) {
+    for (int j = -steps; j <= steps; j++) {
+      for (int k = -steps; k <= steps; k++) {
+
+        // Base lattice position
+        float base_x = center_x + i * spacing;
+        float base_y = center_y + j * spacing;
+        float base_z = center_z + k * spacing;
+
+        // Distance from sphere center
+        float dx0 = base_x - center_x;
+        float dy0 = base_y - center_y;
+        float dz0 = base_z - center_z;
+
+        // Keep only particles inside the sphere
+        if (dx0 * dx0 + dy0 * dy0 + dz0 * dz0 > INITIAL_SPHERE_RADIUS * INITIAL_SPHERE_RADIUS) {
+          continue;
+        }
+
         Particle p;
 
-        // Add a tiny random offset to break perfect grid symmetry
+        // Add position jitter
         float jitter_scale = POS_JITTER_CONST * spacing;
         float jitter_x = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * jitter_scale;
         float jitter_y = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * jitter_scale;
         float jitter_z = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * jitter_scale;
 
-        // Set particle position
-        p.x = i * spacing + jitter_x;
-        p.y = j * spacing + STARTING_HEIGHT + jitter_y;
-        p.z = k * spacing + jitter_z;
+        p.x = base_x + jitter_x;
+        p.y = base_y + jitter_y;
+        p.z = base_z + jitter_z;
 
-        // Set initial velocity
+        // Add small random initial velocity
         p.vx = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * VEL_JITTER_CONST;
         p.vy = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * VEL_JITTER_CONST;
         p.vz = (static_cast<float>(rand()) / RAND_MAX - 0.5f) * VEL_JITTER_CONST;
 
-        // Set initial force
+        // Initialize force
         p.fx = 0.0f;
         p.fy = 0.0f;
         p.fz = 0.0f;
 
-        // Set initial SPH quantities
+        // Initialize SPH quantities
         p.rho = REST_DENS;
         p.p = 0.0f;
-
-        // Mark this as a regular fluid particle
         p.is_boundary = false;
 
-        // Add particle to the simulation
+        // Add particle
         particles.push_back(p);
       }
     }
@@ -132,8 +154,8 @@ void computeDensityPressure() {
       float r2 = dx * dx + dy * dy + dz * dz;
 
       // Accumulate density if neighbor is inside smoothing radius
-      if (r2 < H * H) {
-        float h2_minus_r2 = H * H - r2;
+      if (r2 < H_DENS * H_DENS) {
+        float h2_minus_r2 = H_DENS * H_DENS - r2;
         float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
         p_i.rho += MASS * POLY6 * weight;
       }
@@ -187,7 +209,7 @@ void computeForces() {
       float r2 = dx * dx + dy * dy + dz * dz;
 
       // Ignore particles outside smoothing radius
-      if (r2 >= H * H) {
+      if (r2 >= H_FORCE * H_FORCE) {
         continue;
       }
 
@@ -205,7 +227,7 @@ void computeForces() {
       float dir_z = dz / r;
 
       // Compute pressure force contribution
-      float h_minus_r = H - r;
+      float h_minus_r = H_FORCE - r;
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
       float pressure_term = -MASS * (p_i.p / std::max(p_i.rho * p_i.rho, EPS) + p_j.p / std::max(p_j.rho * p_j.rho, EPS));
 
@@ -257,41 +279,64 @@ void integrate() {
     p.x += p.vx * DT;
     p.y += p.vy * DT;
     p.z += p.vz * DT;
-
     // Bounce off left wall
     if (p.x < BOX_X_MIN) {
-      p.x = BOX_X_MIN;
-      p.vx *= BOUNDARY_DAMPING;
+      p.x = BOX_X_MIN + WALL_EPS;
+      if (p.vx < 0.0f) {
+        p.vx = -p.vx * WALL_RESTITUTION;
+      }
+      p.vy *= WALL_TANGENTIAL_DAMPING;
+      p.vz *= WALL_TANGENTIAL_DAMPING;
     }
 
     // Bounce off right wall
     if (p.x > BOX_X_MAX) {
-      p.x = BOX_X_MAX;
-      p.vx *= BOUNDARY_DAMPING;
+      p.x = BOX_X_MAX - WALL_EPS;
+      if (p.vx > 0.0f) {
+        p.vx = -p.vx * WALL_RESTITUTION;
+      }
+      p.vy *= WALL_TANGENTIAL_DAMPING;
+      p.vz *= WALL_TANGENTIAL_DAMPING;
     }
 
     // Bounce off floor
     if (p.y < BOX_Y_MIN) {
-      p.y = BOX_Y_MIN;
-      p.vy *= BOUNDARY_DAMPING;
+      p.y = BOX_Y_MIN + WALL_EPS;
+      if (p.vy < 0.0f) {
+        p.vy = -p.vy * WALL_RESTITUTION;
+      }
+      p.vx *= WALL_TANGENTIAL_DAMPING;
+      p.vz *= WALL_TANGENTIAL_DAMPING;
     }
 
     // Bounce off ceiling
     if (p.y > BOX_Y_MAX) {
-      p.y = BOX_Y_MAX;
-      p.vy *= BOUNDARY_DAMPING;
+      p.y = BOX_Y_MAX - WALL_EPS;
+      if (p.vy > 0.0f) {
+        p.vy = -p.vy * WALL_RESTITUTION;
+      }
+      p.vx *= WALL_TANGENTIAL_DAMPING;
+      p.vz *= WALL_TANGENTIAL_DAMPING;
     }
 
     // Bounce off front wall
     if (p.z < BOX_Z_MIN) {
-      p.z = BOX_Z_MIN;
-      p.vz *= BOUNDARY_DAMPING;
+      p.z = BOX_Z_MIN + WALL_EPS;
+      if (p.vz < 0.0f) {
+        p.vz = -p.vz * WALL_RESTITUTION;
+      }
+      p.vx *= WALL_TANGENTIAL_DAMPING;
+      p.vy *= WALL_TANGENTIAL_DAMPING;
     }
 
     // Bounce off back wall
     if (p.z > BOX_Z_MAX) {
-      p.z = BOX_Z_MAX;
-      p.vz *= BOUNDARY_DAMPING;
+      p.z = BOX_Z_MAX - WALL_EPS;
+      if (p.vz > 0.0f) {
+        p.vz = -p.vz * WALL_RESTITUTION;
+      }
+      p.vx *= WALL_TANGENTIAL_DAMPING;
+      p.vy *= WALL_TANGENTIAL_DAMPING;
     }
   }
 }

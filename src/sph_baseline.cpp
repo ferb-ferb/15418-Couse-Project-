@@ -14,6 +14,7 @@ const int FRAME_COUNT = 1000;     // Total number of frames to simulate
 const int SUBSTEPS_PER_FRAME = 5;
 const float POS_JITTER_CONST = 0.3f; 
 const float VEL_JITTER_CONST = 0.05f;
+const int EXPORT_EVERY = 5;
 
 // Physics Constants
 const float H_DENS = 0.13f;   // Radius used for density estimation
@@ -71,13 +72,16 @@ void initParticles() {
   // Use direct world-space spacing
   float spacing = INITIAL_PARTICLE_SPACING;
 
+  // Optimization 
+  int steps = static_cast<int>(std::ceil(INITIAL_SPHERE_RADIUS / spacing));
+  int max_candidates = (2 * steps + 1) * (2 * steps + 1) * (2 * steps + 1);
+  particles.clear();
+  particles.reserve(max_candidates);
+
   // Sphere center
   float center_x = INITIAL_SPHERE_CENTER_X;
   float center_y = INITIAL_SPHERE_CENTER_Y;
   float center_z = INITIAL_SPHERE_CENTER_Z;
-
-  // Number of lattice steps needed to cover the sphere radius
-  int steps = static_cast<int>(std::ceil(INITIAL_SPHERE_RADIUS / spacing));
 
   // Build a lattice around the sphere center and keep only points inside the sphere
   for (int i = -steps; i <= steps; i++) {
@@ -470,8 +474,10 @@ int main() {
       integrate();
     }
 
-    // Save the updated particle state once per exported frame
-    exportCSV(frame);
+    // Save the updated particle state once per EXPORT EVERY frames
+    if (frame % EXPORT_EVERY == 0) {
+      exportCSV(frame / EXPORT_EVERY);
+    }
 
     // Print progress every 20 exported frames
     if (frame % 20 == 0) {

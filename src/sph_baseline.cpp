@@ -422,7 +422,7 @@ int main(int argc, char **argv) {
     }
 
     // Clamp the target tilt angle
-    target_tilt_deg = std::max(0.0f, std::min(90.0f, target_tilt_deg));
+    target_tilt_deg = std::max(0.0f, std::min(180.0f, target_tilt_deg));
 
     // Build the initial scene
     std::cout << "Generate the cup scene with target tilt = " << target_tilt_deg << std::endl;

@@ -1,11 +1,20 @@
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <iostream>
 
 #include "container.h"
 
 Cup source_cup;
 Cup receiver_cup;
 std::vector<Particle> boundary_particles;
+
+static float max_source_penetration = 0.0f;
+static float max_receiver_penetration = 0.0f;
+static int below_source_bottom_count = 0;
+static int below_receiver_bottom_count = 0;
+static int inside_source_wall_count = 0;
+static int inside_receiver_wall_count = 0;
 
 // Build one cup
 Cup make_cup(float center_x, float center_y, float center_z, float width, float height, float depth, float wall_thickness, float tilt_deg) {
@@ -20,6 +29,7 @@ Cup make_cup(float center_x, float center_y, float center_z, float width, float 
     cup.depth = depth;
     cup.wall_thickness = wall_thickness;
     cup.tilt_deg = tilt_deg;
+    cup.angular_velocity = 0.0f;
 
     // Store the rotation values
     float theta = tilt_deg * PI / 180.0f;
@@ -75,6 +85,14 @@ static void cup_velocity_to_world(const Cup &cup, float local_vx, float local_vy
     // Rotate the velocity back into world space
     world_vx = local_vx * cup.cos_t + local_vy * cup.sin_t;
     world_vy = -local_vx * cup.sin_t + local_vy * cup.cos_t;
+}
+
+// Build the wall velocity in the cup frame
+static void get_local_wall_velocity(const Cup &cup, float local_x, float local_y, float &wall_vx, float &wall_vy) {
+
+    // Build the rigid rotation wall velocity
+    wall_vx = -cup.angular_velocity * local_y;
+    wall_vy = cup.angular_velocity * local_x;
 }
 
 // Add one boundary particle
@@ -135,11 +153,6 @@ static void add_cup_surface(const Cup &cup, float local_x_min, float local_x_max
         for (float local_y = local_y_min; local_y <= local_y_max + 0.5f * CUP_RENDER_SPACING; local_y += CUP_RENDER_SPACING) {
             for (float z = z_min; z <= z_max + 0.5f * CUP_RENDER_SPACING; z += CUP_RENDER_SPACING) {
 
-                // Skip the second loop direction for lines
-                if ( (std::abs(local_x_max - local_x_min) < EPS) && (std::abs(local_y_max - local_y_min) < EPS) ) {
-                    continue;
-                }
-
                 // Convert the point to world space
                 float world_x;
                 float world_y;
@@ -171,13 +184,9 @@ static void add_cup_render_particles(const Cup &cup, int kind) {
     // Add the front wall surface
     for (float local_x = -0.5f * cup.width; local_x <= 0.5f * cup.width + 0.5f * CUP_RENDER_SPACING; local_x += CUP_RENDER_SPACING) {
         for (float local_y = 0.0f; local_y <= cup.height + 0.5f * CUP_RENDER_SPACING; local_y += CUP_RENDER_SPACING) {
-
-            // Convert the point to world space
             float world_x;
             float world_y;
             cup_local_to_world(cup, local_x, local_y, world_x, world_y);
-
-            // Add the front render particle
             add_boundary_particle(world_x, world_y, z_min, kind);
         }
     }
@@ -185,13 +194,9 @@ static void add_cup_render_particles(const Cup &cup, int kind) {
     // Add the back wall surface
     for (float local_x = -0.5f * cup.width; local_x <= 0.5f * cup.width + 0.5f * CUP_RENDER_SPACING; local_x += CUP_RENDER_SPACING) {
         for (float local_y = 0.0f; local_y <= cup.height + 0.5f * CUP_RENDER_SPACING; local_y += CUP_RENDER_SPACING) {
-
-            // Convert the point to world space
             float world_x;
             float world_y;
             cup_local_to_world(cup, local_x, local_y, world_x, world_y);
-
-            // Add the back render particle
             add_boundary_particle(world_x, world_y, z_max, kind);
         }
     }
@@ -212,21 +217,17 @@ static void add_fluid_in_source_cup() {
     for (float local_x = local_x_min; local_x <= local_x_max + 0.5f * INITIAL_PARTICLE_SPACING; local_x += INITIAL_PARTICLE_SPACING) {
         for (float local_y = local_y_min; local_y <= local_y_max + 0.5f * INITIAL_PARTICLE_SPACING; local_y += INITIAL_PARTICLE_SPACING) {
             for (float z = z_min; z <= z_max + 0.5f * INITIAL_PARTICLE_SPACING; z += INITIAL_PARTICLE_SPACING) {
-
-                // Convert the point to world space
                 float world_x;
                 float world_y;
                 cup_local_to_world(source_cup, local_x, local_y, world_x, world_y);
-
-                // Add the fluid particle
                 add_fluid_particle(world_x, world_y, z);
             }
         }
     }
 }
 
-// Build the current cup render particles
-static void rebuild_boundary_particles() {
+// Rebuild the render particles
+void rebuild_boundary_particles_for_export() {
 
     // Clear the old boundary particles
     boundary_particles.clear();
@@ -239,21 +240,27 @@ static void rebuild_boundary_particles() {
 }
 
 // Get the source tilt for one frame
-static float get_source_tilt_for_frame(int frame_index, float target_tilt_deg) {
+static float get_source_tilt_for_frame(float frame_index, float target_tilt_deg) {
+
+    // Force no tilt
+    if (DEBUG_NO_TILT) {
+        return 0.0f;
+    }
+
+    // Force static tilt
+    if (DEBUG_STATIC_TILT) {
+        return target_tilt_deg;
+    }
 
     // Hold the cup upright first
     if (frame_index < SETTLE_FRAMES) {
         return 0.0f;
     }
     else if (frame_index < (SETTLE_FRAMES + TILT_FRAMES)) {
-
-        // Blend from upright to the target angle
-        float alpha = static_cast<float>(frame_index - SETTLE_FRAMES) / static_cast<float>(TILT_FRAMES);
+        float alpha = (frame_index - static_cast<float>(SETTLE_FRAMES)) / static_cast<float>(TILT_FRAMES);
         return alpha * target_tilt_deg;
     }
     else {
-
-        // Hold the target angle
         return target_tilt_deg;
     }
 }
@@ -266,133 +273,113 @@ void initialize_scene(float target_tilt_deg) {
     boundary_particles.clear();
 
     // Reserve some room for the particles
-    fluid_particles.reserve(4000);
-    boundary_particles.reserve(40000);
+    fluid_particles.reserve(12000);
+    boundary_particles.reserve(80000);
 
-    // Build the cups upright
-    source_cup = make_cup(SOURCE_CUP_CENTER_X, SOURCE_CUP_CENTER_Y, SOURCE_CUP_CENTER_Z, SOURCE_CUP_WIDTH, SOURCE_CUP_HEIGHT, SOURCE_CUP_DEPTH, CUP_WALL_THICKNESS, 0.0f);
+    // Pick the starting source angle
+    float initial_source_tilt_deg = 0.0f;
+
+    if (DEBUG_STATIC_TILT) {
+        initial_source_tilt_deg = target_tilt_deg;
+    }
+
+    if (DEBUG_NO_TILT) {
+        initial_source_tilt_deg = 0.0f;
+    }
+
+    // Build the cups at their starting angles
+    source_cup = make_cup(SOURCE_CUP_CENTER_X, SOURCE_CUP_CENTER_Y, SOURCE_CUP_CENTER_Z, SOURCE_CUP_WIDTH, SOURCE_CUP_HEIGHT, SOURCE_CUP_DEPTH, CUP_WALL_THICKNESS, initial_source_tilt_deg);
     receiver_cup = make_cup(RECEIVER_CUP_CENTER_X, RECEIVER_CUP_CENTER_Y, RECEIVER_CUP_CENTER_Z, RECEIVER_CUP_WIDTH, RECEIVER_CUP_HEIGHT, RECEIVER_CUP_DEPTH, CUP_WALL_THICKNESS, 0.0f);
 
     // Add the starting fluid to the source cup
     add_fluid_in_source_cup();
 
     // Build the first boundary particles
-    update_scene_for_frame(0, target_tilt_deg);
+    rebuild_boundary_particles_for_export();
 }
 
 // Update the cups for one frame
-void update_scene_for_frame(int frame_index, float target_tilt_deg) {
+void update_scene_for_frame(float frame_index, float target_tilt_deg) {
 
-    // Get the current source tilt
+    // Build the current and previous source tilt
     float current_tilt_deg = get_source_tilt_for_frame(frame_index, target_tilt_deg);
+    float previous_frame_index = frame_index - 1.0f / static_cast<float>(SUBSTEPS_PER_FRAME);
+
+    if (previous_frame_index < 0.0f) {
+        previous_frame_index = 0.0f;
+    }
+
+    float previous_tilt_deg = get_source_tilt_for_frame(previous_frame_index, target_tilt_deg);
+
+    // Build the source angular velocity
+    float delta_theta_rad = (current_tilt_deg - previous_tilt_deg) * PI / 180.0f;
+    source_cup.angular_velocity = delta_theta_rad / DT;
+    receiver_cup.angular_velocity = 0.0f;
 
     // Update the cup angles
     update_cup_rotation(source_cup, current_tilt_deg);
     update_cup_rotation(receiver_cup, 0.0f);
-
-    // Rebuild the render particles
-    rebuild_boundary_particles();
 }
 
-// Resolve the cup bottom collision
-static void resolve_bottom_collision(Particle &particle, float &local_x, float &local_y, float &local_vx, float &local_vy, float inner_half_width, float inner_bottom, float inner_depth_min, float inner_depth_max) {
+// Reset the penetration stats
+void reset_penetration_stats() {
 
-    // Skip particles outside the cup opening
-    if ( (local_x < -inner_half_width) || (local_x > inner_half_width) ) {
-        return;
-    }
-
-    // Skip particles outside the cup depth
-    if ( (particle.z < inner_depth_min) || (particle.z > inner_depth_max) ) {
-        return;
-    }
-
-    // Push the particle above the bottom wall
-    if (local_y < inner_bottom) {
-        local_y = inner_bottom + WALL_EPS;
-
-        if (local_vy < 0.0f) {
-            local_vy = -local_vy * WALL_RESTITUTION;
-        }
-
-        local_vx *= WALL_TANGENTIAL_DAMPING;
-        particle.vz *= WALL_TANGENTIAL_DAMPING;
-    }
+    // Reset the two max values
+    max_source_penetration = 0.0f;
+    max_receiver_penetration = 0.0f;
+    below_source_bottom_count = 0;
+    below_receiver_bottom_count = 0;
+    inside_source_wall_count = 0;
+    inside_receiver_wall_count = 0;
 }
 
-// Resolve the cup side collision
-static void resolve_side_collision(Particle &particle, float &local_x, float &local_y, float &local_vx, float &local_vy, float inner_half_width, float inner_bottom, float inner_depth_min, float inner_depth_max) {
+// Print the penetration stats
+void print_penetration_stats(int frame_index) {
 
-    // Skip particles below the cup bottom or above the rim
-    if ( (local_y < inner_bottom) || (local_y > source_cup.height) ) {
-        return;
-    }
-
-    // Skip particles outside the cup depth
-    if ( (particle.z < inner_depth_min) || (particle.z > inner_depth_max) ) {
-        return;
-    }
-
-    // Push the particle off the left wall
-    if (local_x < -inner_half_width) {
-        local_x = -inner_half_width + WALL_EPS;
-
-        if (local_vx < 0.0f) {
-            local_vx = -local_vx * WALL_RESTITUTION;
-        }
-
-        local_vy *= WALL_TANGENTIAL_DAMPING;
-        particle.vz *= WALL_TANGENTIAL_DAMPING;
-    }
-
-    // Push the particle off the right wall
-    if (local_x > inner_half_width) {
-        local_x = inner_half_width - WALL_EPS;
-
-        if (local_vx > 0.0f) {
-            local_vx = -local_vx * WALL_RESTITUTION;
-        }
-
-        local_vy *= WALL_TANGENTIAL_DAMPING;
-        particle.vz *= WALL_TANGENTIAL_DAMPING;
-    }
+    // Print the values
+    std::cout << "Frame " << frame_index
+              << " | max_source_penetration = " << max_source_penetration
+              << " | max_receiver_penetration = " << max_receiver_penetration
+              << " | below_source_bottom_count = " << below_source_bottom_count
+              << " | below_receiver_bottom_count = " << below_receiver_bottom_count
+              << " | inside_source_wall_count = " << inside_source_wall_count
+              << " | inside_receiver_wall_count = " << inside_receiver_wall_count
+              << std::endl;
 }
 
-// Resolve the cup depth collision
-static void resolve_depth_collision(Particle &particle, float local_x, float local_y, float &local_vx, float &local_vy, float inner_half_width, float inner_bottom, float inner_depth_min, float inner_depth_max) {
+// Print the source cup setup stats
+void print_source_cup_setup_stats() {
 
-    // Skip particles outside the cup cavity
-    if ( (local_x < -inner_half_width) || (local_x > inner_half_width) ) {
-        return;
-    }
+    // Build the inner cup limits
+    float inner_left = -0.5f * source_cup.width + source_cup.wall_thickness;
+    float inner_right = 0.5f * source_cup.width - source_cup.wall_thickness;
+    float inner_bottom = source_cup.wall_thickness;
+    float inner_front = source_cup.center_z - 0.5f * source_cup.depth + source_cup.wall_thickness;
+    float inner_back = source_cup.center_z + 0.5f * source_cup.depth - source_cup.wall_thickness;
 
-    if ( (local_y < inner_bottom) || (local_y > source_cup.height) ) {
-        return;
-    }
+    // Start the counts
+    int outside_count = 0;
 
-    // Push the particle off the front wall
-    if (particle.z < inner_depth_min) {
-        particle.z = inner_depth_min + WALL_EPS;
+    // Check all fluid particles
+    for (const Particle &particle : fluid_particles) {
+        float local_x;
+        float local_y;
+        world_to_cup_local(source_cup, particle.x, particle.y, local_x, local_y);
 
-        if (particle.vz < 0.0f) {
-            particle.vz = -particle.vz * WALL_RESTITUTION;
+        bool outside_x = (local_x < inner_left) || (local_x > inner_right);
+        bool outside_y = (local_y < inner_bottom) || (local_y > source_cup.height);
+        bool outside_z = (particle.z < inner_front) || (particle.z > inner_back);
+
+        if (outside_x || outside_y || outside_z) {
+            outside_count++;
         }
-
-        local_vx *= WALL_TANGENTIAL_DAMPING;
-        local_vy *= WALL_TANGENTIAL_DAMPING;
     }
 
-    // Push the particle off the back wall
-    if (particle.z > inner_depth_max) {
-        particle.z = inner_depth_max - WALL_EPS;
-
-        if (particle.vz > 0.0f) {
-            particle.vz = -particle.vz * WALL_RESTITUTION;
-        }
-
-        local_vx *= WALL_TANGENTIAL_DAMPING;
-        local_vy *= WALL_TANGENTIAL_DAMPING;
-    }
+    // Print the values
+    std::cout << "Initial source cup check"
+              << " | fluid_count = " << fluid_particles.size()
+              << " | outside_count = " << outside_count
+              << std::endl;
 }
 
 // Push one fluid particle out of one cup wall
@@ -401,6 +388,17 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
     // Skip boundary particles
     if (particle.is_boundary) {
         return;
+    }
+
+    // Pick the right debug values
+    float *max_penetration = &max_receiver_penetration;
+    int *below_bottom_count = &below_receiver_bottom_count;
+    int *inside_wall_count = &inside_receiver_wall_count;
+
+    if (&cup == &source_cup) {
+        max_penetration = &max_source_penetration;
+        below_bottom_count = &below_source_bottom_count;
+        inside_wall_count = &inside_source_wall_count;
     }
 
     // Move the particle into the cup frame
@@ -413,16 +411,178 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
     float local_vy;
     world_velocity_to_cup_local(cup, particle.vx, particle.vy, local_vx, local_vy);
 
-    // Build the inner cup limits
-    float inner_half_width = 0.5f * cup.width - cup.wall_thickness;
-    float inner_bottom = cup.wall_thickness;
-    float inner_depth_min = cup.center_z - 0.5f * cup.depth + cup.wall_thickness;
-    float inner_depth_max = cup.center_z + 0.5f * cup.depth - cup.wall_thickness;
+    // Build the cup bounds
+    float outer_left = -0.5f * cup.width;
+    float outer_right = 0.5f * cup.width;
+    float outer_bottom = 0.0f;
+    float outer_top = cup.height;
+    float outer_front = cup.center_z - 0.5f * cup.depth;
+    float outer_back = cup.center_z + 0.5f * cup.depth;
 
-    // Resolve the three cup directions
-    resolve_bottom_collision(particle, local_x, local_y, local_vx, local_vy, inner_half_width, inner_bottom, inner_depth_min, inner_depth_max);
-    resolve_side_collision(particle, local_x, local_y, local_vx, local_vy, inner_half_width, inner_bottom, inner_depth_min, inner_depth_max);
-    resolve_depth_collision(particle, local_x, local_y, local_vx, local_vy, inner_half_width, inner_bottom, inner_depth_min, inner_depth_max);
+    float inner_left = outer_left + cup.wall_thickness;
+    float inner_right = outer_right - cup.wall_thickness;
+    float inner_bottom = outer_bottom + cup.wall_thickness;
+    float inner_front = outer_front + cup.wall_thickness;
+    float inner_back = outer_back - cup.wall_thickness;
+
+    // Count particles below the bottom slab region before correction
+    if ( (local_x >= outer_left) && (local_x <= outer_right) && (particle.z >= outer_front) && (particle.z <= outer_back) && (local_y < inner_bottom - 1e-4f) ) {
+        (*below_bottom_count)++;
+    }
+
+    // Build the wall candidates
+    float best_penetration = 1e30f;
+    int best_wall = 0;
+
+    // Check the bottom slab
+    if ( (local_x >= outer_left) && (local_x <= outer_right) && (particle.z >= outer_front) && (particle.z <= outer_back) && (local_y < inner_bottom) ) {
+        float penetration = inner_bottom - local_y;
+
+        if (penetration < best_penetration) {
+            best_penetration = penetration;
+            best_wall = 1;
+        }
+    }
+
+    // Check the left slab
+    if ( (local_y >= outer_bottom) && (local_y <= outer_top) && (particle.z >= outer_front) && (particle.z <= outer_back) && (local_x < inner_left) ) {
+        float penetration = inner_left - local_x;
+
+        if (penetration < best_penetration) {
+            best_penetration = penetration;
+            best_wall = 2;
+        }
+    }
+
+    // Check the right slab
+    if ( (local_y >= outer_bottom) && (local_y <= outer_top) && (particle.z >= outer_front) && (particle.z <= outer_back) && (local_x > inner_right) ) {
+        float penetration = local_x - inner_right;
+
+        if (penetration < best_penetration) {
+            best_penetration = penetration;
+            best_wall = 3;
+        }
+    }
+
+    // Check the front slab
+    if ( (local_x >= outer_left) && (local_x <= outer_right) && (local_y >= outer_bottom) && (local_y <= outer_top) && (particle.z < inner_front) ) {
+        float penetration = inner_front - particle.z;
+
+        if (penetration < best_penetration) {
+            best_penetration = penetration;
+            best_wall = 4;
+        }
+    }
+
+    // Check the back slab
+    if ( (local_x >= outer_left) && (local_x <= outer_right) && (local_y >= outer_bottom) && (local_y <= outer_top) && (particle.z > inner_back) ) {
+        float penetration = particle.z - inner_back;
+
+        if (penetration < best_penetration) {
+            best_penetration = penetration;
+            best_wall = 5;
+        }
+    }
+
+    // Count particles inside the wall solid
+    if (best_wall != 0) {
+        (*inside_wall_count)++;
+        *max_penetration = std::max(*max_penetration, best_penetration);
+    }
+
+    // Resolve the chosen wall
+    if (best_wall == 1) {
+
+        // Push out of the bottom wall
+        local_y = inner_bottom + WALL_EPS;
+
+        // Build the wall velocity
+        float wall_vx;
+        float wall_vy;
+        get_local_wall_velocity(cup, local_x, local_y, wall_vx, wall_vy);
+
+        // Build the relative normal velocity
+        float relative_vy = local_vy - wall_vy;
+
+        if (relative_vy < 0.0f) {
+            local_vy = wall_vy - WALL_RESTITUTION * relative_vy;
+        }
+
+        // Dampen the tangential relative velocity
+        local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
+    }
+    else if (best_wall == 2) {
+
+        // Push out of the left wall
+        local_x = inner_left + WALL_EPS;
+
+        // Build the wall velocity
+        float wall_vx;
+        float wall_vy;
+        get_local_wall_velocity(cup, local_x, local_y, wall_vx, wall_vy);
+
+        // Build the relative normal velocity
+        float relative_vx = local_vx - wall_vx;
+
+        if (relative_vx < 0.0f) {
+            local_vx = wall_vx - WALL_RESTITUTION * relative_vx;
+        }
+
+        // Dampen the tangential relative velocity
+        local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    }
+    else if (best_wall == 3) {
+
+        // Push out of the right wall
+        local_x = inner_right - WALL_EPS;
+
+        // Build the wall velocity
+        float wall_vx;
+        float wall_vy;
+        get_local_wall_velocity(cup, local_x, local_y, wall_vx, wall_vy);
+
+        // Build the relative normal velocity
+        float relative_vx = local_vx - wall_vx;
+
+        if (relative_vx > 0.0f) {
+            local_vx = wall_vx - WALL_RESTITUTION * relative_vx;
+        }
+
+        // Dampen the tangential relative velocity
+        local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    }
+    else if (best_wall == 4) {
+
+        // Push out of the front wall
+        particle.z = inner_front + WALL_EPS;
+
+        if (particle.vz < 0.0f) {
+            particle.vz = -particle.vz * WALL_RESTITUTION;
+        }
+
+        float wall_vx;
+        float wall_vy;
+        get_local_wall_velocity(cup, local_x, local_y, wall_vx, wall_vy);
+
+        local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
+        local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    }
+    else if (best_wall == 5) {
+
+        // Push out of the back wall
+        particle.z = inner_back - WALL_EPS;
+
+        if (particle.vz > 0.0f) {
+            particle.vz = -particle.vz * WALL_RESTITUTION;
+        }
+
+        float wall_vx;
+        float wall_vy;
+        get_local_wall_velocity(cup, local_x, local_y, wall_vx, wall_vy);
+
+        local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
+        local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    }
 
     // Move the particle back to world space
     cup_local_to_world(cup, local_x, local_y, particle.x, particle.y);

@@ -22,12 +22,15 @@ struct Particle {
 
 // Set the main simulation length
 const int FRAME_COUNT = 1000;
-const int SUBSTEPS_PER_FRAME = 8;
+const int SUBSTEPS_PER_FRAME = 20;
 const int EXPORT_EVERY = 1;
 
 // Set the random jitter scales
-const float POS_JITTER_CONST = 0.3f;
-const float VEL_JITTER_CONST = 0.05f;
+const float POS_JITTER_CONST = 0.0f;
+const float VEL_JITTER_CONST = 0.0f;
+
+//const float POS_JITTER_CONST = 0.3f;
+//const float VEL_JITTER_CONST = 0.05f;
 
 // Set the fluid physics values
 const float H_DENS = 0.13f;
@@ -35,7 +38,7 @@ const float H_FORCE = 0.05f;
 const float GRAVITY = -9.81f;
 const float DT = 0.0003f;
 const float PI = 3.1415926535f;
-const float MASS = 0.1f;
+const float MASS = 0.0025f;
 const float REST_DENS = 900.0f;
 const float GAS_CONST = 60.0f;
 const float VISCOSITY = 30.0f;
@@ -55,8 +58,8 @@ const float BOX_Y_MAX = 2.0f;
 const float BOX_Z_MIN = 0.0f;
 const float BOX_Z_MAX = 0.7f;
 const float WALL_EPS = 0.002f;
-const float WALL_RESTITUTION = 0.8f;
-const float WALL_TANGENTIAL_DAMPING = 0.995f;
+const float WALL_RESTITUTION = 0.0f;
+const float WALL_TANGENTIAL_DAMPING = 0.98f;
 
 // Share the fluid particles
 extern std::vector<Particle> fluid_particles;
@@ -78,5 +81,8 @@ void print_stats(int frame_index);
 
 // Print the initial stats
 void print_initial_density_stats();
+
+// Print fluid only stats
+void print_fluid_only_stats(const std::string &label);
 
 #endif

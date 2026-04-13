@@ -135,9 +135,7 @@ static void apply_world_box_collision(Particle &particle) {
         particle.vy *= WALL_TANGENTIAL_DAMPING;
         particle.vz *= WALL_TANGENTIAL_DAMPING;
     }
-
-    // Resolve the right wall
-    if (particle.x > BOX_X_MAX) {
+    else if (particle.x > BOX_X_MAX) {
         particle.x = BOX_X_MAX - WALL_EPS;
 
         if (particle.vx > 0.0f) {
@@ -148,7 +146,7 @@ static void apply_world_box_collision(Particle &particle) {
         particle.vz *= WALL_TANGENTIAL_DAMPING;
     }
 
-    // Resolve the floor
+    // Resolve the floor and ceiling
     if (particle.y < BOX_Y_MIN) {
         particle.y = BOX_Y_MIN + WALL_EPS;
 
@@ -159,9 +157,7 @@ static void apply_world_box_collision(Particle &particle) {
         particle.vx *= WALL_TANGENTIAL_DAMPING;
         particle.vz *= WALL_TANGENTIAL_DAMPING;
     }
-
-    // Resolve the ceiling
-    if (particle.y > BOX_Y_MAX) {
+    else if (particle.y > BOX_Y_MAX) {
         particle.y = BOX_Y_MAX - WALL_EPS;
 
         if (particle.vy > 0.0f) {
@@ -172,7 +168,7 @@ static void apply_world_box_collision(Particle &particle) {
         particle.vz *= WALL_TANGENTIAL_DAMPING;
     }
 
-    // Resolve the front wall
+    // Resolve the front and back walls
     if (particle.z < BOX_Z_MIN) {
         particle.z = BOX_Z_MIN + WALL_EPS;
 
@@ -183,9 +179,7 @@ static void apply_world_box_collision(Particle &particle) {
         particle.vx *= WALL_TANGENTIAL_DAMPING;
         particle.vy *= WALL_TANGENTIAL_DAMPING;
     }
-
-    // Resolve the back wall
-    if (particle.z > BOX_Z_MAX) {
+    else if (particle.z > BOX_Z_MAX) {
         particle.z = BOX_Z_MAX - WALL_EPS;
 
         if (particle.vz > 0.0f) {
@@ -229,11 +223,25 @@ void integrate_fluid_particles() {
 
         // Resolve the world box collisions
         apply_world_box_collision(particle);
+
+        // Clamp extreme particle speeds
+        float speed = std::sqrt(particle.vx * particle.vx + particle.vy * particle.vy + particle.vz * particle.vz);
+        const float MAX_SPEED = 2.0f;
+
+        if (speed > MAX_SPEED) {
+            float scale = MAX_SPEED / speed;
+            particle.vx *= scale;
+            particle.vy *= scale;
+            particle.vz *= scale;
+        }
     }
 }
 
 // Export the scene to csv
 void export_csv(int frame_index) {
+
+    // Build the current boundary particles
+    rebuild_boundary_particles_for_export();
 
     // Build the output file name
     std::string frame_string = std::to_string(frame_index);
@@ -338,6 +346,68 @@ void print_initial_density_stats() {
               << std::endl;
 }
 
+// Print fluid only stats
+void print_fluid_only_stats(const std::string &label) {
+
+    // Skip the stats when there is no fluid
+    if (fluid_particles.empty()) {
+        std::cout << label << " | no fluid particles" << std::endl;
+        return;
+    }
+
+    // Start the stat values
+    float min_rho = fluid_particles[0].rho;
+    float max_rho = fluid_particles[0].rho;
+    float min_p = fluid_particles[0].p;
+    float max_p = fluid_particles[0].p;
+    float min_speed = std::sqrt(fluid_particles[0].vx * fluid_particles[0].vx + fluid_particles[0].vy * fluid_particles[0].vy + fluid_particles[0].vz * fluid_particles[0].vz);
+    float max_speed = min_speed;
+    float sum_rho = 0.0f;
+    float sum_p = 0.0f;
+    float sum_speed = 0.0f;
+    int rho_floor_count = 0;
+    int zero_pressure_count = 0;
+
+    // Accumulate the stats
+    for (const Particle &particle : fluid_particles) {
+        float speed = std::sqrt(particle.vx * particle.vx + particle.vy * particle.vy + particle.vz * particle.vz);
+
+        min_rho = std::min(min_rho, particle.rho);
+        max_rho = std::max(max_rho, particle.rho);
+        min_p = std::min(min_p, particle.p);
+        max_p = std::max(max_p, particle.p);
+        min_speed = std::min(min_speed, speed);
+        max_speed = std::max(max_speed, speed);
+
+        sum_rho += particle.rho;
+        sum_p += particle.p;
+        sum_speed += speed;
+
+        if (particle.rho <= (REST_DENS * 0.1f + 1e-4f)) {
+            rho_floor_count++;
+        }
+
+        if (particle.p <= 1e-4f) {
+            zero_pressure_count++;
+        }
+    }
+
+    // Build the averages
+    float avg_rho = sum_rho / static_cast<float>(fluid_particles.size());
+    float avg_p = sum_p / static_cast<float>(fluid_particles.size());
+    float avg_speed = sum_speed / static_cast<float>(fluid_particles.size());
+
+    // Print the values
+    std::cout << label
+              << " | fluid_count = " << fluid_particles.size()
+              << " | rho = [" << min_rho << ", " << max_rho << "] avg = " << avg_rho
+              << " | p = [" << min_p << ", " << max_p << "] avg = " << avg_p
+              << " | speed = [" << min_speed << ", " << max_speed << "] avg = " << avg_speed
+              << " | rho_floor_count = " << rho_floor_count
+              << " | zero_pressure_count = " << zero_pressure_count
+              << std::endl;
+}
+
 // Run the full simulation
 int main(int argc, char **argv) {
 
@@ -357,7 +427,11 @@ int main(int argc, char **argv) {
     // Build the initial scene
     std::cout << "Generate the cup scene with target tilt = " << target_tilt_deg << std::endl;
     initialize_scene(target_tilt_deg);
+
+    // Print the initial stats
     print_initial_density_stats();
+    print_fluid_only_stats("Frame 0 fluid stats");
+    print_source_cup_setup_stats();
 
     // Print the particle counts
     std::cout << "Fluid particles = " << fluid_particles.size() << std::endl;
@@ -369,11 +443,17 @@ int main(int argc, char **argv) {
     // Run the frame loop
     for (int frame_index = 1; frame_index <= FRAME_COUNT; frame_index++) {
 
-        // Update the scene for this frame
-        update_scene_for_frame(frame_index, target_tilt_deg);
+        // Reset the penetration stats
+        reset_penetration_stats();
 
         // Run the substeps
         for (int step_index = 0; step_index < SUBSTEPS_PER_FRAME; step_index++) {
+
+            // Update the scene for this substep
+            float substep_frame_index = static_cast<float>(frame_index - 1) + static_cast<float>(step_index + 1) / static_cast<float>(SUBSTEPS_PER_FRAME);
+            update_scene_for_frame(substep_frame_index, target_tilt_deg);
+
+            // Run the fluid step
             compute_density_pressure();
             compute_forces();
             integrate_fluid_particles();
@@ -387,6 +467,8 @@ int main(int argc, char **argv) {
         // Print the stats sometimes
         if (frame_index % 20 == 0) {
             print_stats(frame_index);
+            print_fluid_only_stats("Frame " + std::to_string(frame_index) + " fluid stats");
+            print_penetration_stats(frame_index);
         }
     }
 

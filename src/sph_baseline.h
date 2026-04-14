@@ -26,7 +26,7 @@ const int SUBSTEPS_PER_FRAME = 20;
 const int EXPORT_EVERY = 1;
 
 // Set the random jitter scales
-const float POS_JITTER_CONST = 0.25f;
+const float POS_JITTER_CONST = 0.05f;
 const float VEL_JITTER_CONST = 0.0f;
 
 //const float POS_JITTER_CONST = 0.3f;
@@ -37,12 +37,12 @@ const float H = 0.04f;
 const float H_DENS = H;
 const float H_FORCE = H;
 const float GRAVITY = -9.81f;
-const float DT = 0.0003f;
+const float DT = 0.0002f;
 const float PI = 3.1415926535f;
-const float MASS = 0.0009f;
+const float MASS = 0.0012f;
 const float REST_DENS = 900.0f;
-const float GAS_CONST = 60.0f;
-const float VISCOSITY = 5.0f;
+const float GAS_CONST = 180.0f;
+const float VISCOSITY = 10.0f;
 const float EPS = 1e-6f;
 const float VELOCITY_DAMPING = 0.9995f;
 

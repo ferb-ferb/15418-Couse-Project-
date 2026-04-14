@@ -35,15 +35,15 @@ const float RECEIVER_CUP_DEPTH = 0.20f;
 const float CUP_WALL_THICKNESS = 0.025f;
 
 // Set the cup positions
-const float SOURCE_CUP_CENTER_X = 0.14f;
-const float SOURCE_CUP_CENTER_Y = 0.32f;
+const float SOURCE_CUP_CENTER_X = 0.18f;
+const float SOURCE_CUP_CENTER_Y = 0.44f;
 const float SOURCE_CUP_CENTER_Z = 0.35f;
 const float RECEIVER_CUP_CENTER_X = 0.43f;
 const float RECEIVER_CUP_CENTER_Y = 0.08f;
 const float RECEIVER_CUP_CENTER_Z = 0.35f;
 
 // Set the fluid fill and render spacing
-const float SOURCE_FILL_RATIO = 0.90f;
+const float SOURCE_FILL_RATIO = 0.80f;
 const float INITIAL_PARTICLE_SPACING = 0.01f;
 const float CUP_RENDER_SPACING = 0.003f;
 

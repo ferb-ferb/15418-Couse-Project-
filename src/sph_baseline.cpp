@@ -266,7 +266,8 @@ void export_csv(int frame_index) {
     // Build the output file name
     std::string frame_string = std::to_string(frame_index);
     frame_string = std::string(4 - frame_string.length(), '0') + frame_string;
-    std::string file_name = "/tmp/athanf/frame_" + frame_string + ".csv";
+    std::string file_name = "output/frame_" + frame_string + ".csv";
+    //std::string file_name = "/tmp/athanf/frame_" + frame_string + ".csv";
 
     // Open the output file
     std::ofstream file(file_name);
@@ -426,74 +427,6 @@ void print_fluid_only_stats(const std::string &label) {
               << " | rho_floor_count = " << rho_floor_count
               << " | zero_pressure_count = " << zero_pressure_count
               << std::endl;
-}
-
-// Run the full simulation
-int main(int argc, char **argv) {
-
-    // Seed the random generator
-    srand(0);
-
-    // Read the target tilt angle
-    float target_tilt_deg = 0.0f;
-
-    if (argc >= 2) {
-        target_tilt_deg = std::stof(argv[1]);
-    }
-
-    // Clamp the target tilt angle
-    target_tilt_deg = std::max(0.0f, std::min(180.0f, target_tilt_deg));
-
-    // Build the initial scene
-    std::cout << "Generate the cup scene with target tilt = " << target_tilt_deg << std::endl;
-    initialize_scene(target_tilt_deg);
-
-    // Print the initial stats
-    print_initial_density_stats();
-    print_fluid_only_stats("Frame 0 fluid stats");
-    print_source_cup_setup_stats();
-
-    // Print the particle counts
-    std::cout << "Fluid particles = " << fluid_particles.size() << std::endl;
-    std::cout << "Boundary particles = " << boundary_particles.size() << std::endl;
-
-    // Export the first frame
-    export_csv(0);
-
-    // Run the frame loop
-    for (int frame_index = 1; frame_index <= FRAME_COUNT; frame_index++) {
-
-        // Reset the penetration stats
-        reset_penetration_stats();
-
-        // Run the substeps
-        for (int step_index = 0; step_index < SUBSTEPS_PER_FRAME; step_index++) {
-
-            // Update the scene for this substep
-            float substep_frame_index = static_cast<float>(frame_index - 1) + static_cast<float>(step_index + 1) / static_cast<float>(SUBSTEPS_PER_FRAME);
-            update_scene_for_frame(substep_frame_index, target_tilt_deg);
-
-            // Run the fluid step
-            compute_density_pressure();
-            compute_forces();
-            integrate_fluid_particles();
-        }
-
-        // Export this frame when needed
-        if (frame_index % EXPORT_EVERY == 0) {
-            export_csv(frame_index / EXPORT_EVERY);
-        }
-
-        // Print the stats sometimes
-        if (frame_index % 20 == 0) {
-            print_stats(frame_index);
-            print_fluid_only_stats("Frame " + std::to_string(frame_index) + " fluid stats");
-            print_penetration_stats(frame_index);
-        }
-    }
-
-    std::cout << "Done" << std::endl;
-    return 0;
 }
 
 // Run the full simulation

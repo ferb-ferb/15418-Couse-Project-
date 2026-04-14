@@ -26,6 +26,12 @@ const float SOURCE_CUP_DEPTH = 0.18f;
 const float RECEIVER_CUP_WIDTH = 0.18f;
 const float RECEIVER_CUP_HEIGHT = 0.16f;
 const float RECEIVER_CUP_DEPTH = 0.20f;
+// const float SOURCE_CUP_WIDTH = 0.105f;
+// const float SOURCE_CUP_HEIGHT = 0.15f;
+// const float SOURCE_CUP_DEPTH = 0.135f;
+// const float RECEIVER_CUP_WIDTH = 0.135f;
+// const float RECEIVER_CUP_HEIGHT = 0.12f;
+// const float RECEIVER_CUP_DEPTH = 0.15f;
 const float CUP_WALL_THICKNESS = 0.025f;
 
 // Set the cup positions

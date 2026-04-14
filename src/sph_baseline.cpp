@@ -41,26 +41,26 @@ void compute_density_pressure() {
             float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
             particle_i.rho += MASS * POLY6 * weight;
         }
-        for (const Particle &particle_j : boundary_particles) {
-
-          // Build the particle offset
-          float dx = particle_j.x - particle_i.x;
-          float dy = particle_j.y - particle_i.y;
-          float dz = particle_j.z - particle_i.z;
-
-          // Build the squared distance
-          float r2 = dx * dx + dy * dy + dz * dz;
-
-          // Skip particles outside the density radius
-          if (r2 >= H_DENS * H_DENS) {
-            continue;
-          }
-
-          // Add the density weight
-          float h2_minus_r2 = H_DENS * H_DENS - r2;
-          float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-          particle_i.rho += MASS * POLY6 * weight;
-        }
+        // for (const Particle &particle_j : boundary_particles) {
+        //
+        //   // Build the particle offset
+        //   float dx = particle_j.x - particle_i.x;
+        //   float dy = particle_j.y - particle_i.y;
+        //   float dz = particle_j.z - particle_i.z;
+        //
+        //   // Build the squared distance
+        //   float r2 = dx * dx + dy * dy + dz * dz;
+        //
+        //   // Skip particles outside the density radius
+        //   if (r2 >= H_DENS * H_DENS) {
+        //     continue;
+        //   }
+        //
+        //   // Add the density weight
+        //   float h2_minus_r2 = H_DENS * H_DENS - r2;
+        //   float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
+        //   particle_i.rho += MASS * POLY6 * weight;
+        // }
 
         // Clamp the density
         particle_i.rho = std::max(particle_i.rho, REST_DENS * 0.1f);

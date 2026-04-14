@@ -20,19 +20,19 @@ struct Cup {
 };
 
 // Set the cup sizes
-// const float SOURCE_CUP_WIDTH = 0.14f;
-// const float SOURCE_CUP_HEIGHT = 0.20f;
-// const float SOURCE_CUP_DEPTH = 0.18f;
-// const float RECEIVER_CUP_WIDTH = 0.18f;
-// const float RECEIVER_CUP_HEIGHT = 0.16f;
-// const float RECEIVER_CUP_DEPTH = 0.20f;
-const float SOURCE_CUP_WIDTH = 0.105f;
-const float SOURCE_CUP_HEIGHT = 0.15f;
-const float SOURCE_CUP_DEPTH = 0.135f;
-const float RECEIVER_CUP_WIDTH = 0.135f;
-const float RECEIVER_CUP_HEIGHT = 0.12f;
-const float RECEIVER_CUP_DEPTH = 0.15f;
-const float CUP_WALL_THICKNESS = 0.025f;
+const float SOURCE_CUP_WIDTH = 0.14f;
+const float SOURCE_CUP_HEIGHT = 0.20f;
+const float SOURCE_CUP_DEPTH = 0.18f;
+const float RECEIVER_CUP_WIDTH = 0.18f;
+const float RECEIVER_CUP_HEIGHT = 0.16f;
+const float RECEIVER_CUP_DEPTH = 0.20f;
+// const float SOURCE_CUP_WIDTH = 0.105f;
+// const float SOURCE_CUP_HEIGHT = 0.15f;
+// const float SOURCE_CUP_DEPTH = 0.135f;
+// const float RECEIVER_CUP_WIDTH = 0.135f;
+// const float RECEIVER_CUP_HEIGHT = 0.12f;
+// const float RECEIVER_CUP_DEPTH = 0.15f;
+// const float CUP_WALL_THICKNESS = 0.025f;
 
 // Set the cup positions
 const float SOURCE_CUP_CENTER_X = 0.14f;

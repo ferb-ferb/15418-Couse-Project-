@@ -5,20 +5,23 @@
 #include <vector>
 
 struct Particle {
-    float x;
-    float y;
-    float z;
-    float vx;
-    float vy;
-    float vz;
-    float fx;
-    float fy;
-    float fz;
-    float rho;
-    float p;
-    bool is_boundary;
-    int kind;
+  float x;
+  float y;
+  float z;
+  float vx;
+  float vy;
+  float vz;
+  float fx;
+  float fy;
+  float fz;
+  float rho;
+  float p;
+  bool is_boundary;
+  int kind;
 };
+
+const int MAX_FLUID_PARTICLES = 20000;
+const int MAX_BOUNDARY_PARTICLES = 20000;
 
 // Set the main simulation length
 const int FRAME_COUNT = 1000;
@@ -29,8 +32,8 @@ const int EXPORT_EVERY = 1;
 const float POS_JITTER_CONST = 0.05f;
 const float VEL_JITTER_CONST = 0.0f;
 
-//const float POS_JITTER_CONST = 0.3f;
-//const float VEL_JITTER_CONST = 0.05f;
+// const float POS_JITTER_CONST = 0.3f;
+// const float VEL_JITTER_CONST = 0.05f;
 
 // Set the fluid physics values
 const float H = 0.04f;
@@ -47,9 +50,12 @@ const float EPS = 1e-6f;
 const float VELOCITY_DAMPING = 0.9995f;
 
 // Set the kernel values
-const float POLY6 = 315.0f / (64.0f * PI * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS);
-const float SPIKY_GRAD = -45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
-const float VISC_LAP = 45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
+const float POLY6 = 315.0f / (64.0f * PI * H_DENS * H_DENS * H_DENS * H_DENS *
+                              H_DENS * H_DENS * H_DENS * H_DENS * H_DENS);
+const float SPIKY_GRAD =
+    -45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
+const float VISC_LAP =
+    45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
 
 // Set the world box
 const float BOX_X_MIN = 0.0f;
@@ -63,8 +69,8 @@ const float WALL_RESTITUTION = 0.0f;
 const float WALL_TANGENTIAL_DAMPING = 0.98f;
 
 // Share the fluid particles
-extern std::vector<Particle> fluid_particles;
-
+extern Particle *fluid_particles;
+extern int num_fluid_particles;
 // Run the density pass
 void compute_density_pressure();
 

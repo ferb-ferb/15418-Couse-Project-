@@ -6,17 +6,17 @@
 #include "sph_baseline.h"
 
 struct Cup {
-    float center_x;
-    float center_y;
-    float center_z;
-    float width;
-    float height;
-    float depth;
-    float wall_thickness;
-    float tilt_deg;
-    float cos_t;
-    float sin_t;
-    float angular_velocity;
+  float center_x;
+  float center_y;
+  float center_z;
+  float width;
+  float height;
+  float depth;
+  float wall_thickness;
+  float tilt_deg;
+  float cos_t;
+  float sin_t;
+  float angular_velocity;
 };
 
 // Set the cup sizes
@@ -32,7 +32,7 @@ const float RECEIVER_CUP_DEPTH = 0.20f;
 // const float RECEIVER_CUP_WIDTH = 0.135f;
 // const float RECEIVER_CUP_HEIGHT = 0.12f;
 // const float RECEIVER_CUP_DEPTH = 0.15f;
-const float CUP_WALL_THICKNESS = 0.025f;
+const float CUP_WALL_THICKNESS = 0.03f;
 
 // Set the cup positions
 const float SOURCE_CUP_CENTER_X = 0.18f;
@@ -45,7 +45,7 @@ const float RECEIVER_CUP_CENTER_Z = 0.35f;
 // Set the fluid fill and render spacing
 const float SOURCE_FILL_RATIO = 0.80f;
 const float INITIAL_PARTICLE_SPACING = 0.01f;
-const float CUP_RENDER_SPACING = 0.003f;
+const float CUP_RENDER_SPACING = 0.01f; // 0.003f;
 
 // Set the tilt schedule
 const int SETTLE_FRAMES = 100;
@@ -61,7 +61,8 @@ extern Cup receiver_cup;
 extern std::vector<Particle> boundary_particles;
 
 // Build one cup
-Cup make_cup(float center_x, float center_y, float center_z, float width, float height, float depth, float wall_thickness, float tilt_deg);
+Cup make_cup(float center_x, float center_y, float center_z, float width,
+             float height, float depth, float wall_thickness, float tilt_deg);
 
 // Update one cup rotation
 void update_cup_rotation(Cup &cup, float tilt_deg);

@@ -148,7 +148,7 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   float p_i_vx = fluid_particles[i].vx;
   float p_i_vy = fluid_particles[i].vy;
   float p_i_vz = fluid_particles[i].vz;
-  // float p_i_rho = fluid_particles[i].rho;
+  float p_i_rho = fluid_particles[i].rho;
   float p_i_p = fluid_particles[i].p;
 
   float fx = 0.0f;
@@ -159,10 +159,9 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   for (int j = 0; j < num_fluid_particles; j++) {
     if (i == j)
       continue; // Don't interact with yourself
-
-    float dx = p_i_x - fluid_particles[j].x; // Note direction of dx,dy,dz!
-    float dy = p_i_y - fluid_particles[j].y;
-    float dz = p_i_z - fluid_particles[j].z;
+    float dx = fluid_particles[j].x - p_i_x;
+    float dy = fluid_particles[j].y - p_i_y;
+    float dz = fluid_particles[j].z - p_i_z;
     float r2 = dx * dx + dy * dy + dz * dz;
 
     // NORMAL CHECKS R AGAINST EPS
@@ -190,7 +189,8 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   // pattern)
 
   // Add Gravity
-  fy += GRAVITY * MASS;
+  // fy += GRAVITY * MASS;
+  // fy += GRAVITY * p_i_rho;
 
   // Write back to global memory
   fluid_particles[i].fx = fx;
@@ -344,54 +344,88 @@ static void apply_world_box_collision(Particle &particle) {
   }
 }
 
-// Move the fluid particles
 void integrate_fluid_particles() {
-
-  // Loop over the fluid particles
   for (int i = 0; i < num_fluid_particles; i++) {
-    Particle &particle = fluid_particles[i];
+    // THE '&' HERE IS THE MOST IMPORTANT CHARACTER IN THIS FILE!
+    // Without it, you are modifying a copy, not the actual global array!
+    Particle &p = fluid_particles[i];
 
-    // Build the acceleration
-    float ax = particle.fx / std::max(particle.rho, EPS);
-    float ay = particle.fy / std::max(particle.rho, EPS);
-    float az = particle.fz / std::max(particle.rho, EPS);
+    // 1. Calculate Acceleration (a = F / density)
+    float ax = p.fx / p.rho;
+    float ay = p.fy / p.rho;
+    float az = p.fz / p.rho;
 
-    // Update the velocity
-    particle.vx += ax * DT;
-    particle.vy += ay * DT;
-    particle.vz += az * DT;
+    // 2. IDIOT-PROOF GRAVITY: Just add it directly here so we KNOW it works
+    ay += GRAVITY;
 
-    // Dampen the velocity
-    particle.vx *= VELOCITY_DAMPING;
-    particle.vy *= VELOCITY_DAMPING;
-    particle.vz *= VELOCITY_DAMPING;
+    // 3. Update Velocities
+    p.vx += ax * DT;
+    p.vy += ay * DT;
+    p.vz += az * DT;
 
-    // Update the position
-    particle.x += particle.vx * DT;
-    particle.y += particle.vy * DT;
-    particle.z += particle.vz * DT;
+    // Apply Damping
+    p.vx *= VELOCITY_DAMPING;
+    p.vy *= VELOCITY_DAMPING;
+    p.vz *= VELOCITY_DAMPING;
 
-    // Resolve the cup collisions
-    resolve_cup_collision(particle, source_cup);
-    resolve_cup_collision(particle, receiver_cup);
+    // 4. Update Positions
+    p.x += p.vx * DT;
+    p.y += p.vy * DT;
+    p.z += p.vz * DT;
 
-    // Resolve the world box collisions
-    apply_world_box_collision(particle);
-
-    // Clamp extreme particle speeds
-    float speed =
-        std::sqrt(particle.vx * particle.vx + particle.vy * particle.vy +
-                  particle.vz * particle.vz);
-    const float MAX_SPEED = 2000000.0f;
-
-    if (speed > MAX_SPEED) {
-      float scale = MAX_SPEED / speed;
-      particle.vx *= scale;
-      particle.vy *= scale;
-      particle.vz *= scale;
-    }
+    // 5. Boundary collisions (This is what was bulldozing the water!)
+    resolve_cup_collision(p, source_cup);
+    resolve_cup_collision(p, receiver_cup);
   }
 }
+// // Move the fluid particles
+// void integrate_fluid_particles() {
+//
+//   // Loop over the fluid particles
+//   for (int i = 0; i < num_fluid_particles; i++) {
+//     Particle &particle = fluid_particles[i];
+//
+//     // Build the acceleration
+//     float ax = particle.fx / std::max(particle.rho, EPS);
+//     float ay = particle.fy / std::max(particle.rho, EPS);
+//     float az = particle.fz / std::max(particle.rho, EPS);
+//
+//     // Update the velocity
+//     particle.vx += ax * DT;
+//     particle.vy += ay * DT;
+//     particle.vz += az * DT;
+//
+//     // Dampen the velocity
+//     particle.vx *= VELOCITY_DAMPING;
+//     particle.vy *= VELOCITY_DAMPING;
+//     particle.vz *= VELOCITY_DAMPING;
+//
+//     // Update the position
+//     particle.x += particle.vx * DT;
+//     particle.y += particle.vy * DT;
+//     particle.z += particle.vz * DT;
+//
+//     // Resolve the cup collisions
+//     resolve_cup_collision(particle, source_cup);
+//     resolve_cup_collision(particle, receiver_cup);
+//
+//     // Resolve the world box collisions
+//     apply_world_box_collision(particle);
+//
+//     // Clamp extreme particle speeds
+//     float speed =
+//         std::sqrt(particle.vx * particle.vx + particle.vy * particle.vy +
+//                   particle.vz * particle.vz);
+//     const float MAX_SPEED = 2000000.0f;
+//
+//     if (speed > MAX_SPEED) {
+//       float scale = MAX_SPEED / speed;
+//       particle.vx *= scale;
+//       particle.vy *= scale;
+//       particle.vz *= scale;
+//     }
+//   }
+// }
 
 // Export the scene to csv
 void export_csv(int frame_index) {
@@ -420,8 +454,8 @@ void export_csv(int frame_index) {
   }
 
   // Write the boundary particles
-  for (int i = 0; i < num_fluid_particles; i++) {
-    Particle &particle = fluid_particles[i];
+  for (int i = 0; i < num_boundary_particles; i++) {
+    Particle &particle = boundary_particles[i];
     file << particle.x << "," << particle.y << "," << particle.z << ","
          << particle.rho << "," << particle.p << "," << particle.is_boundary
          << "," << particle.kind << "\n";

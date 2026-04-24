@@ -48,19 +48,20 @@ __global__ void compute_density_pressure_kernel(Particle *fluid_particles,
   }
 
   // --- BOUNDARY INTERACTIONS (INNER LOOP) ---
-  for (int j = 0; j < num_boundary_particles; j++) {
-    float dx = boundary_particles[j].x - p_i_x;
-    float dy = boundary_particles[j].y - p_i_y;
-    float dz = boundary_particles[j].z - p_i_z;
-    float r2 = dx * dx + dy * dy + dz * dz;
-
-    if (r2 < H_DENS * H_DENS) {
-      float h2_minus_r2 = H_DENS * H_DENS - r2;
-      float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-      density +=
-          MASS * POLY6 * weight; // Assuming boundary particles have same mass
-    }
-  }
+  // for (int j = 0; j < num_boundary_particles; j++) {
+  //   float dx = boundary_particles[j].x - p_i_x;
+  //   float dy = boundary_particles[j].y - p_i_y;
+  //   float dz = boundary_particles[j].z - p_i_z;
+  //   float r2 = dx * dx + dy * dy + dz * dz;
+  //
+  //   if (r2 < H_DENS * H_DENS) {
+  //     float h2_minus_r2 = H_DENS * H_DENS - r2;
+  //     float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
+  //     density +=
+  //         MASS * POLY6 * weight; // Assuming boundary particles have same
+  //         mass
+  //   }
+  // }
 
   // Write the final density and pressure back to global memory
   // (Check your baseline to ensure this pressure formula matches yours!)
@@ -151,9 +152,12 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   float p_i_rho = fluid_particles[i].rho;
   float p_i_p = fluid_particles[i].p;
 
-  float fx = 0.0f;
-  float fy = 0.0f;
-  float fz = 0.0f;
+  float pressure_fx = 0.0f;
+  float pressure_fy = 0.0f;
+  float pressure_fz = 0.0f;
+  float viscosity_fx = 0.0f;
+  float viscosity_fy = 0.0f;
+  float viscosity_fz = 0.0f;
 
   // --- FLUID-FLUID FORCES ---
   for (int j = 0; j < num_fluid_particles; j++) {
@@ -165,22 +169,41 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
     float r2 = dx * dx + dy * dy + dz * dz;
 
     // NORMAL CHECKS R AGAINST EPS
-    if (r2 < H_FORCE * H_FORCE && r2 > EPS) {
+    if (r2 < H_FORCE * H_FORCE && r2 >= EPS) {
       float r = sqrtf(r2); // Use CUDA's sqrtf
       float h_minus_r = H_FORCE - r;
 
+      float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
       // Pressure Force
-      float p_term = -MASS * (p_i_p + fluid_particles[j].p) /
-                     (2.0f * fluid_particles[j].rho) * SPIKY_GRAD * h_minus_r *
-                     h_minus_r;
+      // float p_term = -MASS * (p_i_p + fluid_particles[j].p) /
+      //                (2.0f * fluid_particles[j].rho) * grad_coeff;
+      float p_term =
+          -MASS * (p_i_p / std::fmaxf(p_i_rho * p_i_rho, EPS)) +
+          fluid_particles[j].p /
+              std::fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS);
+      pressure_fx += p_term * grad_coeff * dx / r;
+      pressure_fy += p_term * grad_coeff * dy / r;
+      pressure_fz += p_term * grad_coeff * dz / r;
 
       // Viscosity Force
-      float v_term =
-          VISCOSITY * MASS / fluid_particles[j].rho * VISC_LAP * h_minus_r;
+      // float v_term =
+      //     VISCOSITY * MASS / fluid_particles[j].rho * VISC_LAP * h_minus_r;
+      float visc_coeff = VISC_LAP * h_minus_r;
+      float inv_rho_j = 1.0f / std::fmaxf(fluid_particles[j].rho, EPS);
+      viscosity_fx += VISCOSITY * MASS * (fluid_particles[j].vx - p_i_vx) *
+                      inv_rho_j * visc_coeff;
+      viscosity_fy += VISCOSITY * MASS * (fluid_particles[j].vy - p_i_vy) *
+                      inv_rho_j * visc_coeff;
+      viscosity_fz += VISCOSITY * MASS * (fluid_particles[j].vz - p_i_vz) *
+                      inv_rho_j * visc_coeff;
 
-      fx += p_term * dx / r + v_term * (fluid_particles[j].vx - p_i_vx);
-      fy += p_term * dy / r + v_term * (fluid_particles[j].vy - p_i_vy);
-      fz += p_term * dz / r + v_term * (fluid_particles[j].vz - p_i_vz);
+      // fx += p_term * dx / r + v_term * (fluid_particles[j].vx - p_i_vx);
+      // fy += p_term * dy / r + v_term * (fluid_particles[j].vy - p_i_vy);
+      fluid_particles[i].fx = pressure_fx + viscosity_fx;
+      fluid_particles[i].fy = pressure_fy + viscosity_fy + p_i_rho * GRAVITY;
+      fluid_particles[i].fz =
+          pressure_fz + viscosity_fz; // fz += p_term * dz / r + v_term *
+                                      // (fluid_particles[j].vz - p_i_vz);
     }
   }
 
@@ -193,9 +216,6 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   // fy += GRAVITY * p_i_rho;
 
   // Write back to global memory
-  fluid_particles[i].fx = fx;
-  fluid_particles[i].fy = fy;
-  fluid_particles[i].fz = fz;
 }
 
 // Run the force pass
@@ -351,12 +371,11 @@ void integrate_fluid_particles() {
     Particle &p = fluid_particles[i];
 
     // 1. Calculate Acceleration (a = F / density)
-    float ax = p.fx / p.rho;
-    float ay = p.fy / p.rho;
-    float az = p.fz / p.rho;
+    float ax = p.fx / std::fmaxf(p.rho, EPS);
+    float ay = p.fy / std::fmaxf(p.rho, EPS);
+    float az = p.fz / std::fmaxf(p.rho, EPS);
 
     // 2. IDIOT-PROOF GRAVITY: Just add it directly here so we KNOW it works
-    ay += GRAVITY;
 
     // 3. Update Velocities
     p.vx += ax * DT;
@@ -376,6 +395,7 @@ void integrate_fluid_particles() {
     // 5. Boundary collisions (This is what was bulldozing the water!)
     resolve_cup_collision(p, source_cup);
     resolve_cup_collision(p, receiver_cup);
+    apply_world_box_collision(p);
   }
 }
 // // Move the fluid particles
@@ -615,18 +635,6 @@ void print_fluid_only_stats(const std::string &label) {
 
 // Run the full simulation
 int main(int argc, char **argv) {
-  int threadsPerBlock = 256;
-  int blocksPerGrid =
-      (num_fluid_particles + threadsPerBlock - 1) / threadsPerBlock;
-  cudaMallocManaged(&fluid_particles, MAX_FLUID_PARTICLES * sizeof(Particle));
-  cudaMallocManaged(&boundary_particles,
-                    MAX_BOUNDARY_PARTICLES * sizeof(Particle));
-
-  if (fluid_particles == nullptr || boundary_particles == nullptr) {
-    std::cerr << "CUDA Memory Allocation Failed!" << std::endl;
-    return -1;
-  }
-
   // Seed the random generator
   srand(0);
 
@@ -636,15 +644,34 @@ int main(int argc, char **argv) {
   if (argc >= 2) {
     target_tilt_deg = std::stof(argv[1]);
   }
-
   // Clamp the target tilt angle
   target_tilt_deg = std::max(0.0f, std::min(180.0f, target_tilt_deg));
+
+  cudaError_t err1 = cudaMallocManaged(&fluid_particles,
+                                       MAX_FLUID_PARTICLES * sizeof(Particle));
+  cudaError_t err2 = cudaMallocManaged(
+      &boundary_particles, MAX_BOUNDARY_PARTICLES * sizeof(Particle));
+
+  if (err1 != cudaSuccess) {
+    std::cerr << "Fluid allocation failed: " << cudaGetErrorString(err1)
+              << std::endl;
+    return -1;
+  }
+
+  if (err2 != cudaSuccess) {
+    std::cerr << "Boundary allocation failed: " << cudaGetErrorString(err2)
+              << std::endl;
+    return -1;
+  }
 
   // Build the initial scene
   std::cout << "Generate the cup scene with target tilt = " << target_tilt_deg
             << std::endl;
   initialize_scene(target_tilt_deg);
 
+  int threadsPerBlock = 256;
+  int blocksPerGrid =
+      (num_fluid_particles + threadsPerBlock - 1) / threadsPerBlock;
   // Print the initial stats
   print_initial_density_stats();
   print_fluid_only_stats("Frame 0 fluid stats");

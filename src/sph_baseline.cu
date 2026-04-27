@@ -168,9 +168,9 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
     float dz = fluid_particles[j].z - p_i_z;
     float r2 = dx * dx + dy * dy + dz * dz;
 
+    float r = sqrtf(r2); // Use CUDA's sqrtf
     // NORMAL CHECKS R AGAINST EPS
-    if (r2 < H_FORCE * H_FORCE && r2 >= EPS) {
-      float r = sqrtf(r2); // Use CUDA's sqrtf
+    if (r2 < H_FORCE * H_FORCE && r >= EPS) {
       float h_minus_r = H_FORCE - r;
 
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
@@ -178,9 +178,10 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
       // float p_term = -MASS * (p_i_p + fluid_particles[j].p) /
       //                (2.0f * fluid_particles[j].rho) * grad_coeff;
       float p_term =
-          -MASS * (p_i_p / std::fmaxf(p_i_rho * p_i_rho, EPS)) +
-          fluid_particles[j].p /
-              std::fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS);
+          -MASS * (p_i_p / std::fmaxf(p_i_rho * p_i_rho, EPS) +
+                   fluid_particles[j].p / std::fmaxf(fluid_particles[j].rho *
+                                                         fluid_particles[j].rho,
+                                                     EPS));
       pressure_fx += p_term * grad_coeff * dx / r;
       pressure_fy += p_term * grad_coeff * dy / r;
       pressure_fz += p_term * grad_coeff * dz / r;

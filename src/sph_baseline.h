@@ -44,8 +44,8 @@ const float DT = 0.0002f;
 const float PI = 3.1415926535f;
 const float MASS = 0.0012f;
 const float REST_DENS = 900.0f;
-const float GAS_CONST = 180.0f;
-const float VISCOSITY = 10.0f;
+const float GAS_CONST = 6000.0f;
+const float VISCOSITY = 3.0f;
 const float EPS = 1e-6f;
 const float VELOCITY_DAMPING = 0.9995f;
 

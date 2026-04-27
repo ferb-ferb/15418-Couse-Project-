@@ -163,9 +163,9 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   for (int j = 0; j < num_fluid_particles; j++) {
     if (i == j)
       continue; // Don't interact with yourself
-    float dx = fluid_particles[j].x - p_i_x;
-    float dy = fluid_particles[j].y - p_i_y;
-    float dz = fluid_particles[j].z - p_i_z;
+    float dx = p_i_x - fluid_particles[j].x;
+    float dy = p_i_y  - fluid_particles[j].y;
+    float dz = p_i_z - fluid_particles[j].z;
     float r2 = dx * dx + dy * dy + dz * dz;
 
     float r = sqrtf(r2); // Use CUDA's sqrtf

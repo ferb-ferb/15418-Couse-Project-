@@ -93,9 +93,9 @@ void compute_forces() {
       }
 
       // Build the particle offset
-      float dx = particle_j.x - particle_i.x;
-      float dy = particle_j.y - particle_i.y;
-      float dz = particle_j.z - particle_i.z;
+      float dx = particle_i.x - particle_j.x;
+      float dy = particle_i.y - particle_j.y;
+      float dz = particle_i.z - particle_j.z;
 
       // Build the squared distance
       float r2 = dx * dx + dy * dy + dz * dz;

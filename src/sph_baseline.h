@@ -5,19 +5,19 @@
 #include <vector>
 
 struct Particle {
-    float x;
-    float y;
-    float z;
-    float vx;
-    float vy;
-    float vz;
-    float fx;
-    float fy;
-    float fz;
-    float rho;
-    float p;
-    bool is_boundary;
-    int kind;
+  float x;
+  float y;
+  float z;
+  float vx;
+  float vy;
+  float vz;
+  float fx;
+  float fy;
+  float fz;
+  float rho;
+  float p;
+  bool is_boundary;
+  int kind;
 };
 
 // Set the main simulation length
@@ -29,8 +29,8 @@ const int EXPORT_EVERY = 1;
 const float POS_JITTER_CONST = 0.05f;
 const float VEL_JITTER_CONST = 0.0f;
 
-//const float POS_JITTER_CONST = 0.3f;
-//const float VEL_JITTER_CONST = 0.05f;
+// const float POS_JITTER_CONST = 0.3f;
+// const float VEL_JITTER_CONST = 0.05f;
 
 // Set the fluid physics values
 const float H = 0.04f;
@@ -41,15 +41,18 @@ const float DT = 0.0002f;
 const float PI = 3.1415926535f;
 const float MASS = 0.0012f;
 const float REST_DENS = 900.0f;
-const float GAS_CONST = 180.0f;
-const float VISCOSITY = 10.0f;
+const float GAS_CONST = 6000.0f;
+const float VISCOSITY = 3.0f;
 const float EPS = 1e-6f;
 const float VELOCITY_DAMPING = 0.9995f;
 
 // Set the kernel values
-const float POLY6 = 315.0f / (64.0f * PI * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS * H_DENS);
-const float SPIKY_GRAD = -45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
-const float VISC_LAP = 45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
+const float POLY6 = 315.0f / (64.0f * PI * H_DENS * H_DENS * H_DENS * H_DENS *
+                              H_DENS * H_DENS * H_DENS * H_DENS * H_DENS);
+const float SPIKY_GRAD =
+    -45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
+const float VISC_LAP =
+    45.0f / (PI * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE * H_FORCE);
 
 // Set the world box
 const float BOX_X_MIN = 0.0f;

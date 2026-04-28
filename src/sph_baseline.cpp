@@ -41,26 +41,26 @@ void compute_density_pressure() {
       float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
       particle_i.rho += MASS * POLY6 * weight;
     }
-    // for (const Particle &particle_j : boundary_particles) {
-    //
-    //   // Build the particle offset
-    //   float dx = particle_j.x - particle_i.x;
-    //   float dy = particle_j.y - particle_i.y;
-    //   float dz = particle_j.z - particle_i.z;
-    //
-    //   // Build the squared distance
-    //   float r2 = dx * dx + dy * dy + dz * dz;
-    //
-    //   // Skip particles outside the density radius
-    //   if (r2 >= H_DENS * H_DENS) {
-    //     continue;
-    //   }
-    //
-    //   // Add the density weight
-    //   float h2_minus_r2 = H_DENS * H_DENS - r2;
-    //   float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-    //   particle_i.rho += MASS * POLY6 * weight;
-    // }
+    for (const Particle &particle_j : boundary_particles) {
+
+      // Build the particle offset
+      float dx = particle_j.x - particle_i.x;
+      float dy = particle_j.y - particle_i.y;
+      float dz = particle_j.z - particle_i.z;
+
+      // Build the squared distance
+      float r2 = dx * dx + dy * dy + dz * dz;
+
+      // Skip particles outside the density radius
+      if (r2 >= H_DENS * H_DENS) {
+        continue;
+      }
+
+      // Add the density weight
+      float h2_minus_r2 = H_DENS * H_DENS - r2;
+      float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
+      particle_i.rho += MASS * POLY6 * weight;
+    }
 
     // Clamp the density
     particle_i.rho = std::max(particle_i.rho, REST_DENS * 0.1f);
@@ -139,7 +139,34 @@ void compute_forces() {
       viscosity_fz += VISCOSITY * MASS * (particle_j.vz - particle_i.vz) *
                       inv_rho_j * visc_coeff;
     }
+    for (const Particle &p : boundary_particles) {
+      float dx = particle_i.x - p.x;
+      float dy = particle_i.y - p.y;
+      float dz = particle_i.z - p.z;
+      float r2 = dx * dx + dy * dy + dz * dz;
 
+      float r = sqrt(r2);
+      if (r2 < H_FORCE * H_FORCE && r >= EPS) {
+        float h_minus_r = H_FORCE - r;
+        float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
+
+        // Calculate pressure from the wall pushing back
+        float pb = particle_i.p;
+        float rhob = p.rho;
+
+        float p_term =
+            -MASS *
+            (particle_i.p / std::fmaxf(particle_i.rho * particle_i.rho, EPS) +
+             pb / std::max(rhob * rhob, EPS));
+
+        pressure_fx += p_term * grad_coeff * dx / r;
+        pressure_fy += p_term * grad_coeff * dy / r;
+        pressure_fz += p_term * grad_coeff * dz / r;
+
+        // Notice: NO VISCOSITY calculation here. This allows water to slide
+        // freely!
+      }
+    }
     // Store the final force
     particle_i.fx = pressure_fx + viscosity_fx;
     particle_i.fy = pressure_fy + viscosity_fy + particle_i.rho * GRAVITY;
@@ -158,8 +185,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vx = -particle.vx * WALL_RESTITUTION;
     }
 
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.x > BOX_X_MAX) {
     particle.x = BOX_X_MAX - WALL_EPS;
 
@@ -167,8 +194,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vx = -particle.vx * WALL_RESTITUTION;
     }
 
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   }
 
   // Resolve the floor and ceiling
@@ -179,8 +206,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vy = -particle.vy * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.y > BOX_Y_MAX) {
     particle.y = BOX_Y_MAX - WALL_EPS;
 
@@ -188,8 +215,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vy = -particle.vy * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   }
 
   // Resolve the front and back walls
@@ -200,8 +227,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vz = -particle.vz * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.z > BOX_Z_MAX) {
     particle.z = BOX_Z_MAX - WALL_EPS;
 
@@ -209,8 +236,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vz = -particle.vz * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
   }
 }
 
@@ -246,19 +273,6 @@ void integrate_fluid_particles() {
 
     // Resolve the world box collisions
     apply_world_box_collision(particle);
-
-    // Clamp extreme particle speeds
-    float speed =
-        std::sqrt(particle.vx * particle.vx + particle.vy * particle.vy +
-                  particle.vz * particle.vz);
-    const float MAX_SPEED = 2000000.0f;
-
-    if (speed > MAX_SPEED) {
-      float scale = MAX_SPEED / speed;
-      particle.vx *= scale;
-      particle.vy *= scale;
-      particle.vz *= scale;
-    }
   }
 }
 
@@ -491,7 +505,7 @@ int main(int argc, char **argv) {
                                   static_cast<float>(step_index + 1) /
                                       static_cast<float>(SUBSTEPS_PER_FRAME);
       update_scene_for_frame(substep_frame_index, target_tilt_deg);
-
+      rebuild_boundary_particles_for_export();
       // Run the fluid step
       compute_density_pressure();
       compute_forces();

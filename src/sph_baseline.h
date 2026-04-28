@@ -33,18 +33,18 @@ const float VEL_JITTER_CONST = 0.0f;
 // const float VEL_JITTER_CONST = 0.05f;
 
 // Set the fluid physics values
-const float H = 0.04f;
+const float H = 0.025f;
 const float H_DENS = H;
 const float H_FORCE = H;
 const float GRAVITY = -9.81f;
 const float DT = 0.0002f;
 const float PI = 3.1415926535f;
-const float MASS = 0.0012f;
+const float MASS = 0.0009f;
 const float REST_DENS = 900.0f;
-const float GAS_CONST = 6000.0f;
-const float VISCOSITY = 3.0f;
+const float GAS_CONST = 1500.0f;
+const float VISCOSITY = 1.0f;
 const float EPS = 1e-6f;
-const float VELOCITY_DAMPING = 0.9995f;
+const float VELOCITY_DAMPING = 0.999f;
 
 // Set the kernel values
 const float POLY6 = 315.0f / (64.0f * PI * H_DENS * H_DENS * H_DENS * H_DENS *
@@ -62,8 +62,8 @@ const float BOX_Y_MAX = 2.0f;
 const float BOX_Z_MIN = 0.0f;
 const float BOX_Z_MAX = 0.7f;
 const float WALL_EPS = 0.002f;
-const float WALL_RESTITUTION = 0.0f;
-const float WALL_TANGENTIAL_DAMPING = 0.98f;
+const float WALL_RESTITUTION = 0.05f;
+// const float WALL_TANGENTIAL_DAMPING = 0.98f;
 
 // Share the fluid particles
 extern std::vector<Particle> fluid_particles;

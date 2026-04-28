@@ -65,8 +65,8 @@ const float BOX_Y_MAX = 2.0f;
 const float BOX_Z_MIN = 0.0f;
 const float BOX_Z_MAX = 0.7f;
 const float WALL_EPS = 0.002f;
-const float WALL_RESTITUTION = 0.0f;
-const float WALL_TANGENTIAL_DAMPING = 0.98f;
+const float WALL_RESTITUTION = 0.2f;
+// const float WALL_TANGENTIAL_DAMPING = 0.98f;
 
 // Share the fluid particles
 extern Particle *fluid_particles;

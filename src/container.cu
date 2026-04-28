@@ -121,7 +121,7 @@ static void add_boundary_particle(float x, float y, float z, int kind) {
   particle.fx = 0.0f;
   particle.fy = 0.0f;
   particle.fz = 0.0f;
-  particle.rho = 0.0f;
+  particle.rho = REST_DENS;
   particle.p = 0.0f;
   particle.is_boundary = true;
   particle.kind = kind;
@@ -203,53 +203,109 @@ static void add_cup_surface(const Cup &cup, float local_x_min,
   }
 }
 
-// Add all render particles for one cup
+// Add all render particles for one cup (MULTI-LAYERED)
 static void add_cup_render_particles(const Cup &cup, int kind) {
+  int num_layers = 4; // Fills the H=0.04 radius
 
-  // Build the depth limits
-  float z_min = cup.center_z - 0.5f * cup.depth;
-  float z_max = cup.center_z + 0.5f * cup.depth;
+  for (int layer = 0; layer < num_layers; layer++) {
+    // Expand the cup outward for each layer
+    float offset = layer * CUP_RENDER_SPACING;
+    float current_width = cup.width + (2.0f * offset);
+    float current_depth = cup.depth + (2.0f * offset);
+    float current_y_min = 0.0f - offset;
 
-  // Add the bottom surface
-  add_cup_surface(cup, -0.5f * cup.width, 0.5f * cup.width, 0.0f, 0.0f, z_min,
-                  z_max, kind);
+    float z_min = cup.center_z - 0.5f * current_depth;
+    float z_max = cup.center_z + 0.5f * current_depth;
 
-  // Add the left wall surface
-  add_cup_surface(cup, -0.5f * cup.width, -0.5f * cup.width, 0.0f, cup.height,
-                  z_min, z_max, kind);
+    // Bottom surface
+    add_cup_surface(cup, -0.5f * current_width, 0.5f * current_width,
+                    current_y_min, current_y_min, z_min, z_max, kind);
 
-  // Add the right wall surface
-  add_cup_surface(cup, 0.5f * cup.width, 0.5f * cup.width, 0.0f, cup.height,
-                  z_min, z_max, kind);
+    // Left wall
+    add_cup_surface(cup, -0.5f * current_width, -0.5f * current_width,
+                    current_y_min, cup.height, z_min, z_max, kind);
 
-  // Add the front wall surface
-  for (float local_x = -0.5f * cup.width;
-       local_x <= 0.5f * cup.width + 0.5f * CUP_RENDER_SPACING;
-       local_x += CUP_RENDER_SPACING) {
-    for (float local_y = 0.0f;
-         local_y <= cup.height + 0.5f * CUP_RENDER_SPACING;
-         local_y += CUP_RENDER_SPACING) {
-      float world_x;
-      float world_y;
-      cup_local_to_world(cup, local_x, local_y, world_x, world_y);
-      add_boundary_particle(world_x, world_y, z_min, kind);
+    // Right wall
+    add_cup_surface(cup, 0.5f * current_width, 0.5f * current_width,
+                    current_y_min, cup.height, z_min, z_max, kind);
+
+    // Front wall
+    for (float local_x = -0.5f * current_width;
+         local_x <= 0.5f * current_width + 0.5f * CUP_RENDER_SPACING;
+         local_x += CUP_RENDER_SPACING) {
+      for (float local_y = current_y_min;
+           local_y <= cup.height + 0.5f * CUP_RENDER_SPACING;
+           local_y += CUP_RENDER_SPACING) {
+        float world_x, world_y;
+        cup_local_to_world(cup, local_x, local_y, world_x, world_y);
+        add_boundary_particle(world_x, world_y, z_min, kind);
+      }
     }
-  }
 
-  // Add the back wall surface
-  for (float local_x = -0.5f * cup.width;
-       local_x <= 0.5f * cup.width + 0.5f * CUP_RENDER_SPACING;
-       local_x += CUP_RENDER_SPACING) {
-    for (float local_y = 0.0f;
-         local_y <= cup.height + 0.5f * CUP_RENDER_SPACING;
-         local_y += CUP_RENDER_SPACING) {
-      float world_x;
-      float world_y;
-      cup_local_to_world(cup, local_x, local_y, world_x, world_y);
-      add_boundary_particle(world_x, world_y, z_max, kind);
+    // Back wall
+    for (float local_x = -0.5f * current_width;
+         local_x <= 0.5f * current_width + 0.5f * CUP_RENDER_SPACING;
+         local_x += CUP_RENDER_SPACING) {
+      for (float local_y = current_y_min;
+           local_y <= cup.height + 0.5f * CUP_RENDER_SPACING;
+           local_y += CUP_RENDER_SPACING) {
+        float world_x, world_y;
+        cup_local_to_world(cup, local_x, local_y, world_x, world_y);
+        add_boundary_particle(world_x, world_y, z_max, kind);
+      }
     }
   }
 }
+
+// Add all render particles for one cup
+// static void add_cup_render_particles(const Cup &cup, int kind) {
+//
+//   // Build the depth limits
+//   float z_min = cup.center_z - 0.5f * cup.depth;
+//   float z_max = cup.center_z + 0.5f * cup.depth;
+//
+//   // Add the bottom surface
+//   add_cup_surface(cup, -0.5f * cup.width, 0.5f * cup.width, 0.0f, 0.0f,
+//   z_min,
+//                   z_max, kind);
+//
+//   // Add the left wall surface
+//   add_cup_surface(cup, -0.5f * cup.width, -0.5f * cup.width, 0.0f,
+//   cup.height,
+//                   z_min, z_max, kind);
+//
+//   // Add the right wall surface
+//   add_cup_surface(cup, 0.5f * cup.width, 0.5f * cup.width, 0.0f, cup.height,
+//                   z_min, z_max, kind);
+//
+//   // Add the front wall surface
+//   for (float local_x = -0.5f * cup.width;
+//        local_x <= 0.5f * cup.width + 0.5f * CUP_RENDER_SPACING;
+//        local_x += CUP_RENDER_SPACING) {
+//     for (float local_y = 0.0f;
+//          local_y <= cup.height + 0.5f * CUP_RENDER_SPACING;
+//          local_y += CUP_RENDER_SPACING) {
+//       float world_x;
+//       float world_y;
+//       cup_local_to_world(cup, local_x, local_y, world_x, world_y);
+//       add_boundary_particle(world_x, world_y, z_min, kind);
+//     }
+//   }
+//
+//   // Add the back wall surface
+//   for (float local_x = -0.5f * cup.width;
+//        local_x <= 0.5f * cup.width + 0.5f * CUP_RENDER_SPACING;
+//        local_x += CUP_RENDER_SPACING) {
+//     for (float local_y = 0.0f;
+//          local_y <= cup.height + 0.5f * CUP_RENDER_SPACING;
+//          local_y += CUP_RENDER_SPACING) {
+//       float world_x;
+//       float world_y;
+//       cup_local_to_world(cup, local_x, local_y, world_x, world_y);
+//       add_boundary_particle(world_x, world_y, z_max, kind);
+//     }
+//   }
+// }
 
 // Add fluid inside the source cup
 static void add_fluid_in_source_cup() {
@@ -489,11 +545,11 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
   float outer_front = cup.center_z - 0.5f * cup.depth;
   float outer_back = cup.center_z + 0.5f * cup.depth;
 
-  float inner_left = outer_left + cup.wall_thickness;
-  float inner_right = outer_right - cup.wall_thickness;
-  float inner_bottom = outer_bottom + cup.wall_thickness;
-  float inner_front = outer_front + cup.wall_thickness;
-  float inner_back = outer_back - cup.wall_thickness;
+  float inner_left = outer_left;
+  float inner_right = outer_right;
+  float inner_bottom = outer_bottom;
+  float inner_front = outer_front;
+  float inner_back = outer_back;
 
   // Count particles below the bottom slab region before correction
   if ((local_x >= outer_left) && (local_x <= outer_right) &&
@@ -591,7 +647,7 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
     }
 
     // Dampen the tangential relative velocity
-    local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
+    // local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
   } else if (best_wall == 2) {
 
     // Push out of the left wall
@@ -610,7 +666,7 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
     }
 
     // Dampen the tangential relative velocity
-    local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    // local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
   } else if (best_wall == 3) {
 
     // Push out of the right wall
@@ -629,7 +685,7 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
     }
 
     // Dampen the tangential relative velocity
-    local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    // local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
   } else if (best_wall == 4) {
 
     // Push out of the front wall
@@ -643,8 +699,8 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
     float wall_vy;
     get_local_wall_velocity(cup, local_x, local_y, wall_vx, wall_vy);
 
-    local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
-    local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    // local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
+    // local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
   } else if (best_wall == 5) {
 
     // Push out of the back wall
@@ -658,8 +714,8 @@ void resolve_cup_collision(Particle &particle, const Cup &cup) {
     float wall_vy;
     get_local_wall_velocity(cup, local_x, local_y, wall_vx, wall_vy);
 
-    local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
-    local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
+    // local_vx = wall_vx + (local_vx - wall_vx) * WALL_TANGENTIAL_DAMPING;
+    // local_vy = wall_vy + (local_vy - wall_vy) * WALL_TANGENTIAL_DAMPING;
   }
 
   // Move the particle back to world space

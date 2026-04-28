@@ -48,20 +48,18 @@ __global__ void compute_density_pressure_kernel(Particle *fluid_particles,
   }
 
   // --- BOUNDARY INTERACTIONS (INNER LOOP) ---
-  // for (int j = 0; j < num_boundary_particles; j++) {
-  //   float dx = boundary_particles[j].x - p_i_x;
-  //   float dy = boundary_particles[j].y - p_i_y;
-  //   float dz = boundary_particles[j].z - p_i_z;
-  //   float r2 = dx * dx + dy * dy + dz * dz;
-  //
-  //   if (r2 < H_DENS * H_DENS) {
-  //     float h2_minus_r2 = H_DENS * H_DENS - r2;
-  //     float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-  //     density +=
-  //         MASS * POLY6 * weight; // Assuming boundary particles have same
-  //         mass
-  //   }
-  // }
+  for (int j = 0; j < num_boundary_particles; j++) {
+    float dx = boundary_particles[j].x - p_i_x;
+    float dy = boundary_particles[j].y - p_i_y;
+    float dz = boundary_particles[j].z - p_i_z;
+    float r2 = dx * dx + dy * dy + dz * dz;
+
+    if (r2 < H_DENS * H_DENS) {
+      float h2_minus_r2 = H_DENS * H_DENS - r2;
+      float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
+      density += MASS * POLY6 * weight; // Assuming boundary particles have same
+    }
+  }
 
   // Write the final density and pressure back to global memory
   // (Check your baseline to ensure this pressure formula matches yours!)
@@ -164,7 +162,7 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
     if (i == j)
       continue; // Don't interact with yourself
     float dx = p_i_x - fluid_particles[j].x;
-    float dy = p_i_y  - fluid_particles[j].y;
+    float dy = p_i_y - fluid_particles[j].y;
     float dz = p_i_z - fluid_particles[j].z;
     float r2 = dx * dx + dy * dy + dz * dz;
 
@@ -200,23 +198,46 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
 
       // fx += p_term * dx / r + v_term * (fluid_particles[j].vx - p_i_vx);
       // fy += p_term * dy / r + v_term * (fluid_particles[j].vy - p_i_vy);
-      fluid_particles[i].fx = pressure_fx + viscosity_fx;
-      fluid_particles[i].fy = pressure_fy + viscosity_fy + p_i_rho * GRAVITY;
-      fluid_particles[i].fz =
-          pressure_fz + viscosity_fz; // fz += p_term * dz / r + v_term *
-                                      // (fluid_particles[j].vz - p_i_vz);
+      // fz += p_term * dz / r + v_term *
+      // (fluid_particles[j].vz - p_i_vz);
     }
   }
 
   // --- BOUNDARY FORCES ---
-  // (Paste your inner loop for boundary forces here, following the same
-  // pattern)
+  for (int j = 0; j < num_boundary_particles; j++) {
+    float dx = p_i_x - boundary_particles[j].x;
+    float dy = p_i_y - boundary_particles[j].y;
+    float dz = p_i_z - boundary_particles[j].z;
+    float r2 = dx * dx + dy * dy + dz * dz;
 
+    float r = sqrtf(r2);
+    if (r2 < H_FORCE * H_FORCE && r >= EPS) {
+      float h_minus_r = H_FORCE - r;
+      float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
+
+      // Calculate pressure from the wall pushing back
+      float pb = p_i_p;
+      float rhob = boundary_particles[j].rho;
+
+      float p_term = -MASS * (p_i_p / std::fmaxf(p_i_rho * p_i_rho, EPS) +
+                              pb / std::fmaxf(rhob * rhob, EPS));
+
+      pressure_fx += p_term * grad_coeff * dx / r;
+      pressure_fy += p_term * grad_coeff * dy / r;
+      pressure_fz += p_term * grad_coeff * dz / r;
+
+      // Notice: NO VISCOSITY calculation here. This allows water to slide
+      // freely!
+    }
+  }
   // Add Gravity
   // fy += GRAVITY * MASS;
   // fy += GRAVITY * p_i_rho;
 
   // Write back to global memory
+  fluid_particles[i].fx = pressure_fx + viscosity_fx;
+  fluid_particles[i].fy = pressure_fy + viscosity_fy + p_i_rho * GRAVITY;
+  fluid_particles[i].fz = pressure_fz + viscosity_fz;
 }
 
 // Run the force pass
@@ -309,8 +330,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vx = -particle.vx * WALL_RESTITUTION;
     }
 
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.x > BOX_X_MAX) {
     particle.x = BOX_X_MAX - WALL_EPS;
 
@@ -318,8 +339,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vx = -particle.vx * WALL_RESTITUTION;
     }
 
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   }
 
   // Resolve the floor and ceiling
@@ -330,8 +351,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vy = -particle.vy * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.y > BOX_Y_MAX) {
     particle.y = BOX_Y_MAX - WALL_EPS;
 
@@ -339,8 +360,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vy = -particle.vy * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vz *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   }
 
   // Resolve the front and back walls
@@ -351,8 +372,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vz = -particle.vz * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.z > BOX_Z_MAX) {
     particle.z = BOX_Z_MAX - WALL_EPS;
 
@@ -360,8 +381,8 @@ static void apply_world_box_collision(Particle &particle) {
       particle.vz = -particle.vz * WALL_RESTITUTION;
     }
 
-    particle.vx *= WALL_TANGENTIAL_DAMPING;
-    particle.vy *= WALL_TANGENTIAL_DAMPING;
+    // particle.vx *= WALL_TANGENTIAL_DAMPING;
+    // particle.vy *= WALL_TANGENTIAL_DAMPING;
   }
 }
 
@@ -700,6 +721,7 @@ int main(int argc, char **argv) {
                                       static_cast<float>(SUBSTEPS_PER_FRAME);
       update_scene_for_frame(substep_frame_index, target_tilt_deg);
 
+      rebuild_boundary_particles_for_export();
       // Run the fluid step
       // compute_density_pressure();
       compute_density_pressure_kernel<<<blocksPerGrid, threadsPerBlock>>>(

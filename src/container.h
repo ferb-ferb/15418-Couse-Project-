@@ -42,11 +42,15 @@ const float RECEIVER_CUP_CENTER_X = 0.43f;
 const float RECEIVER_CUP_CENTER_Y = 0.08f;
 const float RECEIVER_CUP_CENTER_Z = 0.35f;
 
-// Set the fluid fill and render spacing
+// Set the fluid fill and boundary spacing
 const float SOURCE_FILL_RATIO = 0.80f;
 const float INITIAL_PARTICLE_SPACING = 0.01f;
 const float COMPUTE_BOUNDARY_SPACING = 0.01f;
 const float CUP_RENDER_SPACING = 0.01f;
+
+// Set the boundary layer counts
+const int COMPUTE_BOUNDARY_LAYERS = 3;
+const int RENDER_BOUNDARY_LAYERS = 4;
 
 // Set the tilt schedule
 const int SETTLE_FRAMES = 100;
@@ -56,19 +60,19 @@ const int TILT_FRAMES = 100;
 const bool DEBUG_NO_TILT = false;
 const bool DEBUG_STATIC_TILT = false;
 
-// Share the cups and boundary particles
+// Share the cups
 extern Cup source_cup;
 extern Cup receiver_cup;
 
-// Dense render boundary
+// Share the dense render boundary
 extern Particle *boundary_particles;
 extern int num_boundary_particles;
 
-// Compute boundary for the moving source cup
+// Share the source compute boundary
 extern Particle *source_compute_boundary_particles;
 extern int num_source_compute_boundary_particles;
 
-// Compute boundary for the static receiver cup
+// Share the receiver compute boundary
 extern Particle *receiver_compute_boundary_particles;
 extern int num_receiver_compute_boundary_particles;
 
@@ -85,10 +89,10 @@ void initialize_scene(float target_tilt_deg);
 // Update the cups for one frame
 void update_scene_for_frame(float frame_index, float target_tilt_deg);
 
-// Rebuild only the moving source compute boundary
+// Rebuild the source compute boundary
 void rebuild_source_compute_boundary_particles();
 
-// Rebuild the static receiver compute boundary
+// Rebuild the receiver compute boundary
 void rebuild_receiver_compute_boundary_particles();
 
 // Rebuild the dense render boundary

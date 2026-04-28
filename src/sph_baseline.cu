@@ -20,10 +20,23 @@ Particle *fluid_particles;
 int num_fluid_particles;
 SimulationMode simulation_mode = SIM_MODE_GPU_SPATIAL_HASH;
 
-static int *particle_cell_id;
-static int *particle_sorted_index;
-static int *cell_start;
-static int *cell_end;
+// Fluid grid
+static int *fluid_particle_cell_id;
+static int *fluid_particle_sorted_index;
+static int *fluid_cell_start;
+static int *fluid_cell_end;
+
+// Moving source boundary grid
+static int *source_boundary_cell_id;
+static int *source_boundary_sorted_index;
+static int *source_boundary_cell_start;
+static int *source_boundary_cell_end;
+
+// Static receiver boundary grid
+static int *receiver_boundary_cell_id;
+static int *receiver_boundary_sorted_index;
+static int *receiver_boundary_cell_start;
+static int *receiver_boundary_cell_end;
 
 // Convert the mode to text
 static const char *mode_to_string(SimulationMode mode) {
@@ -78,34 +91,33 @@ __device__ __forceinline__ static void position_to_grid_coords(float x, float y,
   gz = clamp_int(gz, 0, HASH_GRID_SIZE_Z - 1);
 }
 
-// Build the particle cell ids
-__global__ void compute_particle_cell_id_kernel(Particle *fluid_particles,
-                                                int num_fluid_particles,
+// Build one particle set cell ids
+__global__ void compute_particle_cell_id_kernel(Particle *particles,
+                                                int num_particles,
                                                 int *particle_cell_id,
                                                 int *particle_sorted_index) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (i >= num_fluid_particles) {
+  if (i >= num_particles) {
     return;
   }
 
   int gx;
   int gy;
   int gz;
-  position_to_grid_coords(fluid_particles[i].x, fluid_particles[i].y,
-                          fluid_particles[i].z, gx, gy, gz);
+  position_to_grid_coords(particles[i].x, particles[i].y, particles[i].z, gx,
+                          gy, gz);
 
   particle_cell_id[i] = grid_coords_to_index(gx, gy, gz);
   particle_sorted_index[i] = i;
 }
 
 // Build the cell ranges
-__global__ void build_cell_ranges_kernel(int *particle_cell_id,
-                                         int num_fluid_particles,
+__global__ void build_cell_ranges_kernel(int *particle_cell_id, int num_particles,
                                          int *cell_start, int *cell_end) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-  if (i >= num_fluid_particles) {
+  if (i >= num_particles) {
     return;
   }
 
@@ -115,10 +127,87 @@ __global__ void build_cell_ranges_kernel(int *particle_cell_id,
     cell_start[current_cell] = i;
   }
 
-  if ((i == num_fluid_particles - 1) ||
-      (particle_cell_id[i + 1] != current_cell)) {
+  if ((i == num_particles - 1) || (particle_cell_id[i + 1] != current_cell)) {
     cell_end[current_cell] = i + 1;
   }
+}
+
+// Build one sorted grid
+static void build_sorted_grid_for_particles(Particle *particles,
+                                            int num_particles,
+                                            int *particle_cell_id,
+                                            int *particle_sorted_index,
+                                            int *cell_start, int *cell_end,
+                                            const std::string &label) {
+  cuda_check(cudaMemset(cell_start, 0xFF,
+                        HASH_GRID_CELL_COUNT * static_cast<int>(sizeof(int))),
+             ("cudaMemset(cell_start) " + label).c_str());
+  cuda_check(cudaMemset(cell_end, 0xFF,
+                        HASH_GRID_CELL_COUNT * static_cast<int>(sizeof(int))),
+             ("cudaMemset(cell_end) " + label).c_str());
+
+  if (num_particles == 0) {
+    return;
+  }
+
+  int threads_per_block = 256;
+  int blocks_per_grid =
+      (num_particles + threads_per_block - 1) / threads_per_block;
+
+  compute_particle_cell_id_kernel<<<blocks_per_grid, threads_per_block>>>(
+      particles, num_particles, particle_cell_id, particle_sorted_index);
+  cuda_check(cudaDeviceSynchronize(),
+             ("compute_particle_cell_id_kernel " + label).c_str());
+
+  thrust::device_ptr<int> key_begin =
+      thrust::device_pointer_cast(particle_cell_id);
+  thrust::device_ptr<int> value_begin =
+      thrust::device_pointer_cast(particle_sorted_index);
+
+  thrust::sort_by_key(thrust::device, key_begin, key_begin + num_particles,
+                      value_begin);
+  cuda_check(cudaDeviceSynchronize(), ("thrust_sort_by_key " + label).c_str());
+
+  build_cell_ranges_kernel<<<blocks_per_grid, threads_per_block>>>(
+      particle_cell_id, num_particles, cell_start, cell_end);
+  cuda_check(cudaDeviceSynchronize(),
+             ("build_cell_ranges_kernel " + label).c_str());
+}
+
+// Build the fluid grid
+void build_spatial_grid() {
+  if (simulation_mode != SIM_MODE_GPU_SPATIAL_HASH) {
+    return;
+  }
+
+  build_sorted_grid_for_particles(
+      fluid_particles, num_fluid_particles, fluid_particle_cell_id,
+      fluid_particle_sorted_index, fluid_cell_start, fluid_cell_end, "fluid");
+}
+
+// Build the source boundary grid
+static void build_source_boundary_grid() {
+  if (simulation_mode != SIM_MODE_GPU_SPATIAL_HASH) {
+    return;
+  }
+
+  build_sorted_grid_for_particles(
+      source_compute_boundary_particles, num_source_compute_boundary_particles,
+      source_boundary_cell_id, source_boundary_sorted_index,
+      source_boundary_cell_start, source_boundary_cell_end, "source_boundary");
+}
+
+// Build the receiver boundary grid
+static void build_receiver_boundary_grid() {
+  if (simulation_mode != SIM_MODE_GPU_SPATIAL_HASH) {
+    return;
+  }
+
+  build_sorted_grid_for_particles(
+      receiver_compute_boundary_particles,
+      num_receiver_compute_boundary_particles, receiver_boundary_cell_id,
+      receiver_boundary_sorted_index, receiver_boundary_cell_start,
+      receiver_boundary_cell_end, "receiver_boundary");
 }
 
 // Compute density with all pairs
@@ -186,14 +275,15 @@ __global__ void compute_density_pressure_bruteforce_kernel(
   fluid_particles[i].p = fmaxf(GAS_CONST * (density - REST_DENS), 0.0f);
 }
 
-// Compute density with sorted grid
+// Compute density with three sorted grids
 __global__ void compute_density_pressure_hash_kernel(
-    Particle *fluid_particles, int num_fluid_particles, int *particle_sorted_index,
-    int *cell_start, int *cell_end,
+    Particle *fluid_particles, int num_fluid_particles,
+    int *fluid_particle_sorted_index, int *fluid_cell_start, int *fluid_cell_end,
     Particle *source_compute_boundary_particles,
-    int num_source_compute_boundary_particles,
-    Particle *receiver_compute_boundary_particles,
-    int num_receiver_compute_boundary_particles) {
+    int *source_boundary_sorted_index, int *source_boundary_cell_start,
+    int *source_boundary_cell_end, Particle *receiver_compute_boundary_particles,
+    int *receiver_boundary_sorted_index, int *receiver_boundary_cell_start,
+    int *receiver_boundary_cell_end) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (i >= num_fluid_particles) {
@@ -211,7 +301,6 @@ __global__ void compute_density_pressure_hash_kernel(
 
   float density = 0.0f;
 
-  // Fluid fluid density
   for (int dz_off = -1; dz_off <= 1; dz_off++) {
     for (int dy_off = -1; dy_off <= 1; dy_off++) {
       for (int dx_off = -1; dx_off <= 1; dx_off++) {
@@ -226,57 +315,67 @@ __global__ void compute_density_pressure_hash_kernel(
         }
 
         int neighbor_cell = grid_coords_to_index(ngx, ngy, ngz);
-        int start = cell_start[neighbor_cell];
 
-        if (start == -1) {
-          continue;
+        int fluid_start = fluid_cell_start[neighbor_cell];
+        if (fluid_start != -1) {
+          int fluid_end = fluid_cell_end[neighbor_cell];
+
+          for (int s = fluid_start; s < fluid_end; s++) {
+            int j = fluid_particle_sorted_index[s];
+
+            float dx = fluid_particles[j].x - p_i_x;
+            float dy = fluid_particles[j].y - p_i_y;
+            float dz = fluid_particles[j].z - p_i_z;
+            float r2 = dx * dx + dy * dy + dz * dz;
+
+            if (r2 < H_DENS * H_DENS) {
+              float h2_minus_r2 = H_DENS * H_DENS - r2;
+              float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
+              density += MASS * POLY6 * weight;
+            }
+          }
         }
 
-        int end = cell_end[neighbor_cell];
+        int source_start = source_boundary_cell_start[neighbor_cell];
+        if (source_start != -1) {
+          int source_end = source_boundary_cell_end[neighbor_cell];
 
-        for (int s = start; s < end; s++) {
-          int j = particle_sorted_index[s];
+          for (int s = source_start; s < source_end; s++) {
+            int j = source_boundary_sorted_index[s];
 
-          float dx = fluid_particles[j].x - p_i_x;
-          float dy = fluid_particles[j].y - p_i_y;
-          float dz = fluid_particles[j].z - p_i_z;
-          float r2 = dx * dx + dy * dy + dz * dz;
+            float dx = source_compute_boundary_particles[j].x - p_i_x;
+            float dy = source_compute_boundary_particles[j].y - p_i_y;
+            float dz = source_compute_boundary_particles[j].z - p_i_z;
+            float r2 = dx * dx + dy * dy + dz * dz;
 
-          if (r2 < H_DENS * H_DENS) {
-            float h2_minus_r2 = H_DENS * H_DENS - r2;
-            float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-            density += MASS * POLY6 * weight;
+            if (r2 < H_DENS * H_DENS) {
+              float h2_minus_r2 = H_DENS * H_DENS - r2;
+              float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
+              density += MASS * POLY6 * weight;
+            }
+          }
+        }
+
+        int receiver_start = receiver_boundary_cell_start[neighbor_cell];
+        if (receiver_start != -1) {
+          int receiver_end = receiver_boundary_cell_end[neighbor_cell];
+
+          for (int s = receiver_start; s < receiver_end; s++) {
+            int j = receiver_boundary_sorted_index[s];
+
+            float dx = receiver_compute_boundary_particles[j].x - p_i_x;
+            float dy = receiver_compute_boundary_particles[j].y - p_i_y;
+            float dz = receiver_compute_boundary_particles[j].z - p_i_z;
+            float r2 = dx * dx + dy * dy + dz * dz;
+
+            if (r2 < H_DENS * H_DENS) {
+              float h2_minus_r2 = H_DENS * H_DENS - r2;
+              float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
+              density += MASS * POLY6 * weight;
+            }
           }
         }
       }
-    }
-  }
-
-  // Source boundary density
-  for (int j = 0; j < num_source_compute_boundary_particles; j++) {
-    float dx = source_compute_boundary_particles[j].x - p_i_x;
-    float dy = source_compute_boundary_particles[j].y - p_i_y;
-    float dz = source_compute_boundary_particles[j].z - p_i_z;
-    float r2 = dx * dx + dy * dy + dz * dz;
-
-    if (r2 < H_DENS * H_DENS) {
-      float h2_minus_r2 = H_DENS * H_DENS - r2;
-      float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-      density += MASS * POLY6 * weight;
-    }
-  }
-
-  // Receiver boundary density
-  for (int j = 0; j < num_receiver_compute_boundary_particles; j++) {
-    float dx = receiver_compute_boundary_particles[j].x - p_i_x;
-    float dy = receiver_compute_boundary_particles[j].y - p_i_y;
-    float dz = receiver_compute_boundary_particles[j].z - p_i_z;
-    float r2 = dx * dx + dy * dy + dz * dz;
-
-    if (r2 < H_DENS * H_DENS) {
-      float h2_minus_r2 = H_DENS * H_DENS - r2;
-      float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-      density += MASS * POLY6 * weight;
     }
   }
 
@@ -331,8 +430,9 @@ __global__ void compute_forces_bruteforce_kernel(
 
       float p_term =
           -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                   fluid_particles[j].p /
-                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS));
+                   fluid_particles[j].p / fmaxf(fluid_particles[j].rho *
+                                                    fluid_particles[j].rho,
+                                                EPS));
 
       pressure_fx += p_term * grad_coeff * dx / r;
       pressure_fy += p_term * grad_coeff * dy / r;
@@ -403,14 +503,15 @@ __global__ void compute_forces_bruteforce_kernel(
   fluid_particles[i].fz = pressure_fz + viscosity_fz;
 }
 
-// Compute forces with sorted grid
+// Compute forces with three sorted grids
 __global__ void compute_forces_hash_kernel(
-    Particle *fluid_particles, int num_fluid_particles, int *particle_sorted_index,
-    int *cell_start, int *cell_end,
+    Particle *fluid_particles, int num_fluid_particles,
+    int *fluid_particle_sorted_index, int *fluid_cell_start, int *fluid_cell_end,
     Particle *source_compute_boundary_particles,
-    int num_source_compute_boundary_particles,
-    Particle *receiver_compute_boundary_particles,
-    int num_receiver_compute_boundary_particles) {
+    int *source_boundary_sorted_index, int *source_boundary_cell_start,
+    int *source_boundary_cell_end, Particle *receiver_compute_boundary_particles,
+    int *receiver_boundary_sorted_index, int *receiver_boundary_cell_start,
+    int *receiver_boundary_cell_end) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (i >= num_fluid_particles) {
@@ -438,7 +539,6 @@ __global__ void compute_forces_hash_kernel(
   float viscosity_fy = 0.0f;
   float viscosity_fz = 0.0f;
 
-  // Fluid fluid forces
   for (int dz_off = -1; dz_off <= 1; dz_off++) {
     for (int dy_off = -1; dy_off <= 1; dy_off++) {
       for (int dx_off = -1; dx_off <= 1; dx_off++) {
@@ -453,101 +553,112 @@ __global__ void compute_forces_hash_kernel(
         }
 
         int neighbor_cell = grid_coords_to_index(ngx, ngy, ngz);
-        int start = cell_start[neighbor_cell];
 
-        if (start == -1) {
-          continue;
+        int fluid_start = fluid_cell_start[neighbor_cell];
+        if (fluid_start != -1) {
+          int fluid_end = fluid_cell_end[neighbor_cell];
+
+          for (int s = fluid_start; s < fluid_end; s++) {
+            int j = fluid_particle_sorted_index[s];
+
+            if (i == j) {
+              continue;
+            }
+
+            float dx = p_i_x - fluid_particles[j].x;
+            float dy = p_i_y - fluid_particles[j].y;
+            float dz = p_i_z - fluid_particles[j].z;
+            float r2 = dx * dx + dy * dy + dz * dz;
+            float r = sqrtf(r2);
+
+            if (r2 < H_FORCE * H_FORCE && r >= EPS) {
+              float h_minus_r = H_FORCE - r;
+              float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
+
+              float p_term =
+                  -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
+                           fluid_particles[j].p /
+                               fmaxf(fluid_particles[j].rho *
+                                         fluid_particles[j].rho,
+                                     EPS));
+
+              pressure_fx += p_term * grad_coeff * dx / r;
+              pressure_fy += p_term * grad_coeff * dy / r;
+              pressure_fz += p_term * grad_coeff * dz / r;
+
+              float visc_coeff = VISC_LAP * h_minus_r;
+              float inv_rho_j = 1.0f / fmaxf(fluid_particles[j].rho, EPS);
+
+              viscosity_fx += VISCOSITY * MASS * (fluid_particles[j].vx - p_i_vx) *
+                              inv_rho_j * visc_coeff;
+              viscosity_fy += VISCOSITY * MASS * (fluid_particles[j].vy - p_i_vy) *
+                              inv_rho_j * visc_coeff;
+              viscosity_fz += VISCOSITY * MASS * (fluid_particles[j].vz - p_i_vz) *
+                              inv_rho_j * visc_coeff;
+            }
+          }
         }
 
-        int end = cell_end[neighbor_cell];
+        int source_start = source_boundary_cell_start[neighbor_cell];
+        if (source_start != -1) {
+          int source_end = source_boundary_cell_end[neighbor_cell];
 
-        for (int s = start; s < end; s++) {
-          int j = particle_sorted_index[s];
+          for (int s = source_start; s < source_end; s++) {
+            int j = source_boundary_sorted_index[s];
 
-          if (i == j) {
-            continue;
+            float dx = p_i_x - source_compute_boundary_particles[j].x;
+            float dy = p_i_y - source_compute_boundary_particles[j].y;
+            float dz = p_i_z - source_compute_boundary_particles[j].z;
+            float r2 = dx * dx + dy * dy + dz * dz;
+            float r = sqrtf(r2);
+
+            if (r2 < H_FORCE * H_FORCE && r >= EPS) {
+              float h_minus_r = H_FORCE - r;
+              float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
+
+              float pb = p_i_p;
+              float rhob = source_compute_boundary_particles[j].rho;
+
+              float p_term = -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
+                                      pb / fmaxf(rhob * rhob, EPS));
+
+              pressure_fx += p_term * grad_coeff * dx / r;
+              pressure_fy += p_term * grad_coeff * dy / r;
+              pressure_fz += p_term * grad_coeff * dz / r;
+            }
           }
+        }
 
-          float dx = p_i_x - fluid_particles[j].x;
-          float dy = p_i_y - fluid_particles[j].y;
-          float dz = p_i_z - fluid_particles[j].z;
-          float r2 = dx * dx + dy * dy + dz * dz;
-          float r = sqrtf(r2);
+        int receiver_start = receiver_boundary_cell_start[neighbor_cell];
+        if (receiver_start != -1) {
+          int receiver_end = receiver_boundary_cell_end[neighbor_cell];
 
-          if (r2 < H_FORCE * H_FORCE && r >= EPS) {
-            float h_minus_r = H_FORCE - r;
-            float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
+          for (int s = receiver_start; s < receiver_end; s++) {
+            int j = receiver_boundary_sorted_index[s];
 
-            float p_term =
-                -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                         fluid_particles[j].p / fmaxf(fluid_particles[j].rho *
-                                                          fluid_particles[j].rho,
-                                                      EPS));
+            float dx = p_i_x - receiver_compute_boundary_particles[j].x;
+            float dy = p_i_y - receiver_compute_boundary_particles[j].y;
+            float dz = p_i_z - receiver_compute_boundary_particles[j].z;
+            float r2 = dx * dx + dy * dy + dz * dz;
+            float r = sqrtf(r2);
 
-            pressure_fx += p_term * grad_coeff * dx / r;
-            pressure_fy += p_term * grad_coeff * dy / r;
-            pressure_fz += p_term * grad_coeff * dz / r;
+            if (r2 < H_FORCE * H_FORCE && r >= EPS) {
+              float h_minus_r = H_FORCE - r;
+              float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
 
-            float visc_coeff = VISC_LAP * h_minus_r;
-            float inv_rho_j = 1.0f / fmaxf(fluid_particles[j].rho, EPS);
+              float pb = p_i_p;
+              float rhob = receiver_compute_boundary_particles[j].rho;
 
-            viscosity_fx += VISCOSITY * MASS * (fluid_particles[j].vx - p_i_vx) *
-                            inv_rho_j * visc_coeff;
-            viscosity_fy += VISCOSITY * MASS * (fluid_particles[j].vy - p_i_vy) *
-                            inv_rho_j * visc_coeff;
-            viscosity_fz += VISCOSITY * MASS * (fluid_particles[j].vz - p_i_vz) *
-                            inv_rho_j * visc_coeff;
+              float p_term = -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
+                                      pb / fmaxf(rhob * rhob, EPS));
+
+              pressure_fx += p_term * grad_coeff * dx / r;
+              pressure_fy += p_term * grad_coeff * dy / r;
+              pressure_fz += p_term * grad_coeff * dz / r;
+            }
           }
         }
       }
-    }
-  }
-
-  // Source boundary forces
-  for (int j = 0; j < num_source_compute_boundary_particles; j++) {
-    float dx = p_i_x - source_compute_boundary_particles[j].x;
-    float dy = p_i_y - source_compute_boundary_particles[j].y;
-    float dz = p_i_z - source_compute_boundary_particles[j].z;
-    float r2 = dx * dx + dy * dy + dz * dz;
-    float r = sqrtf(r2);
-
-    if (r2 < H_FORCE * H_FORCE && r >= EPS) {
-      float h_minus_r = H_FORCE - r;
-      float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
-
-      float pb = p_i_p;
-      float rhob = source_compute_boundary_particles[j].rho;
-
-      float p_term = -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                              pb / fmaxf(rhob * rhob, EPS));
-
-      pressure_fx += p_term * grad_coeff * dx / r;
-      pressure_fy += p_term * grad_coeff * dy / r;
-      pressure_fz += p_term * grad_coeff * dz / r;
-    }
-  }
-
-  // Receiver boundary forces
-  for (int j = 0; j < num_receiver_compute_boundary_particles; j++) {
-    float dx = p_i_x - receiver_compute_boundary_particles[j].x;
-    float dy = p_i_y - receiver_compute_boundary_particles[j].y;
-    float dz = p_i_z - receiver_compute_boundary_particles[j].z;
-    float r2 = dx * dx + dy * dy + dz * dz;
-    float r = sqrtf(r2);
-
-    if (r2 < H_FORCE * H_FORCE && r >= EPS) {
-      float h_minus_r = H_FORCE - r;
-      float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
-
-      float pb = p_i_p;
-      float rhob = receiver_compute_boundary_particles[j].rho;
-
-      float p_term = -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                              pb / fmaxf(rhob * rhob, EPS));
-
-      pressure_fx += p_term * grad_coeff * dx / r;
-      pressure_fy += p_term * grad_coeff * dy / r;
-      pressure_fz += p_term * grad_coeff * dz / r;
     }
   }
 
@@ -722,8 +833,6 @@ static void compute_forces_cpu() {
 
 // Push one fluid particle back into the world box
 static void apply_world_box_collision(Particle &particle) {
-
-  // Resolve the left wall
   if (particle.x < BOX_X_MIN) {
     particle.x = BOX_X_MIN + WALL_EPS;
 
@@ -738,7 +847,6 @@ static void apply_world_box_collision(Particle &particle) {
     }
   }
 
-  // Resolve the floor and ceiling
   if (particle.y < BOX_Y_MIN) {
     particle.y = BOX_Y_MIN + WALL_EPS;
 
@@ -753,7 +861,6 @@ static void apply_world_box_collision(Particle &particle) {
     }
   }
 
-  // Resolve the front and back walls
   if (particle.z < BOX_Z_MIN) {
     particle.z = BOX_Z_MIN + WALL_EPS;
 
@@ -796,42 +903,6 @@ void integrate_fluid_particles() {
   }
 }
 
-// Build the sorted spatial grid
-void build_spatial_grid() {
-  if (simulation_mode != SIM_MODE_GPU_SPATIAL_HASH) {
-    return;
-  }
-
-  int threads_per_block = 256;
-  int blocks_per_grid =
-      (num_fluid_particles + threads_per_block - 1) / threads_per_block;
-
-  compute_particle_cell_id_kernel<<<blocks_per_grid, threads_per_block>>>(
-      fluid_particles, num_fluid_particles, particle_cell_id,
-      particle_sorted_index);
-  cuda_check(cudaDeviceSynchronize(), "compute_particle_cell_id_kernel");
-
-  thrust::device_ptr<int> key_begin =
-      thrust::device_pointer_cast(particle_cell_id);
-  thrust::device_ptr<int> value_begin =
-      thrust::device_pointer_cast(particle_sorted_index);
-
-  thrust::sort_by_key(thrust::device, key_begin, key_begin + num_fluid_particles,
-                      value_begin);
-  cuda_check(cudaDeviceSynchronize(), "thrust_sort_by_key");
-
-  cuda_check(cudaMemset(cell_start, 0xFF,
-                        HASH_GRID_CELL_COUNT * static_cast<int>(sizeof(int))),
-             "cudaMemset(cell_start)");
-  cuda_check(cudaMemset(cell_end, 0xFF,
-                        HASH_GRID_CELL_COUNT * static_cast<int>(sizeof(int))),
-             "cudaMemset(cell_end)");
-
-  build_cell_ranges_kernel<<<blocks_per_grid, threads_per_block>>>(
-      particle_cell_id, num_fluid_particles, cell_start, cell_end);
-  cuda_check(cudaDeviceSynchronize(), "build_cell_ranges_kernel");
-}
-
 // Run the density pass
 void compute_density_pressure() {
   if (simulation_mode == SIM_MODE_CPU_SEQUENTIAL) {
@@ -854,11 +925,12 @@ void compute_density_pressure() {
                "compute_density_pressure_bruteforce_kernel");
   } else {
     compute_density_pressure_hash_kernel<<<blocks_per_grid, threads_per_block>>>(
-        fluid_particles, num_fluid_particles, particle_sorted_index, cell_start,
-        cell_end,
-        source_compute_boundary_particles, num_source_compute_boundary_particles,
-        receiver_compute_boundary_particles,
-        num_receiver_compute_boundary_particles);
+        fluid_particles, num_fluid_particles, fluid_particle_sorted_index,
+        fluid_cell_start, fluid_cell_end, source_compute_boundary_particles,
+        source_boundary_sorted_index, source_boundary_cell_start,
+        source_boundary_cell_end, receiver_compute_boundary_particles,
+        receiver_boundary_sorted_index, receiver_boundary_cell_start,
+        receiver_boundary_cell_end);
     cuda_check(cudaDeviceSynchronize(), "compute_density_pressure_hash_kernel");
   }
 }
@@ -883,11 +955,12 @@ void compute_forces() {
     cuda_check(cudaDeviceSynchronize(), "compute_forces_bruteforce_kernel");
   } else {
     compute_forces_hash_kernel<<<blocks_per_grid, threads_per_block>>>(
-        fluid_particles, num_fluid_particles, particle_sorted_index, cell_start,
-        cell_end,
-        source_compute_boundary_particles, num_source_compute_boundary_particles,
-        receiver_compute_boundary_particles,
-        num_receiver_compute_boundary_particles);
+        fluid_particles, num_fluid_particles, fluid_particle_sorted_index,
+        fluid_cell_start, fluid_cell_end, source_compute_boundary_particles,
+        source_boundary_sorted_index, source_boundary_cell_start,
+        source_boundary_cell_end, receiver_compute_boundary_particles,
+        receiver_boundary_sorted_index, receiver_boundary_cell_start,
+        receiver_boundary_cell_end);
     cuda_check(cudaDeviceSynchronize(), "compute_forces_hash_kernel");
   }
 }
@@ -966,6 +1039,8 @@ void print_initial_density_stats() {
 
   if (simulation_mode == SIM_MODE_GPU_SPATIAL_HASH) {
     build_spatial_grid();
+    build_source_boundary_grid();
+    build_receiver_boundary_grid();
   }
 
   compute_density_pressure();
@@ -1109,18 +1184,45 @@ int main(int argc, char **argv) {
   cuda_check(cudaMallocManaged(&receiver_compute_boundary_particles,
                                MAX_BOUNDARY_PARTICLES * sizeof(Particle)),
              "cudaMallocManaged(receiver_compute_boundary_particles)");
-  cuda_check(cudaMallocManaged(&particle_cell_id,
+
+  cuda_check(cudaMallocManaged(&fluid_particle_cell_id,
                                MAX_FLUID_PARTICLES * sizeof(int)),
-             "cudaMallocManaged(particle_cell_id)");
-  cuda_check(cudaMallocManaged(&particle_sorted_index,
+             "cudaMallocManaged(fluid_particle_cell_id)");
+  cuda_check(cudaMallocManaged(&fluid_particle_sorted_index,
                                MAX_FLUID_PARTICLES * sizeof(int)),
-             "cudaMallocManaged(particle_sorted_index)");
-  cuda_check(cudaMallocManaged(&cell_start,
+             "cudaMallocManaged(fluid_particle_sorted_index)");
+  cuda_check(cudaMallocManaged(&fluid_cell_start,
                                HASH_GRID_CELL_COUNT * sizeof(int)),
-             "cudaMallocManaged(cell_start)");
-  cuda_check(cudaMallocManaged(&cell_end,
+             "cudaMallocManaged(fluid_cell_start)");
+  cuda_check(cudaMallocManaged(&fluid_cell_end,
                                HASH_GRID_CELL_COUNT * sizeof(int)),
-             "cudaMallocManaged(cell_end)");
+             "cudaMallocManaged(fluid_cell_end)");
+
+  cuda_check(cudaMallocManaged(&source_boundary_cell_id,
+                               MAX_BOUNDARY_PARTICLES * sizeof(int)),
+             "cudaMallocManaged(source_boundary_cell_id)");
+  cuda_check(cudaMallocManaged(&source_boundary_sorted_index,
+                               MAX_BOUNDARY_PARTICLES * sizeof(int)),
+             "cudaMallocManaged(source_boundary_sorted_index)");
+  cuda_check(cudaMallocManaged(&source_boundary_cell_start,
+                               HASH_GRID_CELL_COUNT * sizeof(int)),
+             "cudaMallocManaged(source_boundary_cell_start)");
+  cuda_check(cudaMallocManaged(&source_boundary_cell_end,
+                               HASH_GRID_CELL_COUNT * sizeof(int)),
+             "cudaMallocManaged(source_boundary_cell_end)");
+
+  cuda_check(cudaMallocManaged(&receiver_boundary_cell_id,
+                               MAX_BOUNDARY_PARTICLES * sizeof(int)),
+             "cudaMallocManaged(receiver_boundary_cell_id)");
+  cuda_check(cudaMallocManaged(&receiver_boundary_sorted_index,
+                               MAX_BOUNDARY_PARTICLES * sizeof(int)),
+             "cudaMallocManaged(receiver_boundary_sorted_index)");
+  cuda_check(cudaMallocManaged(&receiver_boundary_cell_start,
+                               HASH_GRID_CELL_COUNT * sizeof(int)),
+             "cudaMallocManaged(receiver_boundary_cell_start)");
+  cuda_check(cudaMallocManaged(&receiver_boundary_cell_end,
+                               HASH_GRID_CELL_COUNT * sizeof(int)),
+             "cudaMallocManaged(receiver_boundary_cell_end)");
 
   std::cout << "Generate the cup scene with target tilt = " << target_tilt_deg
             << std::endl;
@@ -1168,6 +1270,7 @@ int main(int argc, char **argv) {
 
       if (simulation_mode == SIM_MODE_GPU_SPATIAL_HASH) {
         build_spatial_grid();
+        build_source_boundary_grid();
       }
 
       compute_density_pressure();
@@ -1211,10 +1314,31 @@ int main(int argc, char **argv) {
 
   std::cout << "Done" << std::endl;
 
-  cuda_check(cudaFree(cell_end), "cudaFree(cell_end)");
-  cuda_check(cudaFree(cell_start), "cudaFree(cell_start)");
-  cuda_check(cudaFree(particle_sorted_index), "cudaFree(particle_sorted_index)");
-  cuda_check(cudaFree(particle_cell_id), "cudaFree(particle_cell_id)");
+  cuda_check(cudaFree(receiver_boundary_cell_end),
+             "cudaFree(receiver_boundary_cell_end)");
+  cuda_check(cudaFree(receiver_boundary_cell_start),
+             "cudaFree(receiver_boundary_cell_start)");
+  cuda_check(cudaFree(receiver_boundary_sorted_index),
+             "cudaFree(receiver_boundary_sorted_index)");
+  cuda_check(cudaFree(receiver_boundary_cell_id),
+             "cudaFree(receiver_boundary_cell_id)");
+
+  cuda_check(cudaFree(source_boundary_cell_end),
+             "cudaFree(source_boundary_cell_end)");
+  cuda_check(cudaFree(source_boundary_cell_start),
+             "cudaFree(source_boundary_cell_start)");
+  cuda_check(cudaFree(source_boundary_sorted_index),
+             "cudaFree(source_boundary_sorted_index)");
+  cuda_check(cudaFree(source_boundary_cell_id),
+             "cudaFree(source_boundary_cell_id)");
+
+  cuda_check(cudaFree(fluid_cell_end), "cudaFree(fluid_cell_end)");
+  cuda_check(cudaFree(fluid_cell_start), "cudaFree(fluid_cell_start)");
+  cuda_check(cudaFree(fluid_particle_sorted_index),
+             "cudaFree(fluid_particle_sorted_index)");
+  cuda_check(cudaFree(fluid_particle_cell_id),
+             "cudaFree(fluid_particle_cell_id)");
+
   cuda_check(cudaFree(receiver_compute_boundary_particles),
              "cudaFree(receiver_compute_boundary_particles)");
   cuda_check(cudaFree(source_compute_boundary_particles),

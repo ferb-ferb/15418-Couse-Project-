@@ -49,7 +49,7 @@ const float CUP_RENDER_SPACING = 0.01f;
 
 // Set the tilt schedule
 const int SETTLE_FRAMES = 100;
-const int TILT_FRAMES = 200;
+const int TILT_FRAMES = 100;
 
 // Set the tilt debug modes
 const bool DEBUG_NO_TILT = false;

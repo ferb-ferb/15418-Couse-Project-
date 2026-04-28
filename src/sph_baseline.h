@@ -44,7 +44,7 @@ const float DT = 0.0002f;
 const float PI = 3.1415926535f;
 const float MASS = 0.0009f;
 const float REST_DENS = 900.0f;
-const float GAS_CONST = 3500.0f;
+const float GAS_CONST = 1500.0f;
 const float VISCOSITY = 1.0f;
 const float EPS = 1e-6f;
 const float VELOCITY_DAMPING = 0.999f;
@@ -65,7 +65,7 @@ const float BOX_Y_MAX = 2.0f;
 const float BOX_Z_MIN = 0.0f;
 const float BOX_Z_MAX = 0.7f;
 const float WALL_EPS = 0.002f;
-const float WALL_RESTITUTION = 0.2f;
+const float WALL_RESTITUTION = 0.05f;
 // const float WALL_TANGENTIAL_DAMPING = 0.98f;
 
 // Share the fluid particles

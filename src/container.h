@@ -45,6 +45,7 @@ const float RECEIVER_CUP_CENTER_Z = 0.35f;
 // Set the fluid fill and render spacing
 const float SOURCE_FILL_RATIO = 0.80f;
 const float INITIAL_PARTICLE_SPACING = 0.01f;
+const float COMPUTE_BOUNDARY_SPACING = 0.01f;
 const float CUP_RENDER_SPACING = 0.01f;
 
 // Set the tilt schedule
@@ -58,8 +59,18 @@ const bool DEBUG_STATIC_TILT = false;
 // Share the cups and boundary particles
 extern Cup source_cup;
 extern Cup receiver_cup;
+
+// Dense render boundary
 extern Particle *boundary_particles;
 extern int num_boundary_particles;
+
+// Compute boundary for the moving source cup
+extern Particle *source_compute_boundary_particles;
+extern int num_source_compute_boundary_particles;
+
+// Compute boundary for the static receiver cup
+extern Particle *receiver_compute_boundary_particles;
+extern int num_receiver_compute_boundary_particles;
 
 // Build one cup
 Cup make_cup(float center_x, float center_y, float center_z, float width,
@@ -74,7 +85,13 @@ void initialize_scene(float target_tilt_deg);
 // Update the cups for one frame
 void update_scene_for_frame(float frame_index, float target_tilt_deg);
 
-// Rebuild the render particles
+// Rebuild only the moving source compute boundary
+void rebuild_source_compute_boundary_particles();
+
+// Rebuild the static receiver compute boundary
+void rebuild_receiver_compute_boundary_particles();
+
+// Rebuild the dense render boundary
 void rebuild_boundary_particles_for_export();
 
 // Push one fluid particle out of one cup wall

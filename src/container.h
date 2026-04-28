@@ -49,7 +49,7 @@ const float CUP_RENDER_SPACING = 0.01f;
 
 // Set the tilt schedule
 const int SETTLE_FRAMES = 100;
-const int TILT_FRAMES = 500;
+const int TILT_FRAMES = 100;
 
 // Set the tilt debug modes
 const bool DEBUG_NO_TILT = false;
@@ -60,6 +60,7 @@ extern Cup source_cup;
 extern Cup receiver_cup;
 extern Particle *boundary_particles;
 extern int num_boundary_particles;
+
 // Build one cup
 Cup make_cup(float center_x, float center_y, float center_z, float width,
              float height, float depth, float wall_thickness, float tilt_deg);

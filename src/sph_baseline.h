@@ -2,7 +2,6 @@
 #define SPH_BASELINE_H
 
 #include <string>
-#include <vector>
 
 struct Particle {
   float x;
@@ -20,8 +19,18 @@ struct Particle {
   int kind;
 };
 
+enum SimulationMode {
+  SIM_MODE_GPU_BRUTE_FORCE = 0,
+  SIM_MODE_GPU_NEIGHBOR_LIST = 1,
+};
+
 const int MAX_FLUID_PARTICLES = 20000;
 const int MAX_BOUNDARY_PARTICLES = 20000;
+
+// Set the neighbor list sizes
+const int MAX_FLUID_NEIGHBORS = 256;
+const int MAX_SOURCE_BOUNDARY_NEIGHBORS = 256;
+const int MAX_RECEIVER_BOUNDARY_NEIGHBORS = 256;
 
 // Set the main simulation length
 const int FRAME_COUNT = 1000;
@@ -31,9 +40,6 @@ const int EXPORT_EVERY = 1;
 // Set the random jitter scales
 const float POS_JITTER_CONST = 0.05f;
 const float VEL_JITTER_CONST = 0.0f;
-
-// const float POS_JITTER_CONST = 0.3f;
-// const float VEL_JITTER_CONST = 0.05f;
 
 // Set the fluid physics values
 const float H = 0.025f;
@@ -66,11 +72,15 @@ const float BOX_Z_MIN = 0.0f;
 const float BOX_Z_MAX = 0.7f;
 const float WALL_EPS = 0.002f;
 const float WALL_RESTITUTION = 0.05f;
-// const float WALL_TANGENTIAL_DAMPING = 0.98f;
 
 // Share the fluid particles
 extern Particle *fluid_particles;
 extern int num_fluid_particles;
+extern SimulationMode simulation_mode;
+
+// Build the neighbor lists
+void build_neighbor_lists();
+
 // Run the density pass
 void compute_density_pressure();
 

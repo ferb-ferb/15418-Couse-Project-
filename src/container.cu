@@ -9,7 +9,7 @@
 Cup source_cup;
 Cup receiver_cup;
 
-// Share the render boundary
+// Share the dense render boundary
 Particle *boundary_particles;
 int num_boundary_particles = 0;
 
@@ -33,7 +33,7 @@ static int inside_receiver_wall_count = 0;
 Cup make_cup(float center_x, float center_y, float center_z, float width,
              float height, float depth, float wall_thickness, float tilt_deg) {
 
-  // Fill the cup fields
+  // Fill the cup values
   Cup cup;
   cup.center_x = center_x;
   cup.center_y = center_y;
@@ -69,7 +69,7 @@ void update_cup_rotation(Cup &cup, float tilt_deg) {
 static void cup_local_to_world(const Cup &cup, float local_x, float local_y,
                                float &world_x, float &world_y) {
 
-  // Rotate and shift the local point
+  // Rotate and shift the point
   world_x = cup.center_x + local_x * cup.cos_t + local_y * cup.sin_t;
   world_y = cup.center_y - local_x * cup.sin_t + local_y * cup.cos_t;
 }
@@ -78,11 +78,11 @@ static void cup_local_to_world(const Cup &cup, float local_x, float local_y,
 static void world_to_cup_local(const Cup &cup, float world_x, float world_y,
                                float &local_x, float &local_y) {
 
-  // Shift the point into the cup frame
+  // Shift into the cup frame
   float dx = world_x - cup.center_x;
   float dy = world_y - cup.center_y;
 
-  // Rotate the point into the cup frame
+  // Rotate into the cup frame
   local_x = dx * cup.cos_t - dy * cup.sin_t;
   local_y = dx * cup.sin_t + dy * cup.cos_t;
 }
@@ -102,7 +102,7 @@ static void cup_velocity_to_world(const Cup &cup, float local_vx,
                                   float local_vy, float &world_vx,
                                   float &world_vy) {
 
-  // Rotate the velocity back into world space
+  // Rotate the velocity back to world space
   world_vx = local_vx * cup.cos_t + local_vy * cup.sin_t;
   world_vy = -local_vx * cup.sin_t + local_vy * cup.cos_t;
 }
@@ -112,7 +112,7 @@ static void get_local_wall_velocity(const Cup &cup, float local_x,
                                     float local_y, float &wall_vx,
                                     float &wall_vy) {
 
-  // Build the rigid rotation wall velocity
+  // Build rigid wall motion
   wall_vx = -cup.angular_velocity * local_y;
   wall_vy = cup.angular_velocity * local_x;
 }
@@ -195,7 +195,7 @@ static void add_cup_surface_with_spacing(const Cup &cup, float local_x_min,
                                          Particle *particle_array,
                                          int &particle_count) {
 
-  // Loop across the cup surface
+  // Loop across the surface
   for (float local_x = local_x_min;
        local_x <= local_x_max + 0.5f * spacing;
        local_x += spacing) {
@@ -217,58 +217,66 @@ static void add_cup_surface_with_spacing(const Cup &cup, float local_x_min,
   }
 }
 
-// Add one cup particle set
+// Add cup particles at a chosen spacing and layer count
 static void add_cup_particles_with_spacing(const Cup &cup, int kind,
-                                           float spacing,
+                                           float spacing, int num_layers,
                                            Particle *particle_array,
                                            int &particle_count) {
 
-  // Build the depth limits
-  float z_min = cup.center_z - 0.5f * cup.depth;
-  float z_max = cup.center_z + 0.5f * cup.depth;
+  // Build the wall layers
+  for (int layer = 0; layer < num_layers; layer++) {
+    float offset = layer * spacing;
+    float current_width = cup.width + (2.0f * offset);
+    float current_depth = cup.depth + (2.0f * offset);
+    float current_y_min = 0.0f - offset;
 
-  // Add the bottom surface
-  add_cup_surface_with_spacing(cup, -0.5f * cup.width, 0.5f * cup.width, 0.0f,
-                               0.0f, z_min, z_max, kind, spacing,
-                               particle_array, particle_count);
+    float z_min = cup.center_z - 0.5f * current_depth;
+    float z_max = cup.center_z + 0.5f * current_depth;
 
-  // Add the left wall
-  add_cup_surface_with_spacing(cup, -0.5f * cup.width, -0.5f * cup.width, 0.0f,
-                               cup.height, z_min, z_max, kind, spacing,
-                               particle_array, particle_count);
+    // Add the bottom wall
+    add_cup_surface_with_spacing(
+        cup, -0.5f * current_width, 0.5f * current_width, current_y_min,
+        current_y_min, z_min, z_max, kind, spacing, particle_array,
+        particle_count);
 
-  // Add the right wall
-  add_cup_surface_with_spacing(cup, 0.5f * cup.width, 0.5f * cup.width, 0.0f,
-                               cup.height, z_min, z_max, kind, spacing,
-                               particle_array, particle_count);
+    // Add the left wall
+    add_cup_surface_with_spacing(
+        cup, -0.5f * current_width, -0.5f * current_width, current_y_min,
+        cup.height, z_min, z_max, kind, spacing, particle_array, particle_count);
 
-  // Add the front wall
-  for (float local_x = -0.5f * cup.width;
-       local_x <= 0.5f * cup.width + 0.5f * spacing;
-       local_x += spacing) {
-    for (float local_y = 0.0f;
-         local_y <= cup.height + 0.5f * spacing;
-         local_y += spacing) {
-      float world_x;
-      float world_y;
-      cup_local_to_world(cup, local_x, local_y, world_x, world_y);
-      add_boundary_particle_to_array(particle_array, particle_count, world_x,
-                                     world_y, z_min, kind);
+    // Add the right wall
+    add_cup_surface_with_spacing(
+        cup, 0.5f * current_width, 0.5f * current_width, current_y_min,
+        cup.height, z_min, z_max, kind, spacing, particle_array, particle_count);
+
+    // Add the front wall
+    for (float local_x = -0.5f * current_width;
+         local_x <= 0.5f * current_width + 0.5f * spacing;
+         local_x += spacing) {
+      for (float local_y = current_y_min;
+           local_y <= cup.height + 0.5f * spacing;
+           local_y += spacing) {
+        float world_x;
+        float world_y;
+        cup_local_to_world(cup, local_x, local_y, world_x, world_y);
+        add_boundary_particle_to_array(particle_array, particle_count, world_x,
+                                       world_y, z_min, kind);
+      }
     }
-  }
 
-  // Add the back wall
-  for (float local_x = -0.5f * cup.width;
-       local_x <= 0.5f * cup.width + 0.5f * spacing;
-       local_x += spacing) {
-    for (float local_y = 0.0f;
-         local_y <= cup.height + 0.5f * spacing;
-         local_y += spacing) {
-      float world_x;
-      float world_y;
-      cup_local_to_world(cup, local_x, local_y, world_x, world_y);
-      add_boundary_particle_to_array(particle_array, particle_count, world_x,
-                                     world_y, z_max, kind);
+    // Add the back wall
+    for (float local_x = -0.5f * current_width;
+         local_x <= 0.5f * current_width + 0.5f * spacing;
+         local_x += spacing) {
+      for (float local_y = current_y_min;
+           local_y <= cup.height + 0.5f * spacing;
+           local_y += spacing) {
+        float world_x;
+        float world_y;
+        cup_local_to_world(cup, local_x, local_y, world_x, world_y);
+        add_boundary_particle_to_array(particle_array, particle_count, world_x,
+                                       world_y, z_max, kind);
+      }
     }
   }
 }
@@ -312,11 +320,12 @@ static void add_fluid_in_source_cup() {
 // Rebuild the source compute boundary
 void rebuild_source_compute_boundary_particles() {
 
-  // Clear the old source compute boundary
+  // Clear the old source boundary
   num_source_compute_boundary_particles = 0;
 
-  // Add the source compute boundary
+  // Rebuild with the compute layer count
   add_cup_particles_with_spacing(source_cup, 1, COMPUTE_BOUNDARY_SPACING,
+                                 COMPUTE_BOUNDARY_LAYERS,
                                  source_compute_boundary_particles,
                                  num_source_compute_boundary_particles);
 }
@@ -324,28 +333,31 @@ void rebuild_source_compute_boundary_particles() {
 // Rebuild the receiver compute boundary
 void rebuild_receiver_compute_boundary_particles() {
 
-  // Clear the old receiver compute boundary
+  // Clear the old receiver boundary
   num_receiver_compute_boundary_particles = 0;
 
-  // Add the receiver compute boundary
+  // Rebuild with the compute layer count
   add_cup_particles_with_spacing(receiver_cup, 2, COMPUTE_BOUNDARY_SPACING,
+                                 COMPUTE_BOUNDARY_LAYERS,
                                  receiver_compute_boundary_particles,
                                  num_receiver_compute_boundary_particles);
 }
 
-// Rebuild the render particles
+// Rebuild the dense render boundary
 void rebuild_boundary_particles_for_export() {
 
   // Clear the old render boundary
   num_boundary_particles = 0;
 
-  // Add the source render boundary
+  // Rebuild the source render wall
   add_cup_particles_with_spacing(source_cup, 1, CUP_RENDER_SPACING,
-                                 boundary_particles, num_boundary_particles);
+                                 RENDER_BOUNDARY_LAYERS, boundary_particles,
+                                 num_boundary_particles);
 
-  // Add the receiver render boundary
+  // Rebuild the receiver render wall
   add_cup_particles_with_spacing(receiver_cup, 2, CUP_RENDER_SPACING,
-                                 boundary_particles, num_boundary_particles);
+                                 RENDER_BOUNDARY_LAYERS, boundary_particles,
+                                 num_boundary_particles);
 }
 
 // Get the source tilt for one frame
@@ -362,7 +374,7 @@ static float get_source_tilt_for_frame(float frame_index,
     return target_tilt_deg;
   }
 
-  // Hold the cup upright first
+  // Hold upright then tilt
   if (frame_index < SETTLE_FRAMES) {
     return 0.0f;
   } else if (frame_index < (SETTLE_FRAMES + TILT_FRAMES)) {
@@ -377,7 +389,7 @@ static float get_source_tilt_for_frame(float frame_index,
 // Build the whole scene
 void initialize_scene(float target_tilt_deg) {
 
-  // Clear the old particles
+  // Clear all particle counts
   num_fluid_particles = 0;
   num_boundary_particles = 0;
   num_source_compute_boundary_particles = 0;
@@ -394,11 +406,12 @@ void initialize_scene(float target_tilt_deg) {
     initial_source_tilt_deg = 0.0f;
   }
 
-  // Build the cups at their starting angles
+  // Build the cups
   source_cup =
       make_cup(SOURCE_CUP_CENTER_X, SOURCE_CUP_CENTER_Y, SOURCE_CUP_CENTER_Z,
                SOURCE_CUP_WIDTH, SOURCE_CUP_HEIGHT, SOURCE_CUP_DEPTH,
                CUP_WALL_THICKNESS, initial_source_tilt_deg);
+
   receiver_cup =
       make_cup(RECEIVER_CUP_CENTER_X, RECEIVER_CUP_CENTER_Y,
                RECEIVER_CUP_CENTER_Z, RECEIVER_CUP_WIDTH, RECEIVER_CUP_HEIGHT,
@@ -407,20 +420,22 @@ void initialize_scene(float target_tilt_deg) {
   // Add the starting fluid
   add_fluid_in_source_cup();
 
-  // Build the first compute boundaries
+  // Build the compute boundaries
   rebuild_source_compute_boundary_particles();
   rebuild_receiver_compute_boundary_particles();
 
-  // Build the first render boundary
+  // Build the render boundary
   rebuild_boundary_particles_for_export();
 }
 
 // Update the cups for one frame
 void update_scene_for_frame(float frame_index, float target_tilt_deg) {
 
-  // Build the current and previous source tilt
+  // Build the current source tilt
   float current_tilt_deg =
       get_source_tilt_for_frame(frame_index, target_tilt_deg);
+
+  // Build the previous source tilt
   float previous_frame_index =
       frame_index - 1.0f / static_cast<float>(SUBSTEPS_PER_FRAME);
 
@@ -431,12 +446,12 @@ void update_scene_for_frame(float frame_index, float target_tilt_deg) {
   float previous_tilt_deg =
       get_source_tilt_for_frame(previous_frame_index, target_tilt_deg);
 
-  // Build the source angular velocity
+  // Build the angular velocity
   float delta_theta_rad = (current_tilt_deg - previous_tilt_deg) * PI / 180.0f;
   source_cup.angular_velocity = delta_theta_rad / DT;
   receiver_cup.angular_velocity = 0.0f;
 
-  // Update the cup angles
+  // Update the cup rotations
   update_cup_rotation(source_cup, current_tilt_deg);
   update_cup_rotation(receiver_cup, 0.0f);
 }
@@ -444,7 +459,7 @@ void update_scene_for_frame(float frame_index, float target_tilt_deg) {
 // Reset the penetration stats
 void reset_penetration_stats() {
 
-  // Reset the max values
+  // Reset the values
   max_source_penetration = 0.0f;
   max_receiver_penetration = 0.0f;
   below_source_bottom_count = 0;

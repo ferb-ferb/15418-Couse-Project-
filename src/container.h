@@ -48,6 +48,10 @@ const float INITIAL_PARTICLE_SPACING = 0.01f;
 const float COMPUTE_BOUNDARY_SPACING = 0.01f;
 const float CUP_RENDER_SPACING = 0.01f;
 
+// Set the boundary layer counts
+const int COMPUTE_BOUNDARY_LAYERS = 3;
+const int RENDER_BOUNDARY_LAYERS = 4;
+
 // Set the tilt schedule
 const int SETTLE_FRAMES = 100;
 const int TILT_FRAMES = 100;
@@ -60,7 +64,7 @@ const bool DEBUG_STATIC_TILT = false;
 extern Cup source_cup;
 extern Cup receiver_cup;
 
-// Share the render boundary
+// Share the dense render boundary
 extern Particle *boundary_particles;
 extern int num_boundary_particles;
 
@@ -91,7 +95,7 @@ void rebuild_source_compute_boundary_particles();
 // Rebuild the receiver compute boundary
 void rebuild_receiver_compute_boundary_particles();
 
-// Rebuild the render boundary
+// Rebuild the dense render boundary
 void rebuild_boundary_particles_for_export();
 
 // Push one fluid particle out of one cup wall

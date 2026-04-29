@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# go to the source folder
+# move into the source folder
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
@@ -10,40 +10,40 @@ ANGLE=120
 OUTPUT_DIR="output"
 BRUTE_LOG="timing_brute_${ANGLE}.log"
 NEIGHBOR_LOG="timing_neighbor_${ANGLE}.log"
-NEIGHBOR_TAR="output_${ANGLE}.tar.gz"
+TAR_NAME="neighbor_output_${ANGLE}.tar.gz"
 
 # build the code
 echo "Building"
 make clean
 make
 
-# clear old logs
-rm -f "$BRUTE_LOG" "$NEIGHBOR_LOG" "$NEIGHBOR_TAR"
+# clear old logs and tar
+rm -f "$BRUTE_LOG" "$NEIGHBOR_LOG" "$TAR_NAME"
 
-# clear old output
-rm -rf "$OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
+# helper to reset output folder
+reset_output_dir() {
+  rm -rf "$OUTPUT_DIR"
+  mkdir -p "$OUTPUT_DIR"
+}
 
 # run brute
 echo
 echo "Running brute at ${ANGLE} degrees"
+reset_output_dir
 ./sph_baseline "$ANGLE" brute | tee "$BRUTE_LOG"
 
-# clear output before neighbor run
-rm -rf "$OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
-
-# run neighbor list
+# run neighbor
 echo
-echo "Running neighbor list at ${ANGLE} degrees"
+echo "Running neighbor at ${ANGLE} degrees"
+reset_output_dir
 ./sph_baseline "$ANGLE" neighbor | tee "$NEIGHBOR_LOG"
 
-# tar the neighbor output
+# tar the whole output folder
 echo
-echo "Tarring neighbor output into ${NEIGHBOR_TAR}"
-tar -czf "$NEIGHBOR_TAR" -C "$OUTPUT_DIR" .
+echo "Creating tar archive ${TAR_NAME}"
+tar -czf "$TAR_NAME" -C "$(dirname "$OUTPUT_DIR")" "$(basename "$OUTPUT_DIR")"
 
-# print one summary line from a log
+# print timing summary from one log
 print_summary() {
   local mode_name="$1"
   local log_file="$2"
@@ -78,7 +78,7 @@ print_summary() {
   ' "$log_file"
 }
 
-# print overflow line from a log
+# print overflow summary from one log
 print_overflow() {
   local mode_name="$1"
   local log_file="$2"
@@ -106,7 +106,7 @@ print_overflow() {
   ' "$log_file"
 }
 
-# print the comparison
+# print comparison
 echo
 echo "Timing comparison"
 print_summary "brute" "$BRUTE_LOG"
@@ -118,4 +118,5 @@ print_overflow "brute" "$BRUTE_LOG"
 print_overflow "neighbor" "$NEIGHBOR_LOG"
 
 echo
-echo "Created ${NEIGHBOR_TAR}"
+echo "Created ${TAR_NAME}"
+echo "Archive contains folder $(basename "$OUTPUT_DIR")"

@@ -4,1159 +4,1159 @@ Initial density stats | rho: [360.426, 905.274] avg = 767.757 | p: [0, 7910.89] 
 Frame 0 fluid stats | fluid_count = 1248 | rho = [360.426, 905.274] avg = 767.757 | p = [0, 7910.89] avg = 93.6543 | speed = [0, 0] avg = 0 | rho_floor_count = 0 | zero_pressure_count = 1206
 Initial source cup check | fluid_count = 1248 | outside_count = 0
 Fluid particles = 1248
-Source compute boundary particles = 1713
-Receiver compute boundary particles = 1759
-Render boundary particles = 3472
-FrameTiming 1 30.311
-FrameTiming 2 30.319
-FrameTiming 3 30.141
-FrameTiming 4 30.247
-FrameTiming 5 30.163
-FrameTiming 6 30.134
-FrameTiming 7 30.106
-FrameTiming 8 30.208
-FrameTiming 9 30.090
-FrameTiming 10 30.173
-FrameTiming 11 30.123
-FrameTiming 12 30.280
-FrameTiming 13 30.418
-FrameTiming 14 30.387
-FrameTiming 15 30.848
-FrameTiming 16 30.920
-FrameTiming 17 31.024
-FrameTiming 18 31.269
-FrameTiming 19 31.152
-FrameTiming 20 31.199
-Frame 20 | rho: [360.487, 980.059] avg=793.359 | p: [0.000, 120088.711] | speed avg=0.645 max=0.647
-Frame 20 fluid stats | fluid_count = 1248 | rho = [360.487, 980.059] avg = 793.359 | p = [0.000, 120088.711] avg = 6019.658 | speed = [0.635, 0.647] avg = 0.645 | rho_floor_count = 0 | zero_pressure_count = 1126
+Source compute boundary particles = 6111
+Receiver compute boundary particles = 6225
+Render boundary particles = 17824
+FrameTiming 1 67.148
+FrameTiming 2 67.317
+FrameTiming 3 67.049
+FrameTiming 4 66.794
+FrameTiming 5 67.189
+FrameTiming 6 67.212
+FrameTiming 7 67.057
+FrameTiming 8 67.111
+FrameTiming 9 66.972
+FrameTiming 10 66.918
+FrameTiming 11 67.245
+FrameTiming 12 67.039
+FrameTiming 13 67.651
+FrameTiming 14 70.494
+FrameTiming 15 76.937
+FrameTiming 16 83.366
+FrameTiming 17 67.468
+FrameTiming 18 67.249
+FrameTiming 19 68.479
+FrameTiming 20 67.184
+Frame 20 | rho: [360.487, 1007.358] avg=795.667 | p: [0.000, 161036.312] | speed avg=0.645 max=0.647
+Frame 20 fluid stats | fluid_count = 1248 | rho = [360.487, 1007.358] avg = 795.667 | p = [0.000, 161036.312] avg = 8176.463 | speed = [0.625, 0.647] avg = 0.645 | rho_floor_count = 0 | zero_pressure_count = 1126
 Frame 20 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 0
-FrameTiming 21 31.276
-FrameTiming 22 31.661
-FrameTiming 23 31.289
-FrameTiming 24 31.444
-FrameTiming 25 31.100
-FrameTiming 26 31.091
-FrameTiming 27 30.421
-FrameTiming 28 30.926
-FrameTiming 29 31.210
-FrameTiming 30 31.144
-FrameTiming 31 31.414
-FrameTiming 32 31.256
-FrameTiming 33 31.428
-FrameTiming 34 31.585
-FrameTiming 35 31.559
-FrameTiming 36 31.518
-FrameTiming 37 31.414
-FrameTiming 38 31.194
-FrameTiming 39 31.262
-FrameTiming 40 31.642
-Frame 40 | rho: [238.089, 1859.061] avg=1210.475 | p: [0.000, 1438592.125] | speed avg=0.618 max=1.075
-Frame 40 fluid stats | fluid_count = 1248 | rho = [238.089, 1859.061] avg = 1210.475 | p = [0.000, 1438592.125] avg = 512953.688 | speed = [0.072, 1.075] avg = 0.618 | rho_floor_count = 0 | zero_pressure_count = 175
-Frame 40 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 64 | inside_receiver_wall_count = 0
-FrameTiming 41 31.585
-FrameTiming 42 31.501
-FrameTiming 43 31.453
-FrameTiming 44 31.427
-FrameTiming 45 31.131
-FrameTiming 46 31.136
-FrameTiming 47 31.109
-FrameTiming 48 31.176
-FrameTiming 49 31.256
-FrameTiming 50 31.360
-FrameTiming 51 31.176
-FrameTiming 52 31.291
-FrameTiming 53 31.234
-FrameTiming 54 31.273
-FrameTiming 55 31.271
-FrameTiming 56 31.300
-FrameTiming 57 31.017
-FrameTiming 58 31.423
-FrameTiming 59 31.446
-FrameTiming 60 31.404
-Frame 60 | rho: [90.241, 1349.023] avg=953.709 | p: [0.000, 673535.125] | speed avg=0.292 max=1.109
-Frame 60 fluid stats | fluid_count = 1248 | rho = [90.241, 1349.023] avg = 953.709 | p = [0.000, 673535.125] avg = 146284.125 | speed = [0.018, 1.109] avg = 0.292 | rho_floor_count = 0 | zero_pressure_count = 376
-Frame 60 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 61 | inside_receiver_wall_count = 0
-FrameTiming 61 31.461
-FrameTiming 62 31.516
-FrameTiming 63 31.517
-FrameTiming 64 31.740
-FrameTiming 65 31.700
-FrameTiming 66 31.684
-FrameTiming 67 31.347
-FrameTiming 68 31.498
-FrameTiming 69 31.464
-FrameTiming 70 31.462
-FrameTiming 71 31.487
-FrameTiming 72 31.581
-FrameTiming 73 31.529
-FrameTiming 74 31.290
-FrameTiming 75 31.352
-FrameTiming 76 31.451
-FrameTiming 77 31.488
-FrameTiming 78 31.358
-FrameTiming 79 31.471
-FrameTiming 80 31.350
-Frame 80 | rho: [90.241, 1272.361] avg=955.207 | p: [0.000, 558540.875] | speed avg=0.176 max=1.254
-Frame 80 fluid stats | fluid_count = 1248 | rho = [90.241, 1272.361] avg = 955.207 | p = [0.000, 558540.875] avg = 169241.125 | speed = [0.010, 1.254] avg = 0.176 | rho_floor_count = 0 | zero_pressure_count = 382
-Frame 80 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 72 | inside_receiver_wall_count = 0
-FrameTiming 81 31.420
-FrameTiming 82 31.233
-FrameTiming 83 31.328
-FrameTiming 84 31.421
-FrameTiming 85 31.286
-FrameTiming 86 31.193
-FrameTiming 87 31.536
-FrameTiming 88 31.386
-FrameTiming 89 31.532
-FrameTiming 90 31.366
-FrameTiming 91 31.417
-FrameTiming 92 31.521
-FrameTiming 93 31.623
-FrameTiming 94 31.389
-FrameTiming 95 31.317
-FrameTiming 96 31.447
-FrameTiming 97 31.433
-FrameTiming 98 31.769
-FrameTiming 99 31.555
-FrameTiming 100 31.568
-Frame 100 | rho: [90.241, 1382.887] avg=1059.304 | p: [0.000, 724330.250] | speed avg=0.196 max=1.487
-Frame 100 fluid stats | fluid_count = 1248 | rho = [90.241, 1382.887] avg = 1059.304 | p = [0.000, 724330.250] avg = 262531.500 | speed = [0.018, 1.487] avg = 0.196 | rho_floor_count = 0 | zero_pressure_count = 131
-Frame 100 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 67 | inside_receiver_wall_count = 0
-FrameTiming 101 31.252
-FrameTiming 102 31.596
-FrameTiming 103 31.518
-FrameTiming 104 31.554
-FrameTiming 105 31.910
-FrameTiming 106 31.909
-FrameTiming 107 31.959
-FrameTiming 108 32.072
-FrameTiming 109 32.261
-FrameTiming 110 32.272
-FrameTiming 111 32.468
-FrameTiming 112 32.397
-FrameTiming 113 32.124
-FrameTiming 114 32.274
-FrameTiming 115 32.249
-FrameTiming 116 32.122
-FrameTiming 117 32.289
-FrameTiming 118 32.197
-FrameTiming 119 32.069
-FrameTiming 120 32.054
-Frame 120 | rho: [90.241, 1219.169] avg=968.076 | p: [0.000, 478753.781] | speed avg=0.320 max=1.579
-Frame 120 fluid stats | fluid_count = 1248 | rho = [90.241, 1219.169] avg = 968.076 | p = [0.000, 478753.781] avg = 131604.656 | speed = [0.045, 1.579] avg = 0.320 | rho_floor_count = 0 | zero_pressure_count = 275
-Frame 120 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 9 | below_receiver_bottom_count = 0 | inside_source_wall_count = 124 | inside_receiver_wall_count = 0
-FrameTiming 121 31.870
-FrameTiming 122 31.954
-FrameTiming 123 31.803
-FrameTiming 124 31.966
-FrameTiming 125 32.451
-FrameTiming 126 31.787
-FrameTiming 127 31.819
-FrameTiming 128 32.018
-FrameTiming 129 31.896
-FrameTiming 130 32.235
-FrameTiming 131 32.051
-FrameTiming 132 31.938
-FrameTiming 133 31.757
-FrameTiming 134 31.952
-FrameTiming 135 32.130
-FrameTiming 136 32.170
-FrameTiming 137 31.954
-FrameTiming 138 32.025
-FrameTiming 139 32.085
-FrameTiming 140 31.576
-Frame 140 | rho: [90.241, 1445.530] avg=1020.209 | p: [0.000, 818294.500] | speed avg=0.392 max=1.522
-Frame 140 fluid stats | fluid_count = 1248 | rho = [90.241, 1445.530] avg = 1020.209 | p = [0.000, 818294.500] avg = 203122.281 | speed = [0.029, 1.522] avg = 0.392 | rho_floor_count = 0 | zero_pressure_count = 240
-Frame 140 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 1 | below_receiver_bottom_count = 0 | inside_source_wall_count = 74 | inside_receiver_wall_count = 0
-FrameTiming 141 31.713
-FrameTiming 142 32.025
-FrameTiming 143 32.078
-FrameTiming 144 31.997
-FrameTiming 145 32.100
-FrameTiming 146 31.139
-FrameTiming 147 31.464
-FrameTiming 148 31.950
-FrameTiming 149 31.912
-FrameTiming 150 32.064
-FrameTiming 151 31.894
-FrameTiming 152 32.022
-FrameTiming 153 31.889
-FrameTiming 154 31.834
-FrameTiming 155 32.032
-FrameTiming 156 31.906
-FrameTiming 157 32.019
-FrameTiming 158 31.787
-FrameTiming 159 32.044
-FrameTiming 160 31.893
-Frame 160 | rho: [90.241, 1449.727] avg=973.129 | p: [0.000, 824591.125] | speed avg=0.504 max=1.666
-Frame 160 fluid stats | fluid_count = 1248 | rho = [90.241, 1449.727] avg = 973.129 | p = [0.000, 824591.125] avg = 168992.469 | speed = [0.057, 1.666] avg = 0.504 | rho_floor_count = 0 | zero_pressure_count = 424
-Frame 160 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 45 | inside_receiver_wall_count = 0
-FrameTiming 161 31.771
-FrameTiming 162 31.940
-FrameTiming 163 31.681
-FrameTiming 164 31.825
-FrameTiming 165 31.589
-FrameTiming 166 31.711
-FrameTiming 167 31.869
-FrameTiming 168 32.002
-FrameTiming 169 31.668
-FrameTiming 170 31.104
-FrameTiming 171 31.176
-FrameTiming 172 31.213
-FrameTiming 173 31.068
-FrameTiming 174 31.146
-FrameTiming 175 31.344
-FrameTiming 176 31.019
-FrameTiming 177 31.161
-FrameTiming 178 31.026
-FrameTiming 179 30.817
-FrameTiming 180 31.570
-Frame 180 | rho: [90.241, 1318.991] avg=970.031 | p: [0.000, 628486.062] | speed avg=0.574 max=1.048
-Frame 180 fluid stats | fluid_count = 1248 | rho = [90.241, 1318.991] avg = 970.031 | p = [0.000, 628486.062] avg = 162823.547 | speed = [0.041, 1.048] avg = 0.574 | rho_floor_count = 0 | zero_pressure_count = 411
-Frame 180 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 22 | inside_receiver_wall_count = 0
-FrameTiming 181 32.343
-FrameTiming 182 31.876
-FrameTiming 183 31.052
-FrameTiming 184 31.085
-FrameTiming 185 30.763
-FrameTiming 186 31.135
-FrameTiming 187 31.241
-FrameTiming 188 31.118
-FrameTiming 189 31.133
-FrameTiming 190 30.997
-FrameTiming 191 31.156
-FrameTiming 192 31.024
-FrameTiming 193 30.954
-FrameTiming 194 30.959
-FrameTiming 195 30.892
-FrameTiming 196 30.754
-FrameTiming 197 31.098
-FrameTiming 198 30.977
-FrameTiming 199 32.072
-FrameTiming 200 31.811
-Frame 200 | rho: [90.241, 1076.993] avg=745.637 | p: [0.000, 265489.000] | speed avg=0.802 max=1.221
-Frame 200 fluid stats | fluid_count = 1248 | rho = [90.241, 1076.993] avg = 745.637 | p = [0.000, 265489.000] avg = 3085.559 | speed = [0.050, 1.221] avg = 0.802 | rho_floor_count = 0 | zero_pressure_count = 1158
-Frame 200 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 5 | inside_receiver_wall_count = 0
-FrameTiming 201 31.889
-FrameTiming 202 31.836
-FrameTiming 203 31.947
-FrameTiming 204 31.987
-FrameTiming 205 32.075
-FrameTiming 206 31.794
-FrameTiming 207 31.973
-FrameTiming 208 31.900
-FrameTiming 209 32.171
-FrameTiming 210 32.229
-FrameTiming 211 31.921
-FrameTiming 212 32.325
-FrameTiming 213 32.159
-FrameTiming 214 32.017
-FrameTiming 215 32.038
-FrameTiming 216 32.106
-FrameTiming 217 31.867
-FrameTiming 218 32.048
-FrameTiming 219 31.863
-FrameTiming 220 31.632
-Frame 220 | rho: [90.241, 1233.068] avg=815.519 | p: [0.000, 499602.000] | speed avg=0.875 max=1.709
-Frame 220 fluid stats | fluid_count = 1248 | rho = [90.241, 1233.068] avg = 815.519 | p = [0.000, 499602.000] avg = 37295.871 | speed = [0.105, 1.709] avg = 0.875 | rho_floor_count = 0 | zero_pressure_count = 826
-Frame 220 | max_source_penetration = 0.000 | max_receiver_penetration = 0.004 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 44 | inside_receiver_wall_count = 2
-FrameTiming 221 31.272
-FrameTiming 222 30.663
-FrameTiming 223 30.437
-FrameTiming 224 30.489
-FrameTiming 225 30.431
-FrameTiming 226 30.374
-FrameTiming 227 30.324
-FrameTiming 228 31.196
-FrameTiming 229 30.995
-FrameTiming 230 31.079
-FrameTiming 231 31.033
-FrameTiming 232 31.128
-FrameTiming 233 31.098
-FrameTiming 234 30.888
-FrameTiming 235 31.083
-FrameTiming 236 30.902
-FrameTiming 237 30.878
-FrameTiming 238 30.885
-FrameTiming 239 31.124
-FrameTiming 240 31.133
-Frame 240 | rho: [90.241, 1371.162] avg=638.260 | p: [0.000, 706742.438] | speed avg=0.934 max=1.617
-Frame 240 fluid stats | fluid_count = 1248 | rho = [90.241, 1371.162] avg = 638.260 | p = [0.000, 706742.438] avg = 53894.152 | speed = [0.044, 1.617] avg = 0.934 | rho_floor_count = 0 | zero_pressure_count = 885
-Frame 240 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 10 | inside_source_wall_count = 49 | inside_receiver_wall_count = 18
-FrameTiming 241 30.919
-FrameTiming 242 30.910
-FrameTiming 243 31.121
-FrameTiming 244 31.077
-FrameTiming 245 31.076
-FrameTiming 246 31.345
-FrameTiming 247 31.095
-FrameTiming 248 31.182
-FrameTiming 249 31.111
-FrameTiming 250 31.226
-FrameTiming 251 31.193
-FrameTiming 252 30.911
-FrameTiming 253 30.878
-FrameTiming 254 31.124
-FrameTiming 255 31.238
-FrameTiming 256 31.000
-FrameTiming 257 31.235
-FrameTiming 258 31.013
-FrameTiming 259 30.864
-FrameTiming 260 31.067
-Frame 260 | rho: [90.241, 1353.855] avg=665.586 | p: [0.000, 680782.500] | speed avg=0.848 max=1.419
-Frame 260 fluid stats | fluid_count = 1248 | rho = [90.241, 1353.855] avg = 665.586 | p = [0.000, 680782.500] avg = 55075.422 | speed = [0.038, 1.419] avg = 0.848 | rho_floor_count = 0 | zero_pressure_count = 910
-Frame 260 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 1 | inside_source_wall_count = 37 | inside_receiver_wall_count = 28
-FrameTiming 261 30.898
-FrameTiming 262 31.101
-FrameTiming 263 30.938
-FrameTiming 264 30.963
-FrameTiming 265 30.949
-FrameTiming 266 30.993
-FrameTiming 267 31.223
-FrameTiming 268 31.031
-FrameTiming 269 31.305
-FrameTiming 270 31.601
-FrameTiming 271 31.230
-FrameTiming 272 31.145
-FrameTiming 273 30.949
-FrameTiming 274 31.023
-FrameTiming 275 31.059
-FrameTiming 276 31.261
-FrameTiming 277 31.126
-FrameTiming 278 31.453
-FrameTiming 279 31.360
-FrameTiming 280 31.645
-Frame 280 | rho: [90.241, 1520.313] avg=825.008 | p: [0.000, 930469.125] | speed avg=0.727 max=1.397
-Frame 280 fluid stats | fluid_count = 1248 | rho = [90.241, 1520.313] avg = 825.008 | p = [0.000, 930469.125] avg = 165400.609 | speed = [0.009, 1.397] avg = 0.727 | rho_floor_count = 0 | zero_pressure_count = 684
-Frame 280 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 1 | inside_source_wall_count = 25 | inside_receiver_wall_count = 60
-FrameTiming 281 31.716
-FrameTiming 282 31.359
-FrameTiming 283 31.529
-FrameTiming 284 31.587
-FrameTiming 285 31.829
-FrameTiming 286 31.893
-FrameTiming 287 31.907
-FrameTiming 288 32.168
-FrameTiming 289 31.764
-FrameTiming 290 31.899
-FrameTiming 291 31.836
-FrameTiming 292 31.717
-FrameTiming 293 31.701
-FrameTiming 294 31.551
-FrameTiming 295 31.276
-FrameTiming 296 30.856
-FrameTiming 297 31.568
-FrameTiming 298 31.704
-FrameTiming 299 31.665
-FrameTiming 300 31.440
-Frame 300 | rho: [90.241, 1488.298] avg=758.223 | p: [0.000, 882446.438] | speed avg=0.515 max=1.348
-Frame 300 fluid stats | fluid_count = 1248 | rho = [90.241, 1488.298] avg = 758.223 | p = [0.000, 882446.438] avg = 98269.695 | speed = [0.010, 1.348] avg = 0.515 | rho_floor_count = 0 | zero_pressure_count = 778
-Frame 300 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 2 | inside_receiver_wall_count = 40
-FrameTiming 301 31.198
-FrameTiming 302 30.904
-FrameTiming 303 30.865
-FrameTiming 304 30.748
-FrameTiming 305 30.473
-FrameTiming 306 30.359
-FrameTiming 307 30.473
-FrameTiming 308 30.537
-FrameTiming 309 30.526
-FrameTiming 310 30.475
-FrameTiming 311 31.251
-FrameTiming 312 31.726
-FrameTiming 313 31.679
-FrameTiming 314 31.556
-FrameTiming 315 31.614
-FrameTiming 316 31.672
-FrameTiming 317 31.820
-FrameTiming 318 31.647
-FrameTiming 319 31.750
-FrameTiming 320 31.741
-Frame 320 | rho: [90.241, 1356.886] avg=934.433 | p: [0.000, 685328.625] | speed avg=0.360 max=1.336
-Frame 320 fluid stats | fluid_count = 1248 | rho = [90.241, 1356.886] avg = 934.433 | p = [0.000, 685328.625] avg = 204006.203 | speed = [0.005, 1.336] avg = 0.360 | rho_floor_count = 0 | zero_pressure_count = 407
-Frame 320 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 1 | inside_source_wall_count = 0 | inside_receiver_wall_count = 82
-FrameTiming 321 31.790
-FrameTiming 322 31.885
-FrameTiming 323 31.050
-FrameTiming 324 30.600
-FrameTiming 325 30.790
-FrameTiming 326 31.563
-FrameTiming 327 31.799
-FrameTiming 328 31.667
-FrameTiming 329 36.146
-FrameTiming 330 31.818
-FrameTiming 331 32.075
-FrameTiming 332 32.028
-FrameTiming 333 32.023
-FrameTiming 334 32.224
-FrameTiming 335 32.060
-FrameTiming 336 31.817
-FrameTiming 337 32.176
-FrameTiming 338 31.941
-FrameTiming 339 32.046
-FrameTiming 340 31.957
-Frame 340 | rho: [90.241, 1331.329] avg=975.435 | p: [0.000, 646992.938] | speed avg=0.218 max=1.363
-Frame 340 fluid stats | fluid_count = 1248 | rho = [90.241, 1331.329] avg = 975.435 | p = [0.000, 646992.938] avg = 182392.938 | speed = [0.009, 1.363] avg = 0.218 | rho_floor_count = 0 | zero_pressure_count = 319
-Frame 340 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 63
-FrameTiming 341 31.895
-FrameTiming 342 32.124
-FrameTiming 343 31.937
-FrameTiming 344 34.514
-FrameTiming 345 32.326
-FrameTiming 346 32.744
-FrameTiming 347 38.761
-FrameTiming 348 32.193
-FrameTiming 349 33.068
-FrameTiming 350 36.210
-FrameTiming 351 31.775
-FrameTiming 352 31.713
-FrameTiming 353 31.647
-FrameTiming 354 32.129
-FrameTiming 355 31.971
-FrameTiming 356 31.869
-FrameTiming 357 32.022
-FrameTiming 358 31.061
-FrameTiming 359 30.922
-FrameTiming 360 30.765
-Frame 360 | rho: [90.241, 1256.974] avg=955.114 | p: [0.000, 535460.812] | speed avg=0.128 max=1.035
-Frame 360 fluid stats | fluid_count = 1248 | rho = [90.241, 1256.974] avg = 955.114 | p = [0.000, 535460.812] avg = 133184.125 | speed = [0.005, 1.035] avg = 0.128 | rho_floor_count = 0 | zero_pressure_count = 350
-Frame 360 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 71
-FrameTiming 361 31.937
-FrameTiming 362 31.983
-FrameTiming 363 31.989
-FrameTiming 364 31.912
-FrameTiming 365 31.901
-FrameTiming 366 31.803
-FrameTiming 367 31.343
-FrameTiming 368 31.215
-FrameTiming 369 31.230
-FrameTiming 370 31.950
-FrameTiming 371 31.866
-FrameTiming 372 31.974
-FrameTiming 373 31.812
-FrameTiming 374 31.885
-FrameTiming 375 31.795
-FrameTiming 376 31.802
-FrameTiming 377 31.728
-FrameTiming 378 32.210
-FrameTiming 379 32.144
-FrameTiming 380 31.311
-Frame 380 | rho: [90.241, 1192.791] avg=980.558 | p: [0.000, 439186.156] | speed avg=0.097 max=0.388
-Frame 380 fluid stats | fluid_count = 1248 | rho = [90.241, 1192.791] avg = 980.558 | p = [0.000, 439186.156] avg = 150760.734 | speed = [0.006, 0.388] avg = 0.097 | rho_floor_count = 0 | zero_pressure_count = 274
-Frame 380 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 93
-FrameTiming 381 31.256
-FrameTiming 382 31.087
-FrameTiming 383 31.035
-FrameTiming 384 30.976
-FrameTiming 385 30.967
-FrameTiming 386 30.915
-FrameTiming 387 31.746
-FrameTiming 388 31.973
-FrameTiming 389 31.972
-FrameTiming 390 32.137
-FrameTiming 391 31.988
-FrameTiming 392 31.908
-FrameTiming 393 31.957
-FrameTiming 394 31.933
-FrameTiming 395 31.985
-FrameTiming 396 32.008
-FrameTiming 397 31.824
-FrameTiming 398 31.755
-FrameTiming 399 31.907
-FrameTiming 400 31.683
-Frame 400 | rho: [90.241, 1241.546] avg=987.584 | p: [0.000, 512318.312] | speed avg=0.087 max=0.585
-Frame 400 fluid stats | fluid_count = 1248 | rho = [90.241, 1241.546] avg = 987.584 | p = [0.000, 512318.312] avg = 157248.422 | speed = [0.006, 0.585] avg = 0.087 | rho_floor_count = 0 | zero_pressure_count = 245
-Frame 400 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 93
-FrameTiming 401 31.872
-FrameTiming 402 32.128
-FrameTiming 403 31.111
-FrameTiming 404 30.890
-FrameTiming 405 30.808
-FrameTiming 406 30.771
-FrameTiming 407 30.666
-FrameTiming 408 30.813
-FrameTiming 409 30.746
-FrameTiming 410 30.790
-FrameTiming 411 30.845
-FrameTiming 412 30.753
-FrameTiming 413 30.764
-FrameTiming 414 31.847
-FrameTiming 415 31.855
-FrameTiming 416 32.242
-FrameTiming 417 31.855
-FrameTiming 418 32.097
-FrameTiming 419 32.029
-FrameTiming 420 31.833
-Frame 420 | rho: [90.241, 1163.847] avg=977.833 | p: [0.000, 395769.844] | speed avg=0.080 max=1.018
-Frame 420 fluid stats | fluid_count = 1248 | rho = [90.241, 1163.847] avg = 977.833 | p = [0.000, 395769.844] avg = 148474.969 | speed = [0.006, 1.018] avg = 0.080 | rho_floor_count = 0 | zero_pressure_count = 260
-Frame 420 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 86
-FrameTiming 421 32.047
-FrameTiming 422 31.979
-FrameTiming 423 32.140
-FrameTiming 424 31.691
-FrameTiming 425 31.752
-FrameTiming 426 31.818
-FrameTiming 427 31.757
-FrameTiming 428 32.015
-FrameTiming 429 31.680
-FrameTiming 430 31.850
-FrameTiming 431 31.858
-FrameTiming 432 31.765
-FrameTiming 433 31.659
-FrameTiming 434 31.890
-FrameTiming 435 31.777
-FrameTiming 436 31.892
-FrameTiming 437 31.715
-FrameTiming 438 31.918
-FrameTiming 439 31.860
-FrameTiming 440 31.904
-Frame 440 | rho: [90.241, 1175.896] avg=980.242 | p: [0.000, 413844.531] | speed avg=0.072 max=0.875
-Frame 440 fluid stats | fluid_count = 1248 | rho = [90.241, 1175.896] avg = 980.242 | p = [0.000, 413844.531] avg = 149710.344 | speed = [0.004, 0.875] avg = 0.072 | rho_floor_count = 0 | zero_pressure_count = 252
-Frame 440 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 88
-FrameTiming 441 31.981
-FrameTiming 442 31.930
-FrameTiming 443 32.032
-FrameTiming 444 31.840
-FrameTiming 445 32.190
-FrameTiming 446 31.801
-FrameTiming 447 31.897
-FrameTiming 448 32.070
-FrameTiming 449 31.951
-FrameTiming 450 31.907
-FrameTiming 451 32.015
-FrameTiming 452 32.158
-FrameTiming 453 32.050
-FrameTiming 454 31.723
-FrameTiming 455 32.018
-FrameTiming 456 31.878
-FrameTiming 457 32.063
-FrameTiming 458 31.796
-FrameTiming 459 32.107
-FrameTiming 460 32.193
-Frame 460 | rho: [90.241, 1137.460] avg=974.098 | p: [0.000, 356189.562] | speed avg=0.065 max=1.040
-Frame 460 fluid stats | fluid_count = 1248 | rho = [90.241, 1137.460] avg = 974.098 | p = [0.000, 356189.562] avg = 142071.031 | speed = [0.003, 1.040] avg = 0.065 | rho_floor_count = 0 | zero_pressure_count = 280
-Frame 460 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 106
-FrameTiming 461 31.978
-FrameTiming 462 31.884
-FrameTiming 463 31.896
-FrameTiming 464 32.018
-FrameTiming 465 32.265
-FrameTiming 466 31.922
-FrameTiming 467 31.966
-FrameTiming 468 31.945
-FrameTiming 469 31.931
-FrameTiming 470 32.016
-FrameTiming 471 32.105
-FrameTiming 472 32.153
-FrameTiming 473 32.100
-FrameTiming 474 32.213
-FrameTiming 475 31.934
-FrameTiming 476 31.823
-FrameTiming 477 31.623
-FrameTiming 478 31.780
-FrameTiming 479 31.966
-FrameTiming 480 31.851
-Frame 480 | rho: [90.241, 1177.598] avg=975.297 | p: [0.000, 416397.406] | speed avg=0.060 max=0.911
-Frame 480 fluid stats | fluid_count = 1248 | rho = [90.241, 1177.598] avg = 975.297 | p = [0.000, 416397.406] avg = 144569.891 | speed = [0.002, 0.911] avg = 0.060 | rho_floor_count = 0 | zero_pressure_count = 222
-Frame 480 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 95
-FrameTiming 481 31.456
-FrameTiming 482 31.998
-FrameTiming 483 32.009
-FrameTiming 484 31.900
-FrameTiming 485 31.693
-FrameTiming 486 31.796
-FrameTiming 487 31.840
-FrameTiming 488 31.598
-FrameTiming 489 31.756
-FrameTiming 490 31.809
-FrameTiming 491 31.662
-FrameTiming 492 31.699
-FrameTiming 493 31.942
-FrameTiming 494 32.040
-FrameTiming 495 32.075
-FrameTiming 496 31.757
-FrameTiming 497 34.547
-FrameTiming 498 31.458
-FrameTiming 499 31.558
-FrameTiming 500 31.395
-Frame 500 | rho: [90.241, 1161.392] avg=978.135 | p: [0.000, 392088.500] | speed avg=0.061 max=0.562
-Frame 500 fluid stats | fluid_count = 1248 | rho = [90.241, 1161.392] avg = 978.135 | p = [0.000, 392088.500] avg = 148022.328 | speed = [0.002, 0.562] avg = 0.061 | rho_floor_count = 0 | zero_pressure_count = 188
-Frame 500 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 90
-FrameTiming 501 31.406
-FrameTiming 502 31.539
-FrameTiming 503 31.593
-FrameTiming 504 31.432
-FrameTiming 505 31.464
-FrameTiming 506 31.298
-FrameTiming 507 31.387
-FrameTiming 508 31.367
-FrameTiming 509 31.542
-FrameTiming 510 31.506
-FrameTiming 511 31.453
-FrameTiming 512 31.541
-FrameTiming 513 31.576
-FrameTiming 514 31.625
-FrameTiming 515 31.666
-FrameTiming 516 31.836
-FrameTiming 517 31.708
-FrameTiming 518 31.606
-FrameTiming 519 31.681
-FrameTiming 520 31.804
-Frame 520 | rho: [90.241, 1139.073] avg=975.708 | p: [0.000, 358609.688] | speed avg=0.061 max=0.661
-Frame 520 fluid stats | fluid_count = 1248 | rho = [90.241, 1139.073] avg = 975.708 | p = [0.000, 358609.688] avg = 145231.062 | speed = [0.001, 0.661] avg = 0.061 | rho_floor_count = 0 | zero_pressure_count = 185
-Frame 520 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 79
-FrameTiming 521 31.676
-FrameTiming 522 31.687
-FrameTiming 523 31.772
-FrameTiming 524 31.735
-FrameTiming 525 31.713
-FrameTiming 526 31.567
-FrameTiming 527 31.767
-FrameTiming 528 31.375
-FrameTiming 529 31.573
-FrameTiming 530 31.649
-FrameTiming 531 31.517
-FrameTiming 532 31.669
-FrameTiming 533 31.710
-FrameTiming 534 31.785
-FrameTiming 535 31.721
-FrameTiming 536 31.743
-FrameTiming 537 31.798
-FrameTiming 538 31.839
-FrameTiming 539 31.433
-FrameTiming 540 31.525
-Frame 540 | rho: [90.241, 1136.528] avg=971.311 | p: [0.000, 354792.125] | speed avg=0.059 max=0.886
-Frame 540 fluid stats | fluid_count = 1248 | rho = [90.241, 1136.528] avg = 971.311 | p = [0.000, 354792.125] avg = 139851.125 | speed = [0.001, 0.886] avg = 0.059 | rho_floor_count = 0 | zero_pressure_count = 198
-Frame 540 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 88
-FrameTiming 541 31.580
-FrameTiming 542 31.852
-FrameTiming 543 31.565
-FrameTiming 544 31.447
-FrameTiming 545 31.673
-FrameTiming 546 31.676
-FrameTiming 547 31.426
-FrameTiming 548 31.485
-FrameTiming 549 31.271
-FrameTiming 550 31.443
-FrameTiming 551 31.465
-FrameTiming 552 31.530
-FrameTiming 553 31.477
-FrameTiming 554 31.354
-FrameTiming 555 31.357
-FrameTiming 556 31.475
-FrameTiming 557 31.423
-FrameTiming 558 31.525
-FrameTiming 559 31.523
-FrameTiming 560 31.503
-Frame 560 | rho: [90.241, 1156.738] avg=971.657 | p: [0.000, 385106.312] | speed avg=0.061 max=0.928
-Frame 560 fluid stats | fluid_count = 1248 | rho = [90.241, 1156.738] avg = 971.657 | p = [0.000, 385106.312] avg = 143959.188 | speed = [0.001, 0.928] avg = 0.061 | rho_floor_count = 0 | zero_pressure_count = 181
-Frame 560 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 95
-FrameTiming 561 31.420
-FrameTiming 562 31.260
-FrameTiming 563 31.272
-FrameTiming 564 31.536
-FrameTiming 565 31.399
-FrameTiming 566 31.425
-FrameTiming 567 31.641
-FrameTiming 568 31.664
-FrameTiming 569 31.506
-FrameTiming 570 31.728
-FrameTiming 571 31.758
-FrameTiming 572 31.580
-FrameTiming 573 31.607
-FrameTiming 574 31.526
-FrameTiming 575 31.473
-FrameTiming 576 31.584
-FrameTiming 577 31.539
-FrameTiming 578 31.644
-FrameTiming 579 31.629
-FrameTiming 580 31.766
-Frame 580 | rho: [90.241, 1151.404] avg=972.676 | p: [0.000, 377106.625] | speed avg=0.058 max=1.034
-Frame 580 fluid stats | fluid_count = 1248 | rho = [90.241, 1151.404] avg = 972.676 | p = [0.000, 377106.625] avg = 145444.438 | speed = [0.001, 1.034] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 179
-Frame 580 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 85
-FrameTiming 581 31.784
-FrameTiming 582 31.657
-FrameTiming 583 31.754
-FrameTiming 584 31.557
-FrameTiming 585 31.455
-FrameTiming 586 31.470
-FrameTiming 587 31.493
-FrameTiming 588 31.472
-FrameTiming 589 31.623
-FrameTiming 590 31.464
-FrameTiming 591 31.600
-FrameTiming 592 31.645
-FrameTiming 593 31.527
-FrameTiming 594 31.588
-FrameTiming 595 36.111
-FrameTiming 596 31.544
-FrameTiming 597 31.429
-FrameTiming 598 31.532
-FrameTiming 599 31.512
-FrameTiming 600 31.477
-Frame 600 | rho: [90.241, 1201.097] avg=969.670 | p: [0.000, 451644.844] | speed avg=0.053 max=0.998
-Frame 600 fluid stats | fluid_count = 1248 | rho = [90.241, 1201.097] avg = 969.670 | p = [0.000, 451644.844] avg = 143588.875 | speed = [0.001, 0.998] avg = 0.053 | rho_floor_count = 0 | zero_pressure_count = 187
-Frame 600 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 111
-FrameTiming 601 31.442
-FrameTiming 602 31.399
-FrameTiming 603 31.624
-FrameTiming 604 31.792
-FrameTiming 605 31.517
-FrameTiming 606 31.728
-FrameTiming 607 31.588
-FrameTiming 608 31.601
-FrameTiming 609 31.733
-FrameTiming 610 31.664
-FrameTiming 611 31.505
-FrameTiming 612 31.783
-FrameTiming 613 31.509
-FrameTiming 614 31.503
-FrameTiming 615 31.493
-FrameTiming 616 31.480
-FrameTiming 617 31.322
-FrameTiming 618 31.428
-FrameTiming 619 31.499
-FrameTiming 620 31.434
-Frame 620 | rho: [90.241, 1200.840] avg=972.251 | p: [0.000, 451259.594] | speed avg=0.055 max=0.843
-Frame 620 fluid stats | fluid_count = 1248 | rho = [90.241, 1200.840] avg = 972.251 | p = [0.000, 451259.594] avg = 147013.594 | speed = [0.001, 0.843] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 181
-Frame 620 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 100
-FrameTiming 621 31.597
-FrameTiming 622 31.396
-FrameTiming 623 31.583
-FrameTiming 624 31.525
-FrameTiming 625 31.670
-FrameTiming 626 31.480
-FrameTiming 627 31.569
-FrameTiming 628 31.779
-FrameTiming 629 32.109
-FrameTiming 630 32.320
-FrameTiming 631 31.793
-FrameTiming 632 31.733
-FrameTiming 633 31.982
-FrameTiming 634 31.932
-FrameTiming 635 31.887
-FrameTiming 636 32.085
-FrameTiming 637 31.825
-FrameTiming 638 31.800
-FrameTiming 639 31.875
-FrameTiming 640 31.975
-Frame 640 | rho: [90.241, 1151.978] avg=966.928 | p: [0.000, 377967.406] | speed avg=0.056 max=0.896
-Frame 640 fluid stats | fluid_count = 1248 | rho = [90.241, 1151.978] avg = 966.928 | p = [0.000, 377967.406] avg = 144574.656 | speed = [0.001, 0.896] avg = 0.056 | rho_floor_count = 0 | zero_pressure_count = 208
-Frame 640 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 99
-FrameTiming 641 31.460
-FrameTiming 642 31.656
-FrameTiming 643 31.808
-FrameTiming 644 31.512
-FrameTiming 645 31.458
-FrameTiming 646 31.768
-FrameTiming 647 31.590
-FrameTiming 648 31.357
-FrameTiming 649 31.277
-FrameTiming 650 31.476
-FrameTiming 651 31.571
-FrameTiming 652 31.485
-FrameTiming 653 31.413
-FrameTiming 654 31.433
-FrameTiming 655 31.482
-FrameTiming 656 31.607
-FrameTiming 657 31.509
-FrameTiming 658 31.023
-FrameTiming 659 31.546
-FrameTiming 660 31.339
-Frame 660 | rho: [90.241, 1144.559] avg=960.938 | p: [0.000, 366838.812] | speed avg=0.058 max=0.651
-Frame 660 fluid stats | fluid_count = 1248 | rho = [90.241, 1144.559] avg = 960.938 | p = [0.000, 366838.812] avg = 138283.016 | speed = [0.001, 0.651] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 203
-Frame 660 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 77
-FrameTiming 661 31.389
-FrameTiming 662 31.022
-FrameTiming 663 30.754
-FrameTiming 664 30.726
-FrameTiming 665 30.839
-FrameTiming 666 31.191
-FrameTiming 667 32.018
-FrameTiming 668 31.807
-FrameTiming 669 31.724
-FrameTiming 670 31.673
-FrameTiming 671 31.901
-FrameTiming 672 31.888
-FrameTiming 673 31.694
-FrameTiming 674 31.857
-FrameTiming 675 31.797
-FrameTiming 676 31.712
-FrameTiming 677 31.948
-FrameTiming 678 31.799
-FrameTiming 679 32.044
-FrameTiming 680 31.799
-Frame 680 | rho: [90.241, 1155.195] avg=965.252 | p: [0.000, 382792.250] | speed avg=0.060 max=0.809
-Frame 680 fluid stats | fluid_count = 1248 | rho = [90.241, 1155.195] avg = 965.252 | p = [0.000, 382792.250] avg = 144533.859 | speed = [0.001, 0.809] avg = 0.060 | rho_floor_count = 0 | zero_pressure_count = 187
-Frame 680 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 90
-FrameTiming 681 31.940
-FrameTiming 682 31.859
-FrameTiming 683 31.944
-FrameTiming 684 31.916
-FrameTiming 685 31.929
-FrameTiming 686 31.719
-FrameTiming 687 31.858
-FrameTiming 688 31.875
-FrameTiming 689 31.938
-FrameTiming 690 31.686
-FrameTiming 691 31.570
-FrameTiming 692 31.939
-FrameTiming 693 31.883
-FrameTiming 694 31.989
-FrameTiming 695 31.872
-FrameTiming 696 31.985
-FrameTiming 697 31.768
-FrameTiming 698 31.800
-FrameTiming 699 31.906
-FrameTiming 700 31.961
-Frame 700 | rho: [90.241, 1154.988] avg=961.837 | p: [0.000, 382482.438] | speed avg=0.060 max=0.925
-Frame 700 fluid stats | fluid_count = 1248 | rho = [90.241, 1154.988] avg = 961.837 | p = [0.000, 382482.438] avg = 144438.672 | speed = [0.001, 0.925] avg = 0.060 | rho_floor_count = 0 | zero_pressure_count = 211
-Frame 700 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 86
-FrameTiming 701 31.910
-FrameTiming 702 31.778
-FrameTiming 703 31.957
-FrameTiming 704 31.922
-FrameTiming 705 31.955
-FrameTiming 706 31.819
-FrameTiming 707 31.900
-FrameTiming 708 32.080
-FrameTiming 709 31.714
-FrameTiming 710 31.902
-FrameTiming 711 31.787
-FrameTiming 712 31.809
-FrameTiming 713 31.753
-FrameTiming 714 31.741
-FrameTiming 715 31.794
-FrameTiming 716 31.949
-FrameTiming 717 31.809
-FrameTiming 718 31.874
-FrameTiming 719 31.678
-FrameTiming 720 31.858
-Frame 720 | rho: [90.241, 1149.374] avg=956.919 | p: [0.000, 374060.312] | speed avg=0.060 max=0.897
-Frame 720 fluid stats | fluid_count = 1248 | rho = [90.241, 1149.374] avg = 956.919 | p = [0.000, 374060.312] avg = 139457.719 | speed = [0.002, 0.897] avg = 0.060 | rho_floor_count = 0 | zero_pressure_count = 229
-Frame 720 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 92
-FrameTiming 721 31.647
-FrameTiming 722 31.911
-FrameTiming 723 31.863
-FrameTiming 724 31.701
-FrameTiming 725 31.636
-FrameTiming 726 32.175
-FrameTiming 727 32.047
-FrameTiming 728 31.896
-FrameTiming 729 32.114
-FrameTiming 730 31.733
-FrameTiming 731 31.699
-FrameTiming 732 31.688
-FrameTiming 733 31.507
-FrameTiming 734 30.892
-FrameTiming 735 30.774
-FrameTiming 736 30.529
-FrameTiming 737 31.110
-FrameTiming 738 31.698
-FrameTiming 739 31.847
-FrameTiming 740 31.786
-Frame 740 | rho: [90.241, 1177.561] avg=958.236 | p: [0.000, 416341.750] | speed avg=0.058 max=1.017
-Frame 740 fluid stats | fluid_count = 1248 | rho = [90.241, 1177.561] avg = 958.236 | p = [0.000, 416341.750] avg = 141467.672 | speed = [0.001, 1.017] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 219
-Frame 740 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 97
-FrameTiming 741 31.898
-FrameTiming 742 31.482
-FrameTiming 743 31.441
-FrameTiming 744 31.732
-FrameTiming 745 31.682
-FrameTiming 746 31.735
-FrameTiming 747 31.673
-FrameTiming 748 31.528
-FrameTiming 749 31.358
-FrameTiming 750 31.774
-FrameTiming 751 31.697
-FrameTiming 752 31.750
-FrameTiming 753 31.626
-FrameTiming 754 31.751
-FrameTiming 755 31.752
-FrameTiming 756 31.467
-FrameTiming 757 31.157
-FrameTiming 758 30.840
-FrameTiming 759 30.792
-FrameTiming 760 30.887
-Frame 760 | rho: [90.241, 1197.215] avg=955.543 | p: [0.000, 445823.000] | speed avg=0.062 max=0.823
-Frame 760 fluid stats | fluid_count = 1248 | rho = [90.241, 1197.215] avg = 955.543 | p = [0.000, 445823.000] avg = 141242.141 | speed = [0.002, 0.823] avg = 0.062 | rho_floor_count = 0 | zero_pressure_count = 226
-Frame 760 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 83
-FrameTiming 761 31.873
-FrameTiming 762 31.772
-FrameTiming 763 31.839
-FrameTiming 764 31.647
-FrameTiming 765 31.648
-FrameTiming 766 31.664
-FrameTiming 767 31.809
-FrameTiming 768 31.876
-FrameTiming 769 31.797
-FrameTiming 770 31.675
-FrameTiming 771 31.801
-FrameTiming 772 31.735
-FrameTiming 773 31.794
-FrameTiming 774 31.872
-FrameTiming 775 31.774
-FrameTiming 776 31.768
-FrameTiming 777 31.694
-FrameTiming 778 31.777
-FrameTiming 779 31.941
-FrameTiming 780 31.911
-Frame 780 | rho: [90.241, 1162.685] avg=954.618 | p: [0.000, 394027.031] | speed avg=0.062 max=0.836
-Frame 780 fluid stats | fluid_count = 1248 | rho = [90.241, 1162.685] avg = 954.618 | p = [0.000, 394027.031] avg = 139604.250 | speed = [0.001, 0.836] avg = 0.062 | rho_floor_count = 0 | zero_pressure_count = 221
-Frame 780 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 70
-FrameTiming 781 31.623
-FrameTiming 782 31.852
-FrameTiming 783 31.937
-FrameTiming 784 31.932
-FrameTiming 785 31.929
-FrameTiming 786 31.715
-FrameTiming 787 31.677
-FrameTiming 788 31.451
-FrameTiming 789 31.535
-FrameTiming 790 32.001
-FrameTiming 791 31.897
-FrameTiming 792 31.758
-FrameTiming 793 31.961
-FrameTiming 794 31.794
-FrameTiming 795 31.721
-FrameTiming 796 31.761
-FrameTiming 797 31.676
-FrameTiming 798 31.861
-FrameTiming 799 31.644
-FrameTiming 800 31.687
-Frame 800 | rho: [90.241, 1156.928] avg=957.219 | p: [0.000, 385391.781] | speed avg=0.063 max=0.879
-Frame 800 fluid stats | fluid_count = 1248 | rho = [90.241, 1156.928] avg = 957.219 | p = [0.000, 385391.781] avg = 142352.250 | speed = [0.001, 0.879] avg = 0.063 | rho_floor_count = 0 | zero_pressure_count = 212
-Frame 800 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 68
-FrameTiming 801 30.928
-FrameTiming 802 30.705
-FrameTiming 803 30.593
-FrameTiming 804 30.845
-FrameTiming 805 30.704
-FrameTiming 806 30.619
-FrameTiming 807 31.335
-FrameTiming 808 32.056
-FrameTiming 809 31.963
-FrameTiming 810 31.767
-FrameTiming 811 30.921
-FrameTiming 812 30.973
-FrameTiming 813 30.762
-FrameTiming 814 30.933
-FrameTiming 815 30.774
-FrameTiming 816 30.757
-FrameTiming 817 30.906
-FrameTiming 818 30.631
-FrameTiming 819 30.960
-FrameTiming 820 31.591
-Frame 820 | rho: [90.241, 1140.008] avg=952.406 | p: [0.000, 360011.531] | speed avg=0.060 max=0.699
-Frame 820 fluid stats | fluid_count = 1248 | rho = [90.241, 1140.008] avg = 952.406 | p = [0.000, 360011.531] avg = 138571.203 | speed = [0.001, 0.699] avg = 0.060 | rho_floor_count = 0 | zero_pressure_count = 206
-Frame 820 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 91
-FrameTiming 821 31.687
-FrameTiming 822 31.538
-FrameTiming 823 31.833
-FrameTiming 824 31.746
-FrameTiming 825 31.717
-FrameTiming 826 31.890
-FrameTiming 827 31.843
-FrameTiming 828 31.806
-FrameTiming 829 31.777
-FrameTiming 830 31.655
-FrameTiming 831 32.100
-FrameTiming 832 31.723
-FrameTiming 833 31.460
-FrameTiming 834 31.608
-FrameTiming 835 31.721
-FrameTiming 836 31.786
-FrameTiming 837 31.530
-FrameTiming 838 31.822
-FrameTiming 839 31.630
-FrameTiming 840 31.592
-Frame 840 | rho: [90.241, 1192.503] avg=953.480 | p: [0.000, 438753.844] | speed avg=0.057 max=0.727
-Frame 840 fluid stats | fluid_count = 1248 | rho = [90.241, 1192.503] avg = 953.480 | p = [0.000, 438753.844] avg = 138521.406 | speed = [0.001, 0.727] avg = 0.057 | rho_floor_count = 0 | zero_pressure_count = 226
-Frame 840 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 112
-FrameTiming 841 31.679
-FrameTiming 842 31.706
-FrameTiming 843 31.762
-FrameTiming 844 31.835
-FrameTiming 845 31.590
-FrameTiming 846 31.555
-FrameTiming 847 31.619
-FrameTiming 848 31.696
-FrameTiming 849 31.720
-FrameTiming 850 31.773
-FrameTiming 851 31.699
-FrameTiming 852 31.752
-FrameTiming 853 31.860
-FrameTiming 854 31.989
-FrameTiming 855 31.764
-FrameTiming 856 31.912
-FrameTiming 857 35.351
-FrameTiming 858 32.309
-FrameTiming 859 34.715
-FrameTiming 860 35.893
-Frame 860 | rho: [90.241, 1187.480] avg=954.083 | p: [0.000, 431219.594] | speed avg=0.055 max=0.452
-Frame 860 fluid stats | fluid_count = 1248 | rho = [90.241, 1187.480] avg = 954.083 | p = [0.000, 431219.594] avg = 140471.031 | speed = [0.001, 0.452] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 203
-Frame 860 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 98
-FrameTiming 861 30.921
-FrameTiming 862 36.346
-FrameTiming 863 30.898
-FrameTiming 864 30.927
-FrameTiming 865 30.595
-FrameTiming 866 31.463
-FrameTiming 867 31.617
-FrameTiming 868 31.795
-FrameTiming 869 31.580
-FrameTiming 870 31.424
-FrameTiming 871 31.661
-FrameTiming 872 31.886
-FrameTiming 873 31.790
-FrameTiming 874 31.863
-FrameTiming 875 31.763
-FrameTiming 876 31.760
-FrameTiming 877 31.340
-FrameTiming 878 31.506
-FrameTiming 879 31.724
-FrameTiming 880 31.689
-Frame 880 | rho: [90.241, 1150.876] avg=953.513 | p: [0.000, 376313.594] | speed avg=0.057 max=0.888
-Frame 880 fluid stats | fluid_count = 1248 | rho = [90.241, 1150.876] avg = 953.513 | p = [0.000, 376313.594] avg = 140652.328 | speed = [0.001, 0.888] avg = 0.057 | rho_floor_count = 0 | zero_pressure_count = 224
-Frame 880 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 97
-FrameTiming 881 31.535
-FrameTiming 882 31.754
-FrameTiming 883 31.251
-FrameTiming 884 31.650
-FrameTiming 885 31.429
-FrameTiming 886 31.288
-FrameTiming 887 31.662
-FrameTiming 888 31.211
-FrameTiming 889 31.710
-FrameTiming 890 32.091
-FrameTiming 891 31.678
-FrameTiming 892 31.568
-FrameTiming 893 31.729
-FrameTiming 894 31.691
-FrameTiming 895 31.559
-FrameTiming 896 31.459
-FrameTiming 897 31.647
-FrameTiming 898 31.716
-FrameTiming 899 31.665
-FrameTiming 900 31.207
-Frame 900 | rho: [90.241, 1171.968] avg=950.980 | p: [0.000, 407951.844] | speed avg=0.058 max=0.805
-Frame 900 fluid stats | fluid_count = 1248 | rho = [90.241, 1171.968] avg = 950.980 | p = [0.000, 407951.844] avg = 139188.172 | speed = [0.001, 0.805] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 237
-Frame 900 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 89
-FrameTiming 901 31.754
-FrameTiming 902 31.754
-FrameTiming 903 31.721
-FrameTiming 904 31.696
-FrameTiming 905 31.851
-FrameTiming 906 31.662
-FrameTiming 907 31.652
-FrameTiming 908 31.633
-FrameTiming 909 31.671
-FrameTiming 910 31.633
-FrameTiming 911 31.690
-FrameTiming 912 31.891
-FrameTiming 913 31.412
-FrameTiming 914 31.496
-FrameTiming 915 31.660
-FrameTiming 916 31.446
-FrameTiming 917 31.649
-FrameTiming 918 31.434
-FrameTiming 919 31.543
-FrameTiming 920 31.569
-Frame 920 | rho: [90.241, 1157.779] avg=952.025 | p: [0.000, 386668.406] | speed avg=0.059 max=0.846
-Frame 920 fluid stats | fluid_count = 1248 | rho = [90.241, 1157.779] avg = 952.025 | p = [0.000, 386668.406] avg = 141023.953 | speed = [0.001, 0.846] avg = 0.059 | rho_floor_count = 0 | zero_pressure_count = 208
-Frame 920 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 84
-FrameTiming 921 30.796
-FrameTiming 922 30.802
-FrameTiming 923 30.710
-FrameTiming 924 30.988
-FrameTiming 925 30.732
-FrameTiming 926 30.902
-FrameTiming 927 30.823
-FrameTiming 928 31.053
-FrameTiming 929 30.675
-FrameTiming 930 31.007
-FrameTiming 931 30.754
-FrameTiming 932 30.613
-FrameTiming 933 30.793
-FrameTiming 934 30.812
-FrameTiming 935 30.811
-FrameTiming 936 30.857
-FrameTiming 937 31.681
-FrameTiming 938 31.554
-FrameTiming 939 31.675
-FrameTiming 940 31.704
-Frame 940 | rho: [90.241, 1173.340] avg=950.375 | p: [0.000, 410010.125] | speed avg=0.058 max=0.920
-Frame 940 fluid stats | fluid_count = 1248 | rho = [90.241, 1173.340] avg = 950.375 | p = [0.000, 410010.125] avg = 140917.219 | speed = [0.001, 0.920] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 206
-Frame 940 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 93
-FrameTiming 941 31.738
-FrameTiming 942 31.838
-FrameTiming 943 31.729
-FrameTiming 944 31.973
-FrameTiming 945 31.444
-FrameTiming 946 31.845
-FrameTiming 947 31.702
-FrameTiming 948 31.531
-FrameTiming 949 31.769
-FrameTiming 950 31.730
-FrameTiming 951 31.846
-FrameTiming 952 31.588
-FrameTiming 953 31.490
-FrameTiming 954 31.451
-FrameTiming 955 31.876
-FrameTiming 956 31.735
-FrameTiming 957 31.768
-FrameTiming 958 31.929
-FrameTiming 959 31.652
-FrameTiming 960 31.580
-Frame 960 | rho: [90.241, 1141.479] avg=945.861 | p: [0.000, 362218.688] | speed avg=0.056 max=0.691
-Frame 960 fluid stats | fluid_count = 1248 | rho = [90.241, 1141.479] avg = 945.861 | p = [0.000, 362218.688] avg = 137246.203 | speed = [0.001, 0.691] avg = 0.056 | rho_floor_count = 0 | zero_pressure_count = 224
-Frame 960 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 83
-FrameTiming 961 31.810
-FrameTiming 962 31.719
-FrameTiming 963 31.898
-FrameTiming 964 31.720
-FrameTiming 965 31.720
-FrameTiming 966 31.706
-FrameTiming 967 31.268
-FrameTiming 968 31.690
-FrameTiming 969 31.614
-FrameTiming 970 31.611
-FrameTiming 971 30.187
-FrameTiming 972 30.180
-FrameTiming 973 30.122
-FrameTiming 974 30.159
-FrameTiming 975 30.430
-FrameTiming 976 30.241
-FrameTiming 977 30.349
-FrameTiming 978 30.238
-FrameTiming 979 30.811
-FrameTiming 980 28.865
-Frame 980 | rho: [90.241, 1153.637] avg=944.061 | p: [0.000, 380456.188] | speed avg=0.058 max=0.975
-Frame 980 fluid stats | fluid_count = 1248 | rho = [90.241, 1153.637] avg = 944.061 | p = [0.000, 380456.188] avg = 134156.125 | speed = [0.001, 0.975] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 232
-Frame 980 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 78
-FrameTiming 981 30.086
-FrameTiming 982 30.572
-FrameTiming 983 30.285
-FrameTiming 984 29.833
-FrameTiming 985 30.000
-FrameTiming 986 30.058
-FrameTiming 987 30.332
-FrameTiming 988 30.376
-FrameTiming 989 30.153
-FrameTiming 990 30.247
-FrameTiming 991 32.789
-FrameTiming 992 30.291
-FrameTiming 993 30.221
-FrameTiming 994 33.809
-FrameTiming 995 30.521
-FrameTiming 996 30.025
-FrameTiming 997 30.103
-FrameTiming 998 29.999
-FrameTiming 999 30.377
-FrameTiming 1000 30.156
-Frame 1000 | rho: [90.241, 1161.187] avg=946.950 | p: [0.000, 391780.344] | speed avg=0.058 max=0.321
-Frame 1000 fluid stats | fluid_count = 1248 | rho = [90.241, 1161.187] avg = 946.950 | p = [0.000, 391780.344] avg = 136133.109 | speed = [0.000, 0.321] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 211
-Frame 1000 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 94
-TimingSummary mode=gpu_neighbor_list total_ms=31568.961 avg_ms=31.569 min_ms=28.865 max_ms=38.761 boundary_rebuild_ms=1027.247 neighbor_build_ms=25156.986 density_ms=734.841 force_ms=2840.955 integration_ms=1805.467
+FrameTiming 21 68.117
+FrameTiming 22 69.178
+FrameTiming 23 69.116
+FrameTiming 24 67.757
+FrameTiming 25 69.001
+FrameTiming 26 67.563
+FrameTiming 27 67.609
+FrameTiming 28 67.924
+FrameTiming 29 68.752
+FrameTiming 30 67.409
+FrameTiming 31 67.585
+FrameTiming 32 68.923
+FrameTiming 33 68.138
+FrameTiming 34 67.860
+FrameTiming 35 67.715
+FrameTiming 36 69.770
+FrameTiming 37 67.815
+FrameTiming 38 68.054
+FrameTiming 39 67.497
+FrameTiming 40 67.482
+Frame 40 | rho: [369.055, 1779.948] avg=1226.557 | p: [0.000, 1319922.500] | speed avg=0.612 max=1.073
+Frame 40 fluid stats | fluid_count = 1248 | rho = [369.055, 1779.948] avg = 1226.557 | p = [0.000, 1319922.500] avg = 533314.125 | speed = [0.021, 1.073] avg = 0.612 | rho_floor_count = 0 | zero_pressure_count = 166
+Frame 40 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 23 | inside_receiver_wall_count = 0
+FrameTiming 41 67.953
+FrameTiming 42 67.841
+FrameTiming 43 68.167
+FrameTiming 44 67.779
+FrameTiming 45 67.852
+FrameTiming 46 68.866
+FrameTiming 47 67.777
+FrameTiming 48 67.773
+FrameTiming 49 67.989
+FrameTiming 50 68.431
+FrameTiming 51 68.447
+FrameTiming 52 68.110
+FrameTiming 53 67.897
+FrameTiming 54 69.217
+FrameTiming 55 69.168
+FrameTiming 56 68.869
+FrameTiming 57 69.374
+FrameTiming 58 68.780
+FrameTiming 59 69.253
+FrameTiming 60 69.091
+Frame 60 | rho: [107.423, 1372.015] avg=939.396 | p: [0.000, 708022.500] | speed avg=0.310 max=0.882
+Frame 60 fluid stats | fluid_count = 1248 | rho = [107.423, 1372.015] avg = 939.396 | p = [0.000, 708022.500] avg = 135394.391 | speed = [0.013, 0.882] avg = 0.310 | rho_floor_count = 0 | zero_pressure_count = 421
+Frame 60 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 7 | inside_receiver_wall_count = 0
+FrameTiming 61 69.044
+FrameTiming 62 69.041
+FrameTiming 63 69.747
+FrameTiming 64 67.442
+FrameTiming 65 67.408
+FrameTiming 66 68.967
+FrameTiming 67 68.235
+FrameTiming 68 67.480
+FrameTiming 69 67.471
+FrameTiming 70 68.093
+FrameTiming 71 67.996
+FrameTiming 72 68.210
+FrameTiming 73 68.283
+FrameTiming 74 67.778
+FrameTiming 75 67.564
+FrameTiming 76 68.548
+FrameTiming 77 68.569
+FrameTiming 78 68.037
+FrameTiming 79 68.285
+FrameTiming 80 69.116
+Frame 80 | rho: [114.510, 1216.487] avg=921.148 | p: [0.000, 474729.844] | speed avg=0.179 max=0.438
+Frame 80 fluid stats | fluid_count = 1248 | rho = [114.510, 1216.487] avg = 921.148 | p = [0.000, 474729.844] avg = 122066.562 | speed = [0.013, 0.438] avg = 0.179 | rho_floor_count = 0 | zero_pressure_count = 472
+Frame 80 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 4 | inside_receiver_wall_count = 0
+FrameTiming 81 78.164
+FrameTiming 82 67.659
+FrameTiming 83 68.907
+FrameTiming 84 68.051
+FrameTiming 85 67.898
+FrameTiming 86 67.588
+FrameTiming 87 68.205
+FrameTiming 88 68.371
+FrameTiming 89 67.632
+FrameTiming 90 68.749
+FrameTiming 91 68.343
+FrameTiming 92 67.333
+FrameTiming 93 67.998
+FrameTiming 94 67.430
+FrameTiming 95 67.576
+FrameTiming 96 68.227
+FrameTiming 97 67.653
+FrameTiming 98 68.668
+FrameTiming 99 68.568
+FrameTiming 100 68.047
+Frame 100 | rho: [495.886, 1475.127] avg=1129.450 | p: [0.000, 862691.000] | speed avg=0.185 max=0.753
+Frame 100 fluid stats | fluid_count = 1248 | rho = [495.886, 1475.127] avg = 1129.450 | p = [0.000, 862691.000] avg = 355857.031 | speed = [0.021, 0.753] avg = 0.185 | rho_floor_count = 0 | zero_pressure_count = 104
+Frame 100 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 10 | inside_receiver_wall_count = 0
+FrameTiming 101 67.516
+FrameTiming 102 68.394
+FrameTiming 103 67.433
+FrameTiming 104 67.890
+FrameTiming 105 68.400
+FrameTiming 106 68.088
+FrameTiming 107 67.796
+FrameTiming 108 68.104
+FrameTiming 109 68.086
+FrameTiming 110 68.111
+FrameTiming 111 68.026
+FrameTiming 112 67.789
+FrameTiming 113 68.764
+FrameTiming 114 68.110
+FrameTiming 115 67.832
+FrameTiming 116 67.911
+FrameTiming 117 68.014
+FrameTiming 118 67.854
+FrameTiming 119 67.515
+FrameTiming 120 67.973
+Frame 120 | rho: [423.992, 1216.540] avg=967.102 | p: [0.000, 474810.438] | speed avg=0.354 max=0.689
+Frame 120 fluid stats | fluid_count = 1248 | rho = [423.992, 1216.540] avg = 967.102 | p = [0.000, 474810.438] avg = 139424.328 | speed = [0.087, 0.689] avg = 0.354 | rho_floor_count = 0 | zero_pressure_count = 272
+Frame 120 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 20 | inside_receiver_wall_count = 0
+FrameTiming 121 68.687
+FrameTiming 122 70.225
+FrameTiming 123 71.198
+FrameTiming 124 67.683
+FrameTiming 125 67.948
+FrameTiming 126 68.894
+FrameTiming 127 67.770
+FrameTiming 128 67.532
+FrameTiming 129 68.715
+FrameTiming 130 67.426
+FrameTiming 131 67.900
+FrameTiming 132 67.679
+FrameTiming 133 67.864
+FrameTiming 134 67.889
+FrameTiming 135 67.727
+FrameTiming 136 67.713
+FrameTiming 137 67.914
+FrameTiming 138 68.515
+FrameTiming 139 69.521
+FrameTiming 140 67.922
+Frame 140 | rho: [523.584, 1483.754] avg=1010.639 | p: [0.000, 875631.562] | speed avg=0.392 max=0.675
+Frame 140 fluid stats | fluid_count = 1248 | rho = [523.584, 1483.754] avg = 1010.639 | p = [0.000, 875631.562] avg = 198285.031 | speed = [0.072, 0.675] avg = 0.392 | rho_floor_count = 0 | zero_pressure_count = 266
+Frame 140 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 1 | inside_receiver_wall_count = 0
+FrameTiming 141 68.747
+FrameTiming 142 68.878
+FrameTiming 143 67.817
+FrameTiming 144 69.655
+FrameTiming 145 69.948
+FrameTiming 146 69.172
+FrameTiming 147 69.436
+FrameTiming 148 69.703
+FrameTiming 149 69.261
+FrameTiming 150 69.263
+FrameTiming 151 69.241
+FrameTiming 152 69.408
+FrameTiming 153 70.038
+FrameTiming 154 70.323
+FrameTiming 155 70.347
+FrameTiming 156 70.309
+FrameTiming 157 70.241
+FrameTiming 158 70.112
+FrameTiming 159 69.943
+FrameTiming 160 70.094
+Frame 160 | rho: [240.410, 1374.922] avg=994.629 | p: [0.000, 712382.438] | speed avg=0.507 max=0.799
+Frame 160 fluid stats | fluid_count = 1248 | rho = [240.410, 1374.922] avg = 994.629 | p = [0.000, 712382.438] avg = 176685.031 | speed = [0.037, 0.799] avg = 0.507 | rho_floor_count = 0 | zero_pressure_count = 362
+Frame 160 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 3 | inside_receiver_wall_count = 0
+FrameTiming 161 69.074
+FrameTiming 162 68.844
+FrameTiming 163 68.659
+FrameTiming 164 68.571
+FrameTiming 165 68.723
+FrameTiming 166 68.676
+FrameTiming 167 68.681
+FrameTiming 168 68.695
+FrameTiming 169 69.170
+FrameTiming 170 68.847
+FrameTiming 171 69.045
+FrameTiming 172 69.089
+FrameTiming 173 69.107
+FrameTiming 174 68.967
+FrameTiming 175 68.703
+FrameTiming 176 68.840
+FrameTiming 177 68.551
+FrameTiming 178 68.322
+FrameTiming 179 68.886
+FrameTiming 180 68.175
+Frame 180 | rho: [183.082, 1326.603] avg=968.382 | p: [0.000, 639904.562] | speed avg=0.591 max=0.957
+Frame 180 fluid stats | fluid_count = 1248 | rho = [183.082, 1326.603] avg = 968.382 | p = [0.000, 639904.562] avg = 164170.031 | speed = [0.062, 0.957] avg = 0.591 | rho_floor_count = 0 | zero_pressure_count = 406
+Frame 180 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 0
+FrameTiming 181 68.376
+FrameTiming 182 68.573
+FrameTiming 183 68.256
+FrameTiming 184 68.340
+FrameTiming 185 68.042
+FrameTiming 186 68.288
+FrameTiming 187 68.305
+FrameTiming 188 68.371
+FrameTiming 189 68.709
+FrameTiming 190 68.347
+FrameTiming 191 68.493
+FrameTiming 192 68.549
+FrameTiming 193 68.476
+FrameTiming 194 68.462
+FrameTiming 195 68.676
+FrameTiming 196 69.675
+FrameTiming 197 67.627
+FrameTiming 198 67.977
+FrameTiming 199 67.617
+FrameTiming 200 67.751
+Frame 200 | rho: [94.048, 1057.107] avg=780.026 | p: [0.000, 235660.953] | speed avg=0.842 max=1.214
+Frame 200 fluid stats | fluid_count = 1248 | rho = [94.048, 1057.107] avg = 780.026 | p = [0.000, 235660.953] avg = 6444.876 | speed = [0.097, 1.214] avg = 0.842 | rho_floor_count = 0 | zero_pressure_count = 1128
+Frame 200 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 1 | inside_receiver_wall_count = 0
+FrameTiming 201 67.597
+FrameTiming 202 68.499
+FrameTiming 203 68.037
+FrameTiming 204 67.644
+FrameTiming 205 67.633
+FrameTiming 206 67.759
+FrameTiming 207 68.523
+FrameTiming 208 68.205
+FrameTiming 209 68.398
+FrameTiming 210 68.784
+FrameTiming 211 68.582
+FrameTiming 212 68.608
+FrameTiming 213 68.484
+FrameTiming 214 68.425
+FrameTiming 215 68.571
+FrameTiming 216 69.217
+FrameTiming 217 69.350
+FrameTiming 218 69.417
+FrameTiming 219 69.527
+FrameTiming 220 69.536
+Frame 220 | rho: [184.175, 1010.986] avg=720.196 | p: [0.000, 166479.578] | speed avg=0.905 max=1.697
+Frame 220 fluid stats | fluid_count = 1248 | rho = [184.175, 1010.986] avg = 720.196 | p = [0.000, 166479.578] avg = 3016.392 | speed = [0.164, 1.697] avg = 0.905 | rho_floor_count = 0 | zero_pressure_count = 1180
+Frame 220 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 0
+FrameTiming 221 69.603
+FrameTiming 222 69.345
+FrameTiming 223 68.986
+FrameTiming 224 70.278
+FrameTiming 225 71.733
+FrameTiming 226 69.972
+FrameTiming 227 68.234
+FrameTiming 228 68.129
+FrameTiming 229 68.406
+FrameTiming 230 68.776
+FrameTiming 231 68.678
+FrameTiming 232 68.721
+FrameTiming 233 68.481
+FrameTiming 234 68.572
+FrameTiming 235 68.100
+FrameTiming 236 67.129
+FrameTiming 237 68.397
+FrameTiming 238 67.253
+FrameTiming 239 68.577
+FrameTiming 240 68.176
+Frame 240 | rho: [90.241, 1539.725] avg=631.198 | p: [0.000, 959588.188] | speed avg=0.938 max=1.591
+Frame 240 fluid stats | fluid_count = 1248 | rho = [90.241, 1539.725] avg = 631.198 | p = [0.000, 959588.188] avg = 88604.367 | speed = [0.074, 1.591] avg = 0.938 | rho_floor_count = 0 | zero_pressure_count = 871
+Frame 240 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 11 | inside_source_wall_count = 2 | inside_receiver_wall_count = 13
+FrameTiming 241 69.049
+FrameTiming 242 68.530
+FrameTiming 243 68.881
+FrameTiming 244 69.963
+FrameTiming 245 68.890
+FrameTiming 246 69.333
+FrameTiming 247 70.219
+FrameTiming 248 69.183
+FrameTiming 249 69.273
+FrameTiming 250 69.300
+FrameTiming 251 69.000
+FrameTiming 252 68.869
+FrameTiming 253 69.058
+FrameTiming 254 70.237
+FrameTiming 255 68.898
+FrameTiming 256 76.239
+FrameTiming 257 68.826
+FrameTiming 258 68.994
+FrameTiming 259 69.111
+FrameTiming 260 70.628
+Frame 260 | rho: [99.877, 1375.518] avg=606.673 | p: [0.000, 713277.438] | speed avg=0.835 max=1.431
+Frame 260 fluid stats | fluid_count = 1248 | rho = [99.877, 1375.518] avg = 606.673 | p = [0.000, 713277.438] avg = 36463.383 | speed = [0.048, 1.431] avg = 0.835 | rho_floor_count = 0 | zero_pressure_count = 950
+Frame 260 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 1 | inside_source_wall_count = 9 | inside_receiver_wall_count = 13
+FrameTiming 261 68.888
+FrameTiming 262 68.388
+FrameTiming 263 69.825
+FrameTiming 264 70.823
+FrameTiming 265 67.547
+FrameTiming 266 67.520
+FrameTiming 267 67.527
+FrameTiming 268 67.361
+FrameTiming 269 68.756
+FrameTiming 270 67.865
+FrameTiming 271 69.271
+FrameTiming 272 70.268
+FrameTiming 273 69.530
+FrameTiming 274 69.969
+FrameTiming 275 71.193
+FrameTiming 276 69.568
+FrameTiming 277 71.851
+FrameTiming 278 70.554
+FrameTiming 279 68.992
+FrameTiming 280 69.465
+Frame 280 | rho: [132.828, 1324.584] avg=766.555 | p: [0.000, 636876.000] | speed avg=0.745 max=1.421
+Frame 280 fluid stats | fluid_count = 1248 | rho = [132.828, 1324.584] avg = 766.555 | p = [0.000, 636876.000] avg = 96767.266 | speed = [0.035, 1.421] avg = 0.745 | rho_floor_count = 0 | zero_pressure_count = 751
+Frame 280 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 1 | inside_source_wall_count = 10 | inside_receiver_wall_count = 6
+FrameTiming 281 69.441
+FrameTiming 282 68.865
+FrameTiming 283 69.114
+FrameTiming 284 69.100
+FrameTiming 285 69.062
+FrameTiming 286 68.949
+FrameTiming 287 69.279
+FrameTiming 288 69.221
+FrameTiming 289 70.300
+FrameTiming 290 69.433
+FrameTiming 291 69.296
+FrameTiming 292 76.551
+FrameTiming 293 69.702
+FrameTiming 294 69.674
+FrameTiming 295 69.800
+FrameTiming 296 69.812
+FrameTiming 297 69.751
+FrameTiming 298 68.762
+FrameTiming 299 68.651
+FrameTiming 300 68.772
+Frame 300 | rho: [155.373, 1354.308] avg=818.989 | p: [0.000, 681462.000] | speed avg=0.499 max=1.360
+Frame 300 fluid stats | fluid_count = 1248 | rho = [155.373, 1354.308] avg = 818.989 | p = [0.000, 681462.000] avg = 104957.602 | speed = [0.043, 1.360] avg = 0.499 | rho_floor_count = 0 | zero_pressure_count = 605
+Frame 300 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 9 | inside_receiver_wall_count = 3
+FrameTiming 301 68.840
+FrameTiming 302 68.712
+FrameTiming 303 68.870
+FrameTiming 304 68.775
+FrameTiming 305 68.648
+FrameTiming 306 68.781
+FrameTiming 307 68.654
+FrameTiming 308 68.638
+FrameTiming 309 68.455
+FrameTiming 310 68.494
+FrameTiming 311 68.528
+FrameTiming 312 68.395
+FrameTiming 313 68.450
+FrameTiming 314 68.596
+FrameTiming 315 68.376
+FrameTiming 316 68.612
+FrameTiming 317 68.479
+FrameTiming 318 68.570
+FrameTiming 319 68.378
+FrameTiming 320 68.571
+Frame 320 | rho: [124.333, 1383.650] avg=934.922 | p: [0.000, 725474.688] | speed avg=0.308 max=1.351
+Frame 320 fluid stats | fluid_count = 1248 | rho = [124.333, 1383.650] avg = 934.922 | p = [0.000, 725474.688] avg = 186602.094 | speed = [0.016, 1.351] avg = 0.308 | rho_floor_count = 0 | zero_pressure_count = 393
+Frame 320 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 12
+FrameTiming 321 68.572
+FrameTiming 322 68.568
+FrameTiming 323 68.555
+FrameTiming 324 67.651
+FrameTiming 325 68.860
+FrameTiming 326 67.847
+FrameTiming 327 69.133
+FrameTiming 328 67.877
+FrameTiming 329 68.076
+FrameTiming 330 67.768
+FrameTiming 331 68.267
+FrameTiming 332 67.711
+FrameTiming 333 67.800
+FrameTiming 334 69.280
+FrameTiming 335 67.862
+FrameTiming 336 68.071
+FrameTiming 337 68.002
+FrameTiming 338 67.835
+FrameTiming 339 69.101
+FrameTiming 340 67.992
+Frame 340 | rho: [109.368, 1257.594] avg=945.362 | p: [0.000, 536390.625] | speed avg=0.176 max=1.320
+Frame 340 fluid stats | fluid_count = 1248 | rho = [109.368, 1257.594] avg = 945.362 | p = [0.000, 536390.625] avg = 143224.109 | speed = [0.009, 1.320] avg = 0.176 | rho_floor_count = 0 | zero_pressure_count = 381
+Frame 340 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 4
+FrameTiming 341 68.972
+FrameTiming 342 67.968
+FrameTiming 343 67.683
+FrameTiming 344 67.950
+FrameTiming 345 67.758
+FrameTiming 346 68.808
+FrameTiming 347 68.593
+FrameTiming 348 68.052
+FrameTiming 349 69.318
+FrameTiming 350 69.406
+FrameTiming 351 69.254
+FrameTiming 352 69.563
+FrameTiming 353 69.353
+FrameTiming 354 69.452
+FrameTiming 355 69.410
+FrameTiming 356 69.465
+FrameTiming 357 68.229
+FrameTiming 358 67.932
+FrameTiming 359 69.113
+FrameTiming 360 67.910
+Frame 360 | rho: [590.013, 1221.236] avg=987.562 | p: [0.000, 481853.562] | speed avg=0.112 max=0.521
+Frame 360 fluid stats | fluid_count = 1248 | rho = [590.013, 1221.236] avg = 987.562 | p = [0.000, 481853.562] avg = 163051.531 | speed = [0.008, 0.521] avg = 0.112 | rho_floor_count = 0 | zero_pressure_count = 321
+Frame 360 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 9
+FrameTiming 361 67.913
+FrameTiming 362 68.106
+FrameTiming 363 68.268
+FrameTiming 364 68.206
+FrameTiming 365 69.208
+FrameTiming 366 69.189
+FrameTiming 367 67.697
+FrameTiming 368 68.037
+FrameTiming 369 67.755
+FrameTiming 370 67.848
+FrameTiming 371 67.799
+FrameTiming 372 67.804
+FrameTiming 373 69.018
+FrameTiming 374 68.031
+FrameTiming 375 67.880
+FrameTiming 376 70.160
+FrameTiming 377 68.957
+FrameTiming 378 68.008
+FrameTiming 379 68.239
+FrameTiming 380 67.876
+Frame 380 | rho: [617.948, 1198.724] avg=996.419 | p: [0.000, 448086.719] | speed avg=0.087 max=0.375
+Frame 380 fluid stats | fluid_count = 1248 | rho = [617.948, 1198.724] avg = 996.419 | p = [0.000, 448086.719] avg = 168264.266 | speed = [0.009, 0.375] avg = 0.087 | rho_floor_count = 0 | zero_pressure_count = 286
+Frame 380 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 8
+FrameTiming 381 68.109
+FrameTiming 382 67.727
+FrameTiming 383 69.295
+FrameTiming 384 69.298
+FrameTiming 385 69.444
+FrameTiming 386 69.351
+FrameTiming 387 69.459
+FrameTiming 388 69.309
+FrameTiming 389 68.969
+FrameTiming 390 68.990
+FrameTiming 391 67.692
+FrameTiming 392 69.434
+FrameTiming 393 69.570
+FrameTiming 394 69.492
+FrameTiming 395 67.742
+FrameTiming 396 68.044
+FrameTiming 397 69.153
+FrameTiming 398 67.815
+FrameTiming 399 67.755
+FrameTiming 400 69.181
+Frame 400 | rho: [674.799, 1170.115] avg=979.622 | p: [0.000, 405171.938] | speed avg=0.078 max=0.376
+Frame 400 fluid stats | fluid_count = 1248 | rho = [674.799, 1170.115] avg = 979.622 | p = [0.000, 405171.938] avg = 140793.703 | speed = [0.008, 0.376] avg = 0.078 | rho_floor_count = 0 | zero_pressure_count = 346
+Frame 400 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 4
+FrameTiming 401 69.315
+FrameTiming 402 69.431
+FrameTiming 403 69.261
+FrameTiming 404 69.377
+FrameTiming 405 69.168
+FrameTiming 406 69.180
+FrameTiming 407 69.032
+FrameTiming 408 69.116
+FrameTiming 409 68.768
+FrameTiming 410 68.416
+FrameTiming 411 68.403
+FrameTiming 412 68.423
+FrameTiming 413 68.387
+FrameTiming 414 68.291
+FrameTiming 415 68.510
+FrameTiming 416 68.261
+FrameTiming 417 68.270
+FrameTiming 418 68.387
+FrameTiming 419 68.330
+FrameTiming 420 68.381
+Frame 420 | rho: [706.168, 1185.897] avg=1001.253 | p: [0.000, 428845.469] | speed avg=0.069 max=0.384
+Frame 420 fluid stats | fluid_count = 1248 | rho = [706.168, 1185.897] avg = 1001.253 | p = [0.000, 428845.469] avg = 167931.250 | speed = [0.003, 0.384] avg = 0.069 | rho_floor_count = 0 | zero_pressure_count = 289
+Frame 420 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 15
+FrameTiming 421 69.739
+FrameTiming 422 68.371
+FrameTiming 423 68.451
+FrameTiming 424 68.218
+FrameTiming 425 68.256
+FrameTiming 426 68.287
+FrameTiming 427 68.293
+FrameTiming 428 68.180
+FrameTiming 429 68.155
+FrameTiming 430 69.302
+FrameTiming 431 68.338
+FrameTiming 432 73.703
+FrameTiming 433 79.136
+FrameTiming 434 73.534
+FrameTiming 435 72.918
+FrameTiming 436 68.309
+FrameTiming 437 68.346
+FrameTiming 438 68.397
+FrameTiming 439 68.481
+FrameTiming 440 68.389
+Frame 440 | rho: [696.492, 1166.039] avg=998.460 | p: [0.000, 399058.969] | speed avg=0.060 max=0.388
+Frame 440 fluid stats | fluid_count = 1248 | rho = [696.492, 1166.039] avg = 998.460 | p = [0.000, 399058.969] avg = 165082.391 | speed = [0.004, 0.388] avg = 0.060 | rho_floor_count = 0 | zero_pressure_count = 243
+Frame 440 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 7
+FrameTiming 441 68.147
+FrameTiming 442 68.472
+FrameTiming 443 68.225
+FrameTiming 444 68.371
+FrameTiming 445 68.432
+FrameTiming 446 68.346
+FrameTiming 447 68.369
+FrameTiming 448 68.239
+FrameTiming 449 68.341
+FrameTiming 450 68.260
+FrameTiming 451 68.365
+FrameTiming 452 68.461
+FrameTiming 453 68.186
+FrameTiming 454 68.467
+FrameTiming 455 68.394
+FrameTiming 456 68.369
+FrameTiming 457 68.362
+FrameTiming 458 68.474
+FrameTiming 459 68.559
+FrameTiming 460 68.394
+Frame 460 | rho: [677.520, 1150.121] avg=990.172 | p: [0.000, 375181.281] | speed avg=0.059 max=0.382
+Frame 460 fluid stats | fluid_count = 1248 | rho = [677.520, 1150.121] avg = 990.172 | p = [0.000, 375181.281] avg = 153090.984 | speed = [0.002, 0.382] avg = 0.059 | rho_floor_count = 0 | zero_pressure_count = 248
+Frame 460 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 8
+FrameTiming 461 68.356
+FrameTiming 462 68.273
+FrameTiming 463 68.304
+FrameTiming 464 68.536
+FrameTiming 465 68.449
+FrameTiming 466 68.595
+FrameTiming 467 68.446
+FrameTiming 468 68.457
+FrameTiming 469 68.496
+FrameTiming 470 69.086
+FrameTiming 471 67.808
+FrameTiming 472 68.113
+FrameTiming 473 69.037
+FrameTiming 474 67.844
+FrameTiming 475 68.667
+FrameTiming 476 69.442
+FrameTiming 477 69.099
+FrameTiming 478 69.275
+FrameTiming 479 69.290
+FrameTiming 480 69.042
+Frame 480 | rho: [713.839, 1157.977] avg=1005.726 | p: [0.000, 386966.125] | speed avg=0.059 max=0.333
+Frame 480 fluid stats | fluid_count = 1248 | rho = [713.839, 1157.977] avg = 1005.726 | p = [0.000, 386966.125] avg = 172891.328 | speed = [0.003, 0.333] avg = 0.059 | rho_floor_count = 0 | zero_pressure_count = 217
+Frame 480 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 14
+FrameTiming 481 68.172
+FrameTiming 482 69.090
+FrameTiming 483 69.173
+FrameTiming 484 70.154
+FrameTiming 485 69.006
+FrameTiming 486 69.013
+FrameTiming 487 69.246
+FrameTiming 488 69.196
+FrameTiming 489 69.233
+FrameTiming 490 69.128
+FrameTiming 491 68.061
+FrameTiming 492 69.352
+FrameTiming 493 69.177
+FrameTiming 494 69.226
+FrameTiming 495 69.413
+FrameTiming 496 68.906
+FrameTiming 497 68.265
+FrameTiming 498 68.388
+FrameTiming 499 68.386
+FrameTiming 500 68.295
+Frame 500 | rho: [678.238, 1169.155] avg=997.093 | p: [0.000, 403732.906] | speed avg=0.057 max=0.334
+Frame 500 fluid stats | fluid_count = 1248 | rho = [678.238, 1169.155] avg = 997.093 | p = [0.000, 403732.906] avg = 161078.484 | speed = [0.003, 0.334] avg = 0.057 | rho_floor_count = 0 | zero_pressure_count = 238
+Frame 500 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 11
+FrameTiming 501 68.305
+FrameTiming 502 68.292
+FrameTiming 503 68.525
+FrameTiming 504 68.268
+FrameTiming 505 68.403
+FrameTiming 506 68.214
+FrameTiming 507 67.849
+FrameTiming 508 68.009
+FrameTiming 509 67.671
+FrameTiming 510 67.994
+FrameTiming 511 67.710
+FrameTiming 512 67.734
+FrameTiming 513 68.909
+FrameTiming 514 67.840
+FrameTiming 515 67.965
+FrameTiming 516 67.831
+FrameTiming 517 67.868
+FrameTiming 518 67.672
+FrameTiming 519 68.675
+FrameTiming 520 68.277
+Frame 520 | rho: [691.758, 1145.664] avg=993.127 | p: [0.000, 368496.281] | speed avg=0.058 max=0.349
+Frame 520 fluid stats | fluid_count = 1248 | rho = [691.758, 1145.664] avg = 993.127 | p = [0.000, 368496.281] avg = 156670.234 | speed = [0.004, 0.349] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 239
+Frame 520 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 8
+FrameTiming 521 68.376
+FrameTiming 522 68.351
+FrameTiming 523 68.112
+FrameTiming 524 68.315
+FrameTiming 525 68.123
+FrameTiming 526 68.244
+FrameTiming 527 68.373
+FrameTiming 528 68.219
+FrameTiming 529 68.231
+FrameTiming 530 68.392
+FrameTiming 531 68.186
+FrameTiming 532 68.135
+FrameTiming 533 68.297
+FrameTiming 534 68.513
+FrameTiming 535 68.253
+FrameTiming 536 68.297
+FrameTiming 537 68.246
+FrameTiming 538 68.195
+FrameTiming 539 68.341
+FrameTiming 540 68.395
+Frame 540 | rho: [705.516, 1148.394] avg=1007.479 | p: [0.000, 372591.625] | speed avg=0.060 max=0.317
+Frame 540 fluid stats | fluid_count = 1248 | rho = [705.516, 1148.394] avg = 1007.479 | p = [0.000, 372591.625] avg = 172754.250 | speed = [0.003, 0.317] avg = 0.060 | rho_floor_count = 0 | zero_pressure_count = 172
+Frame 540 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 6
+FrameTiming 541 68.288
+FrameTiming 542 68.354
+FrameTiming 543 68.131
+FrameTiming 544 68.262
+FrameTiming 545 68.313
+FrameTiming 546 68.332
+FrameTiming 547 68.462
+FrameTiming 548 68.374
+FrameTiming 549 68.487
+FrameTiming 550 68.471
+FrameTiming 551 68.327
+FrameTiming 552 68.320
+FrameTiming 553 68.477
+FrameTiming 554 68.333
+FrameTiming 555 68.432
+FrameTiming 556 68.329
+FrameTiming 557 68.648
+FrameTiming 558 68.526
+FrameTiming 559 68.421
+FrameTiming 560 68.307
+Frame 560 | rho: [665.180, 1162.872] avg=999.157 | p: [0.000, 394307.562] | speed avg=0.055 max=0.380
+Frame 560 fluid stats | fluid_count = 1248 | rho = [665.180, 1162.872] avg = 999.157 | p = [0.000, 394307.562] avg = 163889.016 | speed = [0.001, 0.380] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 191
+Frame 560 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 11
+FrameTiming 561 68.433
+FrameTiming 562 67.977
+FrameTiming 563 68.185
+FrameTiming 564 68.196
+FrameTiming 565 68.237
+FrameTiming 566 68.777
+FrameTiming 567 68.979
+FrameTiming 568 70.134
+FrameTiming 569 70.220
+FrameTiming 570 69.879
+FrameTiming 571 69.085
+FrameTiming 572 69.225
+FrameTiming 573 69.151
+FrameTiming 574 69.175
+FrameTiming 575 69.302
+FrameTiming 576 69.347
+FrameTiming 577 69.232
+FrameTiming 578 69.070
+FrameTiming 579 69.777
+FrameTiming 580 69.777
+Frame 580 | rho: [705.807, 1155.749] avg=994.610 | p: [0.000, 383623.531] | speed avg=0.056 max=0.377
+Frame 580 fluid stats | fluid_count = 1248 | rho = [705.807, 1155.749] avg = 994.610 | p = [0.000, 383623.531] avg = 157917.578 | speed = [0.002, 0.377] avg = 0.056 | rho_floor_count = 0 | zero_pressure_count = 227
+Frame 580 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 12
+FrameTiming 581 69.739
+FrameTiming 582 68.831
+FrameTiming 583 68.666
+FrameTiming 584 68.431
+FrameTiming 585 68.233
+FrameTiming 586 68.182
+FrameTiming 587 68.262
+FrameTiming 588 68.189
+FrameTiming 589 68.264
+FrameTiming 590 68.237
+FrameTiming 591 68.109
+FrameTiming 592 68.190
+FrameTiming 593 68.323
+FrameTiming 594 68.188
+FrameTiming 595 68.137
+FrameTiming 596 68.335
+FrameTiming 597 68.286
+FrameTiming 598 68.046
+FrameTiming 599 68.331
+FrameTiming 600 68.188
+Frame 600 | rho: [717.225, 1176.143] avg=1000.693 | p: [0.000, 414214.219] | speed avg=0.056 max=0.386
+Frame 600 fluid stats | fluid_count = 1248 | rho = [717.225, 1176.143] avg = 1000.693 | p = [0.000, 414214.219] avg = 165005.250 | speed = [0.005, 0.386] avg = 0.056 | rho_floor_count = 0 | zero_pressure_count = 211
+Frame 600 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 7
+FrameTiming 601 68.193
+FrameTiming 602 68.999
+FrameTiming 603 68.336
+FrameTiming 604 68.228
+FrameTiming 605 68.456
+FrameTiming 606 68.192
+FrameTiming 607 68.338
+FrameTiming 608 68.239
+FrameTiming 609 68.282
+FrameTiming 610 68.316
+FrameTiming 611 68.540
+FrameTiming 612 68.395
+FrameTiming 613 68.307
+FrameTiming 614 68.140
+FrameTiming 615 68.334
+FrameTiming 616 68.174
+FrameTiming 617 68.411
+FrameTiming 618 68.177
+FrameTiming 619 68.297
+FrameTiming 620 68.097
+Frame 620 | rho: [683.573, 1166.474] avg=992.492 | p: [0.000, 399711.375] | speed avg=0.055 max=0.353
+Frame 620 fluid stats | fluid_count = 1248 | rho = [683.573, 1166.474] avg = 992.492 | p = [0.000, 399711.375] avg = 156765.125 | speed = [0.003, 0.353] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 220
+Frame 620 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 5
+FrameTiming 621 68.355
+FrameTiming 622 67.687
+FrameTiming 623 67.935
+FrameTiming 624 67.625
+FrameTiming 625 67.840
+FrameTiming 626 67.608
+FrameTiming 627 68.000
+FrameTiming 628 67.971
+FrameTiming 629 67.718
+FrameTiming 630 67.895
+FrameTiming 631 73.203
+FrameTiming 632 76.464
+FrameTiming 633 77.189
+FrameTiming 634 68.481
+FrameTiming 635 68.773
+FrameTiming 636 68.511
+FrameTiming 637 71.381
+FrameTiming 638 69.686
+FrameTiming 639 67.972
+FrameTiming 640 67.688
+Frame 640 | rho: [683.609, 1160.104] avg=992.320 | p: [0.000, 390156.750] | speed avg=0.055 max=0.311
+Frame 640 fluid stats | fluid_count = 1248 | rho = [683.609, 1160.104] avg = 992.320 | p = [0.000, 390156.750] avg = 155801.859 | speed = [0.002, 0.311] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 227
+Frame 640 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 6
+FrameTiming 641 71.798
+FrameTiming 642 75.420
+FrameTiming 643 67.789
+FrameTiming 644 67.941
+FrameTiming 645 67.797
+FrameTiming 646 67.885
+FrameTiming 647 68.434
+FrameTiming 648 69.119
+FrameTiming 649 67.979
+FrameTiming 650 68.231
+FrameTiming 651 67.941
+FrameTiming 652 67.872
+FrameTiming 653 69.227
+FrameTiming 654 68.156
+FrameTiming 655 68.199
+FrameTiming 656 67.811
+FrameTiming 657 68.001
+FrameTiming 658 67.998
+FrameTiming 659 68.911
+FrameTiming 660 67.868
+Frame 660 | rho: [688.972, 1188.036] avg=1004.544 | p: [0.000, 432054.750] | speed avg=0.058 max=0.360
+Frame 660 fluid stats | fluid_count = 1248 | rho = [688.972, 1188.036] avg = 1004.544 | p = [0.000, 432054.750] avg = 169460.547 | speed = [0.002, 0.360] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 200
+Frame 660 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 8
+FrameTiming 661 68.101
+FrameTiming 662 67.989
+FrameTiming 663 67.815
+FrameTiming 664 68.710
+FrameTiming 665 67.796
+FrameTiming 666 67.844
+FrameTiming 667 67.904
+FrameTiming 668 67.811
+FrameTiming 669 68.104
+FrameTiming 670 67.835
+FrameTiming 671 68.146
+FrameTiming 672 67.750
+FrameTiming 673 67.825
+FrameTiming 674 68.197
+FrameTiming 675 68.010
+FrameTiming 676 68.119
+FrameTiming 677 67.955
+FrameTiming 678 67.988
+FrameTiming 679 68.151
+FrameTiming 680 68.072
+Frame 680 | rho: [667.535, 1151.047] avg=991.674 | p: [0.000, 376570.875] | speed avg=0.055 max=0.302
+Frame 680 fluid stats | fluid_count = 1248 | rho = [667.535, 1151.047] avg = 991.674 | p = [0.000, 376570.875] avg = 153722.625 | speed = [0.002, 0.302] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 253
+Frame 680 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 11
+FrameTiming 681 67.988
+FrameTiming 682 67.742
+FrameTiming 683 67.843
+FrameTiming 684 67.787
+FrameTiming 685 67.911
+FrameTiming 686 67.763
+FrameTiming 687 69.091
+FrameTiming 688 68.190
+FrameTiming 689 69.657
+FrameTiming 690 67.570
+FrameTiming 691 68.509
+FrameTiming 692 67.673
+FrameTiming 693 69.907
+FrameTiming 694 68.764
+FrameTiming 695 68.805
+FrameTiming 696 67.760
+FrameTiming 697 68.008
+FrameTiming 698 67.961
+FrameTiming 699 68.170
+FrameTiming 700 67.623
+Frame 700 | rho: [668.808, 1144.517] avg=992.112 | p: [0.000, 366775.812] | speed avg=0.057 max=0.393
+Frame 700 fluid stats | fluid_count = 1248 | rho = [668.808, 1144.517] avg = 992.112 | p = [0.000, 366775.812] avg = 154762.266 | speed = [0.001, 0.393] avg = 0.057 | rho_floor_count = 0 | zero_pressure_count = 273
+Frame 700 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 13
+FrameTiming 701 67.734
+FrameTiming 702 68.041
+FrameTiming 703 67.971
+FrameTiming 704 67.748
+FrameTiming 705 68.023
+FrameTiming 706 67.856
+FrameTiming 707 68.046
+FrameTiming 708 67.987
+FrameTiming 709 67.976
+FrameTiming 710 67.965
+FrameTiming 711 68.617
+FrameTiming 712 68.201
+FrameTiming 713 68.038
+FrameTiming 714 67.695
+FrameTiming 715 67.814
+FrameTiming 716 67.836
+FrameTiming 717 68.517
+FrameTiming 718 67.497
+FrameTiming 719 67.900
+FrameTiming 720 67.773
+Frame 720 | rho: [676.919, 1164.635] avg=997.840 | p: [0.000, 396952.875] | speed avg=0.057 max=0.333
+Frame 720 fluid stats | fluid_count = 1248 | rho = [676.919, 1164.635] avg = 997.840 | p = [0.000, 396952.875] avg = 163771.891 | speed = [0.002, 0.333] avg = 0.057 | rho_floor_count = 0 | zero_pressure_count = 243
+Frame 720 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 10
+FrameTiming 721 67.865
+FrameTiming 722 68.296
+FrameTiming 723 68.784
+FrameTiming 724 67.980
+FrameTiming 725 68.060
+FrameTiming 726 67.734
+FrameTiming 727 68.076
+FrameTiming 728 67.712
+FrameTiming 729 68.066
+FrameTiming 730 68.694
+FrameTiming 731 68.000
+FrameTiming 732 67.664
+FrameTiming 733 67.697
+FrameTiming 734 67.765
+FrameTiming 735 68.217
+FrameTiming 736 67.728
+FrameTiming 737 67.691
+FrameTiming 738 68.245
+FrameTiming 739 68.934
+FrameTiming 740 68.116
+Frame 740 | rho: [705.562, 1171.755] avg=997.719 | p: [0.000, 407632.875] | speed avg=0.057 max=0.324
+Frame 740 fluid stats | fluid_count = 1248 | rho = [705.562, 1171.755] avg = 997.719 | p = [0.000, 407632.875] avg = 163982.656 | speed = [0.001, 0.324] avg = 0.057 | rho_floor_count = 0 | zero_pressure_count = 237
+Frame 740 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 10
+FrameTiming 741 68.066
+FrameTiming 742 68.064
+FrameTiming 743 67.727
+FrameTiming 744 67.927
+FrameTiming 745 68.471
+FrameTiming 746 67.887
+FrameTiming 747 68.658
+FrameTiming 748 68.755
+FrameTiming 749 69.196
+FrameTiming 750 69.232
+FrameTiming 751 69.191
+FrameTiming 752 69.366
+FrameTiming 753 69.269
+FrameTiming 754 69.303
+FrameTiming 755 67.818
+FrameTiming 756 67.779
+FrameTiming 757 68.618
+FrameTiming 758 67.820
+FrameTiming 759 69.098
+FrameTiming 760 68.284
+Frame 760 | rho: [678.692, 1189.763] avg=997.131 | p: [0.000, 434644.406] | speed avg=0.058 max=0.298
+Frame 760 fluid stats | fluid_count = 1248 | rho = [678.692, 1189.763] avg = 997.131 | p = [0.000, 434644.406] avg = 161510.109 | speed = [0.002, 0.298] avg = 0.058 | rho_floor_count = 0 | zero_pressure_count = 234
+Frame 760 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 8
+FrameTiming 761 68.219
+FrameTiming 762 67.950
+FrameTiming 763 69.498
+FrameTiming 764 67.843
+FrameTiming 765 69.377
+FrameTiming 766 69.082
+FrameTiming 767 69.003
+FrameTiming 768 69.270
+FrameTiming 769 69.191
+FrameTiming 770 69.115
+FrameTiming 771 68.989
+FrameTiming 772 69.014
+FrameTiming 773 69.103
+FrameTiming 774 70.238
+FrameTiming 775 69.182
+FrameTiming 776 69.144
+FrameTiming 777 68.339
+FrameTiming 778 68.589
+FrameTiming 779 69.126
+FrameTiming 780 69.305
+Frame 780 | rho: [686.216, 1177.144] avg=996.920 | p: [0.000, 415716.438] | speed avg=0.055 max=0.369
+Frame 780 fluid stats | fluid_count = 1248 | rho = [686.216, 1177.144] avg = 996.920 | p = [0.000, 415716.438] avg = 160810.031 | speed = [0.002, 0.369] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 243
+Frame 780 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 10
+FrameTiming 781 69.284
+FrameTiming 782 69.274
+FrameTiming 783 69.382
+FrameTiming 784 69.282
+FrameTiming 785 69.277
+FrameTiming 786 69.260
+FrameTiming 787 69.163
+FrameTiming 788 69.348
+FrameTiming 789 69.341
+FrameTiming 790 69.437
+FrameTiming 791 69.319
+FrameTiming 792 69.372
+FrameTiming 793 71.267
+FrameTiming 794 70.331
+FrameTiming 795 69.205
+FrameTiming 796 69.240
+FrameTiming 797 69.258
+FrameTiming 798 69.327
+FrameTiming 799 69.355
+FrameTiming 800 69.362
+Frame 800 | rho: [678.542, 1153.035] avg=995.075 | p: [0.000, 379552.188] | speed avg=0.055 max=0.331
+Frame 800 fluid stats | fluid_count = 1248 | rho = [678.542, 1153.035] avg = 995.075 | p = [0.000, 379552.188] avg = 158428.734 | speed = [0.003, 0.331] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 240
+Frame 800 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 15
+FrameTiming 801 69.226
+FrameTiming 802 69.143
+FrameTiming 803 69.319
+FrameTiming 804 69.136
+FrameTiming 805 69.154
+FrameTiming 806 69.179
+FrameTiming 807 69.358
+FrameTiming 808 69.174
+FrameTiming 809 69.238
+FrameTiming 810 69.190
+FrameTiming 811 69.216
+FrameTiming 812 69.091
+FrameTiming 813 68.566
+FrameTiming 814 68.966
+FrameTiming 815 69.355
+FrameTiming 816 69.120
+FrameTiming 817 69.382
+FrameTiming 818 69.232
+FrameTiming 819 68.299
+FrameTiming 820 69.029
+Frame 820 | rho: [687.337, 1140.637] avg=994.925 | p: [0.000, 360954.906] | speed avg=0.055 max=0.286
+Frame 820 fluid stats | fluid_count = 1248 | rho = [687.337, 1140.637] avg = 994.925 | p = [0.000, 360954.906] avg = 159541.672 | speed = [0.003, 0.286] avg = 0.055 | rho_floor_count = 0 | zero_pressure_count = 213
+Frame 820 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 4
+FrameTiming 821 70.020
+FrameTiming 822 69.241
+FrameTiming 823 69.165
+FrameTiming 824 69.032
+FrameTiming 825 69.124
+FrameTiming 826 68.222
+FrameTiming 827 69.201
+FrameTiming 828 69.139
+FrameTiming 829 68.448
+FrameTiming 830 68.367
+FrameTiming 831 68.500
+FrameTiming 832 68.210
+FrameTiming 833 68.428
+FrameTiming 834 68.252
+FrameTiming 835 68.557
+FrameTiming 836 68.365
+FrameTiming 837 68.777
+FrameTiming 838 68.996
+FrameTiming 839 71.436
+FrameTiming 840 77.450
+Frame 840 | rho: [706.786, 1138.558] avg=999.639 | p: [0.000, 357837.344] | speed avg=0.054 max=0.336
+Frame 840 fluid stats | fluid_count = 1248 | rho = [706.786, 1138.558] avg = 999.639 | p = [0.000, 357837.344] avg = 163663.328 | speed = [0.002, 0.336] avg = 0.054 | rho_floor_count = 0 | zero_pressure_count = 198
+Frame 840 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 11
+FrameTiming 841 71.539
+FrameTiming 842 68.162
+FrameTiming 843 68.395
+FrameTiming 844 68.361
+FrameTiming 845 69.094
+FrameTiming 846 69.222
+FrameTiming 847 69.053
+FrameTiming 848 68.928
+FrameTiming 849 69.319
+FrameTiming 850 69.157
+FrameTiming 851 69.221
+FrameTiming 852 69.334
+FrameTiming 853 69.212
+FrameTiming 854 69.188
+FrameTiming 855 69.294
+FrameTiming 856 69.335
+FrameTiming 857 69.517
+FrameTiming 858 69.422
+FrameTiming 859 69.228
+FrameTiming 860 69.344
+Frame 860 | rho: [678.834, 1166.422] avg=995.197 | p: [0.000, 399633.188] | speed avg=0.054 max=0.352
+Frame 860 fluid stats | fluid_count = 1248 | rho = [678.834, 1166.422] avg = 995.197 | p = [0.000, 399633.188] avg = 158285.234 | speed = [0.002, 0.352] avg = 0.054 | rho_floor_count = 0 | zero_pressure_count = 237
+Frame 860 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 10
+FrameTiming 861 69.350
+FrameTiming 862 69.192
+FrameTiming 863 69.252
+FrameTiming 864 69.094
+FrameTiming 865 69.186
+FrameTiming 866 69.377
+FrameTiming 867 69.403
+FrameTiming 868 69.397
+FrameTiming 869 69.291
+FrameTiming 870 69.300
+FrameTiming 871 69.168
+FrameTiming 872 69.300
+FrameTiming 873 69.480
+FrameTiming 874 69.232
+FrameTiming 875 69.314
+FrameTiming 876 68.714
+FrameTiming 877 68.277
+FrameTiming 878 68.215
+FrameTiming 879 68.416
+FrameTiming 880 68.260
+Frame 880 | rho: [678.729, 1162.336] avg=1001.197 | p: [0.000, 393504.625] | speed avg=0.056 max=0.352
+Frame 880 fluid stats | fluid_count = 1248 | rho = [678.729, 1162.336] avg = 1001.197 | p = [0.000, 393504.625] avg = 166261.328 | speed = [0.002, 0.352] avg = 0.056 | rho_floor_count = 0 | zero_pressure_count = 211
+Frame 880 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 15
+FrameTiming 881 68.339
+FrameTiming 882 68.430
+FrameTiming 883 68.410
+FrameTiming 884 68.541
+FrameTiming 885 68.303
+FrameTiming 886 68.980
+FrameTiming 887 69.232
+FrameTiming 888 69.060
+FrameTiming 889 69.121
+FrameTiming 890 69.037
+FrameTiming 891 69.117
+FrameTiming 892 69.029
+FrameTiming 893 69.137
+FrameTiming 894 69.081
+FrameTiming 895 69.341
+FrameTiming 896 68.987
+FrameTiming 897 68.146
+FrameTiming 898 69.125
+FrameTiming 899 67.838
+FrameTiming 900 69.331
+Frame 900 | rho: [695.987, 1154.647] avg=996.122 | p: [0.000, 381970.281] | speed avg=0.053 max=0.329
+Frame 900 fluid stats | fluid_count = 1248 | rho = [695.987, 1154.647] avg = 996.122 | p = [0.000, 381970.281] avg = 158956.953 | speed = [0.002, 0.329] avg = 0.053 | rho_floor_count = 0 | zero_pressure_count = 224
+Frame 900 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 12
+FrameTiming 901 68.050
+FrameTiming 902 69.282
+FrameTiming 903 68.777
+FrameTiming 904 68.626
+FrameTiming 905 67.830
+FrameTiming 906 67.623
+FrameTiming 907 68.768
+FrameTiming 908 67.644
+FrameTiming 909 67.798
+FrameTiming 910 68.428
+FrameTiming 911 68.572
+FrameTiming 912 67.926
+FrameTiming 913 67.644
+FrameTiming 914 67.805
+FrameTiming 915 69.087
+FrameTiming 916 67.796
+FrameTiming 917 67.990
+FrameTiming 918 68.897
+FrameTiming 919 68.662
+FrameTiming 920 67.796
+Frame 920 | rho: [663.179, 1161.746] avg=997.007 | p: [0.000, 392618.781] | speed avg=0.054 max=0.356
+Frame 920 fluid stats | fluid_count = 1248 | rho = [663.179, 1161.746] avg = 997.007 | p = [0.000, 392618.781] avg = 160514.891 | speed = [0.001, 0.356] avg = 0.054 | rho_floor_count = 0 | zero_pressure_count = 212
+Frame 920 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 10
+FrameTiming 921 68.022
+FrameTiming 922 68.310
+FrameTiming 923 67.786
+FrameTiming 924 67.954
+FrameTiming 925 67.891
+FrameTiming 926 67.738
+FrameTiming 927 69.328
+FrameTiming 928 68.320
+FrameTiming 929 67.839
+FrameTiming 930 68.845
+FrameTiming 931 67.942
+FrameTiming 932 68.681
+FrameTiming 933 67.839
+FrameTiming 934 67.960
+FrameTiming 935 67.625
+FrameTiming 936 68.114
+FrameTiming 937 68.060
+FrameTiming 938 69.397
+FrameTiming 939 69.142
+FrameTiming 940 68.966
+Frame 940 | rho: [729.739, 1149.610] avg=998.074 | p: [0.000, 374414.969] | speed avg=0.051 max=0.317
+Frame 940 fluid stats | fluid_count = 1248 | rho = [729.739, 1149.610] avg = 998.074 | p = [0.000, 374414.969] avg = 161370.516 | speed = [0.001, 0.317] avg = 0.051 | rho_floor_count = 0 | zero_pressure_count = 219
+Frame 940 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 10
+FrameTiming 941 69.136
+FrameTiming 942 69.104
+FrameTiming 943 68.963
+FrameTiming 944 69.017
+FrameTiming 945 69.022
+FrameTiming 946 68.970
+FrameTiming 947 70.114
+FrameTiming 948 69.102
+FrameTiming 949 69.253
+FrameTiming 950 69.318
+FrameTiming 951 69.135
+FrameTiming 952 69.293
+FrameTiming 953 69.169
+FrameTiming 954 69.772
+FrameTiming 955 69.142
+FrameTiming 956 69.436
+FrameTiming 957 69.368
+FrameTiming 958 68.900
+FrameTiming 959 68.596
+FrameTiming 960 68.417
+Frame 960 | rho: [652.486, 1151.647] avg=994.903 | p: [0.000, 377470.812] | speed avg=0.052 max=0.349
+Frame 960 fluid stats | fluid_count = 1248 | rho = [652.486, 1151.647] avg = 994.903 | p = [0.000, 377470.812] avg = 158821.672 | speed = [0.001, 0.349] avg = 0.052 | rho_floor_count = 0 | zero_pressure_count = 219
+Frame 960 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 7
+FrameTiming 961 68.470
+FrameTiming 962 68.284
+FrameTiming 963 68.718
+FrameTiming 964 68.375
+FrameTiming 965 68.225
+FrameTiming 966 68.512
+FrameTiming 967 68.390
+FrameTiming 968 68.178
+FrameTiming 969 68.342
+FrameTiming 970 68.207
+FrameTiming 971 68.342
+FrameTiming 972 68.390
+FrameTiming 973 68.338
+FrameTiming 974 68.304
+FrameTiming 975 68.402
+FrameTiming 976 69.185
+FrameTiming 977 69.246
+FrameTiming 978 69.092
+FrameTiming 979 69.153
+FrameTiming 980 68.775
+Frame 980 | rho: [662.427, 1169.558] avg=997.351 | p: [0.000, 404336.781] | speed avg=0.054 max=0.368
+Frame 980 fluid stats | fluid_count = 1248 | rho = [662.427, 1169.558] avg = 997.351 | p = [0.000, 404336.781] avg = 160781.109 | speed = [0.001, 0.368] avg = 0.054 | rho_floor_count = 0 | zero_pressure_count = 201
+Frame 980 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 10
+FrameTiming 981 68.181
+FrameTiming 982 68.189
+FrameTiming 983 68.448
+FrameTiming 984 68.288
+FrameTiming 985 68.310
+FrameTiming 986 68.281
+FrameTiming 987 68.804
+FrameTiming 988 68.432
+FrameTiming 989 68.331
+FrameTiming 990 68.334
+FrameTiming 991 68.374
+FrameTiming 992 68.464
+FrameTiming 993 68.417
+FrameTiming 994 68.376
+FrameTiming 995 68.416
+FrameTiming 996 68.614
+FrameTiming 997 68.447
+FrameTiming 998 68.492
+FrameTiming 999 68.530
+FrameTiming 1000 68.463
+Frame 1000 | rho: [686.372, 1174.092] avg=996.730 | p: [0.000, 411137.500] | speed avg=0.054 max=0.332
+Frame 1000 fluid stats | fluid_count = 1248 | rho = [686.372, 1174.092] avg = 996.730 | p = [0.000, 411137.500] avg = 161142.984 | speed = [0.001, 0.332] avg = 0.054 | rho_floor_count = 0 | zero_pressure_count = 211
+Frame 1000 | max_source_penetration = 0.000 | max_receiver_penetration = 0.000 | below_source_bottom_count = 0 | below_receiver_bottom_count = 0 | inside_source_wall_count = 0 | inside_receiver_wall_count = 8
+TimingSummary mode=gpu_neighbor_list total_ms=68683.848 avg_ms=68.684 min_ms=66.794 max_ms=83.366 boundary_rebuild_ms=3099.746 neighbor_build_ms=57834.952 density_ms=1808.910 force_ms=3266.642 integration_ms=2668.530
 NeighborOverflowSummary fluid_particles=0 source_boundary_particles=0 receiver_boundary_particles=0
 Done

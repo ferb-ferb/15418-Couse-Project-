@@ -17,6 +17,12 @@ Particle *fluid_particles;
 int num_fluid_particles;
 SimulationMode simulation_mode = SIM_MODE_GPU_NEIGHBOR_LIST;
 
+// Set the neighbor rebuild frequency
+static int neighbor_rebuild_frequency = 1;
+
+// Count how many rebuilds happened
+static long long total_neighbor_rebuild_calls = 0;
+
 // Share the fluid neighbor list
 static int *fluid_neighbor_count;
 static int *fluid_neighbor_list;
@@ -75,8 +81,44 @@ static SimulationMode parse_mode(int argc, char **argv) {
   }
 
   std::cerr << "Unknown mode " << mode_string << std::endl;
-  std::cerr << "Use one of brute neighbor" << std::endl;
+  std::cerr << "Use one of brute neighbor_list" << std::endl;
   std::exit(1);
+}
+
+// Read the neighbor rebuild frequency
+static int parse_neighbor_rebuild_frequency(int argc, char **argv,
+                                            SimulationMode mode) {
+
+  // Ignore this in brute mode
+  if (mode != SIM_MODE_GPU_NEIGHBOR_LIST) {
+    return 1;
+  }
+
+  // Default to every substep
+  if (argc < 4) {
+    return 1;
+  }
+
+  int rebuild_frequency = 1;
+
+  try {
+    rebuild_frequency = std::stoi(argv[3]);
+  } catch (...) {
+    std::cerr << "Neighbor rebuild frequency must be an integer"
+              << std::endl;
+    std::exit(1);
+  }
+
+  // Clamp to a valid range
+  if (rebuild_frequency < 1) {
+    rebuild_frequency = 1;
+  }
+
+  if (rebuild_frequency > SUBSTEPS_PER_FRAME) {
+    rebuild_frequency = SUBSTEPS_PER_FRAME;
+  }
+
+  return rebuild_frequency;
 }
 
 // Build all neighbor lists
@@ -406,7 +448,8 @@ __global__ void compute_forces_bruteforce_kernel(
       float p_term =
           -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
                    fluid_particles[j].p /
-                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS));
+                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho,
+                             EPS));
 
       pressure_fx += p_term * grad_coeff * dx / r;
       pressure_fy += p_term * grad_coeff * dy / r;
@@ -532,7 +575,8 @@ __global__ void compute_forces_neighbor_kernel(
       float p_term =
           -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
                    fluid_particles[j].p /
-                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS));
+                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho,
+                             EPS));
 
       pressure_fx += p_term * grad_coeff * dx / r;
       pressure_fy += p_term * grad_coeff * dy / r;
@@ -584,8 +628,8 @@ __global__ void compute_forces_neighbor_kernel(
       receiver_boundary_neighbor_count[i];
 
   for (int n = 0; n < local_receiver_boundary_neighbor_count; n++) {
-    int j = receiver_boundary_neighbor_list
-        [i * MAX_RECEIVER_BOUNDARY_NEIGHBORS + n];
+    int j =
+        receiver_boundary_neighbor_list[i * MAX_RECEIVER_BOUNDARY_NEIGHBORS + n];
 
     float dx = p_i_x - receiver_compute_boundary_particles[j].x;
     float dy = p_i_y - receiver_compute_boundary_particles[j].y;
@@ -626,12 +670,12 @@ void build_neighbor_lists() {
   // Reset the overflow counters
   cuda_check(cudaMemset(fluid_neighbor_overflow_particles, 0, sizeof(int)),
              "cudaMemset(fluid_neighbor_overflow_particles)");
-  cuda_check(
-      cudaMemset(source_boundary_neighbor_overflow_particles, 0, sizeof(int)),
-      "cudaMemset(source_boundary_neighbor_overflow_particles)");
-  cuda_check(
-      cudaMemset(receiver_boundary_neighbor_overflow_particles, 0, sizeof(int)),
-      "cudaMemset(receiver_boundary_neighbor_overflow_particles)");
+  cuda_check(cudaMemset(source_boundary_neighbor_overflow_particles, 0,
+                        sizeof(int)),
+             "cudaMemset(source_boundary_neighbor_overflow_particles)");
+  cuda_check(cudaMemset(receiver_boundary_neighbor_overflow_particles, 0,
+                        sizeof(int)),
+             "cudaMemset(receiver_boundary_neighbor_overflow_particles)");
 
   // Build the launch shape
   int threads_per_block = 256;
@@ -651,8 +695,7 @@ void build_neighbor_lists() {
   cuda_check(cudaDeviceSynchronize(), "build_neighbor_lists_kernel");
 
   // Accumulate the overflow totals
-  total_fluid_neighbor_overflow_particles +=
-      *fluid_neighbor_overflow_particles;
+  total_fluid_neighbor_overflow_particles += *fluid_neighbor_overflow_particles;
   total_source_boundary_neighbor_overflow_particles +=
       *source_boundary_neighbor_overflow_particles;
   total_receiver_boundary_neighbor_overflow_particles +=
@@ -1012,6 +1055,10 @@ int main(int argc, char **argv) {
   // Read the simulation mode
   simulation_mode = parse_mode(argc, argv);
 
+  // Read the neighbor rebuild frequency
+  neighbor_rebuild_frequency =
+      parse_neighbor_rebuild_frequency(argc, argv, simulation_mode);
+
   // Allocate the fluid array
   cuda_check(cudaMallocManaged(&fluid_particles,
                                MAX_FLUID_PARTICLES * sizeof(Particle)),
@@ -1036,42 +1083,41 @@ int main(int argc, char **argv) {
   cuda_check(cudaMallocManaged(&fluid_neighbor_count,
                                MAX_FLUID_PARTICLES * sizeof(int)),
              "cudaMallocManaged(fluid_neighbor_count)");
-  cuda_check(
-      cudaMallocManaged(&fluid_neighbor_list,
-                        static_cast<size_t>(MAX_FLUID_PARTICLES) *
-                            static_cast<size_t>(MAX_FLUID_NEIGHBORS) *
-                            sizeof(int)),
-      "cudaMallocManaged(fluid_neighbor_list)");
+  cuda_check(cudaMallocManaged(
+                 &fluid_neighbor_list,
+                 static_cast<size_t>(MAX_FLUID_PARTICLES) *
+                     static_cast<size_t>(MAX_FLUID_NEIGHBORS) * sizeof(int)),
+             "cudaMallocManaged(fluid_neighbor_list)");
 
   // Allocate the source boundary neighbor arrays
   cuda_check(cudaMallocManaged(&source_boundary_neighbor_count,
                                MAX_FLUID_PARTICLES * sizeof(int)),
              "cudaMallocManaged(source_boundary_neighbor_count)");
-  cuda_check(
-      cudaMallocManaged(&source_boundary_neighbor_list,
-                        static_cast<size_t>(MAX_FLUID_PARTICLES) *
-                            static_cast<size_t>(MAX_SOURCE_BOUNDARY_NEIGHBORS) *
-                            sizeof(int)),
-      "cudaMallocManaged(source_boundary_neighbor_list)");
+  cuda_check(cudaMallocManaged(
+                 &source_boundary_neighbor_list,
+                 static_cast<size_t>(MAX_FLUID_PARTICLES) *
+                     static_cast<size_t>(MAX_SOURCE_BOUNDARY_NEIGHBORS) *
+                     sizeof(int)),
+             "cudaMallocManaged(source_boundary_neighbor_list)");
 
   // Allocate the receiver boundary neighbor arrays
-  cuda_check(cudaMallocManaged(&receiver_boundary_neighbor_count,
-                               MAX_FLUID_PARTICLES * sizeof(int)),
+  cuda_check(cudaMallocManaged(
+                 &receiver_boundary_neighbor_count,
+                 MAX_FLUID_PARTICLES * sizeof(int)),
              "cudaMallocManaged(receiver_boundary_neighbor_count)");
-  cuda_check(
-      cudaMallocManaged(
-          &receiver_boundary_neighbor_list,
-          static_cast<size_t>(MAX_FLUID_PARTICLES) *
-              static_cast<size_t>(MAX_RECEIVER_BOUNDARY_NEIGHBORS) * sizeof(int)),
-      "cudaMallocManaged(receiver_boundary_neighbor_list)");
+  cuda_check(cudaMallocManaged(
+                 &receiver_boundary_neighbor_list,
+                 static_cast<size_t>(MAX_FLUID_PARTICLES) *
+                     static_cast<size_t>(MAX_RECEIVER_BOUNDARY_NEIGHBORS) *
+                     sizeof(int)),
+             "cudaMallocManaged(receiver_boundary_neighbor_list)");
 
   // Allocate the overflow counters
   cuda_check(cudaMallocManaged(&fluid_neighbor_overflow_particles, sizeof(int)),
              "cudaMallocManaged(fluid_neighbor_overflow_particles)");
-  cuda_check(
-      cudaMallocManaged(&source_boundary_neighbor_overflow_particles,
-                        sizeof(int)),
-      "cudaMallocManaged(source_boundary_neighbor_overflow_particles)");
+  cuda_check(cudaMallocManaged(&source_boundary_neighbor_overflow_particles,
+                               sizeof(int)),
+             "cudaMallocManaged(source_boundary_neighbor_overflow_particles)");
   cuda_check(
       cudaMallocManaged(&receiver_boundary_neighbor_overflow_particles,
                         sizeof(int)),
@@ -1082,6 +1128,12 @@ int main(int argc, char **argv) {
             << std::endl;
   std::cout << "Simulation mode = " << mode_to_string(simulation_mode)
             << std::endl;
+
+  if (simulation_mode == SIM_MODE_GPU_NEIGHBOR_LIST) {
+    std::cout << "Neighbor rebuild frequency = "
+              << neighbor_rebuild_frequency << std::endl;
+  }
+
   initialize_scene(target_tilt_deg);
 
   // Print the initial stats
@@ -1134,11 +1186,21 @@ int main(int argc, char **argv) {
       rebuild_source_compute_boundary_particles();
       auto boundary_end = clock_type::now();
       total_boundary_rebuild_ms +=
-          std::chrono::duration<double, std::milli>(boundary_end - boundary_start)
+          std::chrono::duration<double, std::milli>(boundary_end -
+                                                    boundary_start)
               .count();
 
-      // Build neighbor lists when needed
-      if (simulation_mode == SIM_MODE_GPU_NEIGHBOR_LIST) {
+      // Build neighbor lists at the chosen rebuild rate
+      long long global_substep_index =
+          static_cast<long long>(frame_index - 1) *
+              static_cast<long long>(SUBSTEPS_PER_FRAME) +
+          static_cast<long long>(step_index);
+
+      bool should_rebuild_neighbor_lists =
+          (simulation_mode == SIM_MODE_GPU_NEIGHBOR_LIST) &&
+          ((global_substep_index % neighbor_rebuild_frequency) == 0);
+
+      if (should_rebuild_neighbor_lists) {
         auto neighbor_start = clock_type::now();
         build_neighbor_lists();
         auto neighbor_end = clock_type::now();
@@ -1146,6 +1208,7 @@ int main(int argc, char **argv) {
             std::chrono::duration<double, std::milli>(neighbor_end -
                                                       neighbor_start)
                 .count();
+        total_neighbor_rebuild_calls++;
       }
 
       // Run the density pass
@@ -1168,9 +1231,10 @@ int main(int argc, char **argv) {
       auto integration_start = clock_type::now();
       integrate_fluid_particles();
       auto integration_end = clock_type::now();
-      total_integration_ms += std::chrono::duration<double, std::milli>(
-                                  integration_end - integration_start)
-                                  .count();
+      total_integration_ms +=
+          std::chrono::duration<double, std::milli>(integration_end -
+                                                    integration_start)
+              .count();
     }
 
     // Stop the frame timer
@@ -1186,7 +1250,8 @@ int main(int argc, char **argv) {
 
     // Print the frame timing
     std::cout << std::fixed << std::setprecision(3)
-              << "FrameTiming " << frame_index << " " << frame_ms << std::endl;
+              << "FrameTiming " << frame_index << " " << frame_ms
+              << std::endl;
 
     // Export this frame when needed
     if (frame_index % EXPORT_EVERY == 0) {
@@ -1216,7 +1281,10 @@ int main(int argc, char **argv) {
             << " neighbor_build_ms=" << total_neighbor_build_ms
             << " density_ms=" << total_density_ms
             << " force_ms=" << total_force_ms
-            << " integration_ms=" << total_integration_ms << std::endl;
+            << " integration_ms=" << total_integration_ms
+            << " neighbor_rebuild_frequency=" << neighbor_rebuild_frequency
+            << " neighbor_rebuild_calls=" << total_neighbor_rebuild_calls
+            << std::endl;
 
   // Print the overflow summary
   std::cout << "NeighborOverflowSummary"
@@ -1224,7 +1292,8 @@ int main(int argc, char **argv) {
             << " source_boundary_particles="
             << total_source_boundary_neighbor_overflow_particles
             << " receiver_boundary_particles="
-            << total_receiver_boundary_neighbor_overflow_particles << std::endl;
+            << total_receiver_boundary_neighbor_overflow_particles
+            << std::endl;
 
   std::cout << "Done" << std::endl;
 

@@ -44,8 +44,8 @@ const float RECEIVER_CUP_CENTER_Z = 0.35f;
 
 // Set the fluid fill and render spacing
 const float SOURCE_FILL_RATIO = 0.80f;
-const float INITIAL_PARTICLE_SPACING = 0.005f;
-const float CUP_RENDER_SPACING = 0.005f;
+const float INITIAL_PARTICLE_SPACING = 0.003f;
+const float CUP_RENDER_SPACING = 0.003f;
 
 // Set the tilt schedule
 const int SETTLE_FRAMES = 100;

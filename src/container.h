@@ -44,8 +44,8 @@ const float RECEIVER_CUP_CENTER_Z = 0.35f;
 
 // Set the fluid fill and boundary spacing
 const float SOURCE_FILL_RATIO = 0.80f;
-const float INITIAL_PARTICLE_SPACING = 0.01f;
-const float COMPUTE_BOUNDARY_SPACING = 0.01f;
+const float INITIAL_PARTICLE_SPACING = 0.003f;
+const float COMPUTE_BOUNDARY_SPACING = 0.003f;
 const float CUP_RENDER_SPACING = 0.01f;
 
 // Set the boundary layer counts

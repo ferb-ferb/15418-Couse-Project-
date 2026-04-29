@@ -52,8 +52,8 @@ static const char *mode_to_string(SimulationMode mode) {
 // Stop when a CUDA call fails
 static void cuda_check(cudaError_t code, const char *label) {
   if (code != cudaSuccess) {
-    std::cerr << "CUDA error in " << label << " "
-              << cudaGetErrorString(code) << std::endl;
+    std::cerr << "CUDA error in " << label << " " << cudaGetErrorString(code)
+              << std::endl;
     std::exit(1);
   }
 }
@@ -78,10 +78,8 @@ __device__ __forceinline__ static int grid_coords_to_index(int gx, int gy,
 }
 
 // Convert one particle position to grid coordinates
-__device__ __forceinline__ static void position_to_grid_coords(float x, float y,
-                                                               float z, int &gx,
-                                                               int &gy,
-                                                               int &gz) {
+__device__ __forceinline__ static void
+position_to_grid_coords(float x, float y, float z, int &gx, int &gy, int &gz) {
   gx = static_cast<int>(floorf((x - BOX_X_MIN) / HASH_CELL_SIZE));
   gy = static_cast<int>(floorf((y - BOX_Y_MIN) / HASH_CELL_SIZE));
   gz = static_cast<int>(floorf((z - BOX_Z_MIN) / HASH_CELL_SIZE));
@@ -113,8 +111,9 @@ __global__ void compute_particle_cell_id_kernel(Particle *particles,
 }
 
 // Build the cell ranges
-__global__ void build_cell_ranges_kernel(int *particle_cell_id, int num_particles,
-                                         int *cell_start, int *cell_end) {
+__global__ void build_cell_ranges_kernel(int *particle_cell_id,
+                                         int num_particles, int *cell_start,
+                                         int *cell_end) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (i >= num_particles) {
@@ -278,10 +277,11 @@ __global__ void compute_density_pressure_bruteforce_kernel(
 // Compute density with three sorted grids
 __global__ void compute_density_pressure_hash_kernel(
     Particle *fluid_particles, int num_fluid_particles,
-    int *fluid_particle_sorted_index, int *fluid_cell_start, int *fluid_cell_end,
-    Particle *source_compute_boundary_particles,
+    int *fluid_particle_sorted_index, int *fluid_cell_start,
+    int *fluid_cell_end, Particle *source_compute_boundary_particles,
     int *source_boundary_sorted_index, int *source_boundary_cell_start,
-    int *source_boundary_cell_end, Particle *receiver_compute_boundary_particles,
+    int *source_boundary_cell_end,
+    Particle *receiver_compute_boundary_particles,
     int *receiver_boundary_sorted_index, int *receiver_boundary_cell_start,
     int *receiver_boundary_cell_end) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -384,12 +384,13 @@ __global__ void compute_density_pressure_hash_kernel(
 }
 
 // Compute forces with all pairs
-__global__ void compute_forces_bruteforce_kernel(
-    Particle *fluid_particles, int num_fluid_particles,
-    Particle *source_compute_boundary_particles,
-    int num_source_compute_boundary_particles,
-    Particle *receiver_compute_boundary_particles,
-    int num_receiver_compute_boundary_particles) {
+__global__ void
+compute_forces_bruteforce_kernel(Particle *fluid_particles,
+                                 int num_fluid_particles,
+                                 Particle *source_compute_boundary_particles,
+                                 int num_source_compute_boundary_particles,
+                                 Particle *receiver_compute_boundary_particles,
+                                 int num_receiver_compute_boundary_particles) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (i >= num_fluid_particles) {
@@ -429,10 +430,10 @@ __global__ void compute_forces_bruteforce_kernel(
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
 
       float p_term =
-          -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                   fluid_particles[j].p / fmaxf(fluid_particles[j].rho *
-                                                    fluid_particles[j].rho,
-                                                EPS));
+          -MASS *
+          (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
+           fluid_particles[j].p /
+               fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS));
 
       pressure_fx += p_term * grad_coeff * dx / r;
       pressure_fy += p_term * grad_coeff * dy / r;
@@ -506,10 +507,11 @@ __global__ void compute_forces_bruteforce_kernel(
 // Compute forces with three sorted grids
 __global__ void compute_forces_hash_kernel(
     Particle *fluid_particles, int num_fluid_particles,
-    int *fluid_particle_sorted_index, int *fluid_cell_start, int *fluid_cell_end,
-    Particle *source_compute_boundary_particles,
+    int *fluid_particle_sorted_index, int *fluid_cell_start,
+    int *fluid_cell_end, Particle *source_compute_boundary_particles,
     int *source_boundary_sorted_index, int *source_boundary_cell_start,
-    int *source_boundary_cell_end, Particle *receiver_compute_boundary_particles,
+    int *source_boundary_cell_end,
+    Particle *receiver_compute_boundary_particles,
     int *receiver_boundary_sorted_index, int *receiver_boundary_cell_start,
     int *receiver_boundary_cell_end) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -576,11 +578,11 @@ __global__ void compute_forces_hash_kernel(
               float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
 
               float p_term =
-                  -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                           fluid_particles[j].p /
-                               fmaxf(fluid_particles[j].rho *
-                                         fluid_particles[j].rho,
-                                     EPS));
+                  -MASS *
+                  (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
+                   fluid_particles[j].p /
+                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho,
+                             EPS));
 
               pressure_fx += p_term * grad_coeff * dx / r;
               pressure_fy += p_term * grad_coeff * dy / r;
@@ -589,12 +591,15 @@ __global__ void compute_forces_hash_kernel(
               float visc_coeff = VISC_LAP * h_minus_r;
               float inv_rho_j = 1.0f / fmaxf(fluid_particles[j].rho, EPS);
 
-              viscosity_fx += VISCOSITY * MASS * (fluid_particles[j].vx - p_i_vx) *
-                              inv_rho_j * visc_coeff;
-              viscosity_fy += VISCOSITY * MASS * (fluid_particles[j].vy - p_i_vy) *
-                              inv_rho_j * visc_coeff;
-              viscosity_fz += VISCOSITY * MASS * (fluid_particles[j].vz - p_i_vz) *
-                              inv_rho_j * visc_coeff;
+              viscosity_fx += VISCOSITY * MASS *
+                              (fluid_particles[j].vx - p_i_vx) * inv_rho_j *
+                              visc_coeff;
+              viscosity_fy += VISCOSITY * MASS *
+                              (fluid_particles[j].vy - p_i_vy) * inv_rho_j *
+                              visc_coeff;
+              viscosity_fz += VISCOSITY * MASS *
+                              (fluid_particles[j].vz - p_i_vz) * inv_rho_j *
+                              visc_coeff;
             }
           }
         }
@@ -754,8 +759,9 @@ static void compute_forces_cpu() {
         float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
 
         float p_term =
-            -MASS * (particle_i.p / std::max(particle_i.rho * particle_i.rho, EPS) +
-                     particle_j.p / std::max(particle_j.rho * particle_j.rho, EPS));
+            -MASS *
+            (particle_i.p / std::max(particle_i.rho * particle_i.rho, EPS) +
+             particle_j.p / std::max(particle_j.rho * particle_j.rho, EPS));
 
         pressure_fx += p_term * grad_coeff * dx / r;
         pressure_fy += p_term * grad_coeff * dy / r;
@@ -790,8 +796,9 @@ static void compute_forces_cpu() {
         float rhob = particle_j.rho;
 
         float p_term =
-            -MASS * (particle_i.p / std::max(particle_i.rho * particle_i.rho, EPS) +
-                     pb / std::max(rhob * rhob, EPS));
+            -MASS *
+            (particle_i.p / std::max(particle_i.rho * particle_i.rho, EPS) +
+             pb / std::max(rhob * rhob, EPS));
 
         pressure_fx += p_term * grad_coeff * dx / r;
         pressure_fy += p_term * grad_coeff * dy / r;
@@ -816,8 +823,9 @@ static void compute_forces_cpu() {
         float rhob = particle_j.rho;
 
         float p_term =
-            -MASS * (particle_i.p / std::max(particle_i.rho * particle_i.rho, EPS) +
-                     pb / std::max(rhob * rhob, EPS));
+            -MASS *
+            (particle_i.p / std::max(particle_i.rho * particle_i.rho, EPS) +
+             pb / std::max(rhob * rhob, EPS));
 
         pressure_fx += p_term * grad_coeff * dx / r;
         pressure_fy += p_term * grad_coeff * dy / r;
@@ -917,14 +925,15 @@ void compute_density_pressure() {
   if (simulation_mode == SIM_MODE_GPU_BRUTE_FORCE) {
     compute_density_pressure_bruteforce_kernel<<<blocks_per_grid,
                                                  threads_per_block>>>(
-        fluid_particles, num_fluid_particles,
-        source_compute_boundary_particles, num_source_compute_boundary_particles,
+        fluid_particles, num_fluid_particles, source_compute_boundary_particles,
+        num_source_compute_boundary_particles,
         receiver_compute_boundary_particles,
         num_receiver_compute_boundary_particles);
     cuda_check(cudaDeviceSynchronize(),
                "compute_density_pressure_bruteforce_kernel");
   } else {
-    compute_density_pressure_hash_kernel<<<blocks_per_grid, threads_per_block>>>(
+    compute_density_pressure_hash_kernel<<<blocks_per_grid,
+                                           threads_per_block>>>(
         fluid_particles, num_fluid_particles, fluid_particle_sorted_index,
         fluid_cell_start, fluid_cell_end, source_compute_boundary_particles,
         source_boundary_sorted_index, source_boundary_cell_start,
@@ -948,8 +957,8 @@ void compute_forces() {
 
   if (simulation_mode == SIM_MODE_GPU_BRUTE_FORCE) {
     compute_forces_bruteforce_kernel<<<blocks_per_grid, threads_per_block>>>(
-        fluid_particles, num_fluid_particles,
-        source_compute_boundary_particles, num_source_compute_boundary_particles,
+        fluid_particles, num_fluid_particles, source_compute_boundary_particles,
+        num_source_compute_boundary_particles,
         receiver_compute_boundary_particles,
         num_receiver_compute_boundary_particles);
     cuda_check(cudaDeviceSynchronize(), "compute_forces_bruteforce_kernel");
@@ -971,7 +980,7 @@ void export_csv(int frame_index) {
 
   std::string frame_string = std::to_string(frame_index);
   frame_string = std::string(4 - frame_string.length(), '0') + frame_string;
-  std::string file_name = "output/frame_" + frame_string + ".csv";
+  std::string file_name = "/tmp/athanf/frame_" + frame_string + ".csv";
 
   std::ofstream file(file_name);
 
@@ -1171,7 +1180,11 @@ int main(int argc, char **argv) {
 
   target_tilt_deg = std::max(0.0f, std::min(180.0f, target_tilt_deg));
   simulation_mode = parse_mode(argc, argv);
+  int rebuild_freq = 1; // Default to rebuilding every 1 substep
 
+  if (argc > 3) {
+    rebuild_freq = std::stoi(argv[3]);
+  }
   cuda_check(cudaMallocManaged(&fluid_particles,
                                MAX_FLUID_PARTICLES * sizeof(Particle)),
              "cudaMallocManaged(fluid_particles)");
@@ -1191,12 +1204,12 @@ int main(int argc, char **argv) {
   cuda_check(cudaMallocManaged(&fluid_particle_sorted_index,
                                MAX_FLUID_PARTICLES * sizeof(int)),
              "cudaMallocManaged(fluid_particle_sorted_index)");
-  cuda_check(cudaMallocManaged(&fluid_cell_start,
-                               HASH_GRID_CELL_COUNT * sizeof(int)),
-             "cudaMallocManaged(fluid_cell_start)");
-  cuda_check(cudaMallocManaged(&fluid_cell_end,
-                               HASH_GRID_CELL_COUNT * sizeof(int)),
-             "cudaMallocManaged(fluid_cell_end)");
+  cuda_check(
+      cudaMallocManaged(&fluid_cell_start, HASH_GRID_CELL_COUNT * sizeof(int)),
+      "cudaMallocManaged(fluid_cell_start)");
+  cuda_check(
+      cudaMallocManaged(&fluid_cell_end, HASH_GRID_CELL_COUNT * sizeof(int)),
+      "cudaMallocManaged(fluid_cell_end)");
 
   cuda_check(cudaMallocManaged(&source_boundary_cell_id,
                                MAX_BOUNDARY_PARTICLES * sizeof(int)),
@@ -1268,9 +1281,11 @@ int main(int argc, char **argv) {
       // Rebuild only the moving source compute boundary
       rebuild_source_compute_boundary_particles();
 
-      if (simulation_mode == SIM_MODE_GPU_SPATIAL_HASH) {
-        build_spatial_grid();
-        build_source_boundary_grid();
+      if (step_index % rebuild_freq == 0) {
+        if (simulation_mode == SIM_MODE_GPU_SPATIAL_HASH) {
+          build_spatial_grid();
+          build_source_boundary_grid();
+        }
       }
 
       compute_density_pressure();
@@ -1287,9 +1302,8 @@ int main(int argc, char **argv) {
     min_frame_ms = std::min(min_frame_ms, frame_ms);
     max_frame_ms = std::max(max_frame_ms, frame_ms);
 
-    std::cout << std::fixed << std::setprecision(3)
-              << "FrameTiming " << frame_index << " " << frame_ms
-              << std::endl;
+    std::cout << std::fixed << std::setprecision(3) << "FrameTiming "
+              << frame_index << " " << frame_ms << std::endl;
 
     if (frame_index % EXPORT_EVERY == 0) {
       export_csv(frame_index / EXPORT_EVERY);
@@ -1307,10 +1321,9 @@ int main(int argc, char **argv) {
 
   std::cout << std::fixed << std::setprecision(3)
             << "TimingSummary mode=" << mode_to_string(simulation_mode)
-            << " total_ms=" << total_compute_ms
-            << " avg_ms=" << avg_frame_ms
-            << " min_ms=" << min_frame_ms
-            << " max_ms=" << max_frame_ms << std::endl;
+            << " total_ms=" << total_compute_ms << " avg_ms=" << avg_frame_ms
+            << " min_ms=" << min_frame_ms << " max_ms=" << max_frame_ms
+            << std::endl;
 
   std::cout << "Done" << std::endl;
 

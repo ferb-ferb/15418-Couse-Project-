@@ -25,8 +25,8 @@ enum SimulationMode {
   SIM_MODE_GPU_SPATIAL_HASH = 2,
 };
 
-const int MAX_FLUID_PARTICLES = 20000;
-const int MAX_BOUNDARY_PARTICLES = 20000;
+const int MAX_FLUID_PARTICLES = 150000;
+const int MAX_BOUNDARY_PARTICLES = 250000;
 
 // Set the main simulation length
 const int FRAME_COUNT = 1000;
@@ -38,13 +38,13 @@ const float POS_JITTER_CONST = 0.05f;
 const float VEL_JITTER_CONST = 0.0f;
 
 // Set the fluid physics values
-const float H = 0.025f;
+const float H = 0.0075f;
 const float H_DENS = H;
 const float H_FORCE = H;
 const float GRAVITY = -9.81f;
 const float DT = 0.0002f;
 const float PI = 3.1415926535f;
-const float MASS = 0.0009f;
+const float MASS = 0.0000243f;
 const float REST_DENS = 900.0f;
 const float GAS_CONST = 1500.0f;
 const float VISCOSITY = 1.0f;

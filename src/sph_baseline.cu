@@ -56,8 +56,8 @@ static const char *mode_to_string(SimulationMode mode) {
 // Stop when a CUDA call fails
 static void cuda_check(cudaError_t code, const char *label) {
   if (code != cudaSuccess) {
-    std::cerr << "CUDA error in " << label << " "
-              << cudaGetErrorString(code) << std::endl;
+    std::cerr << "CUDA error in " << label << " " << cudaGetErrorString(code)
+              << std::endl;
     std::exit(1);
   }
 }
@@ -104,8 +104,7 @@ static int parse_neighbor_rebuild_frequency(int argc, char **argv,
   try {
     rebuild_frequency = std::stoi(argv[3]);
   } catch (...) {
-    std::cerr << "Neighbor rebuild frequency must be an integer"
-              << std::endl;
+    std::cerr << "Neighbor rebuild frequency must be an integer" << std::endl;
     std::exit(1);
   }
 
@@ -188,9 +187,8 @@ __global__ void build_neighbor_lists_kernel(
 
     if (r2 < H_FORCE * H_FORCE) {
       if (local_source_boundary_count < MAX_SOURCE_BOUNDARY_NEIGHBORS) {
-        source_boundary_neighbor_list
-            [i * MAX_SOURCE_BOUNDARY_NEIGHBORS + local_source_boundary_count] =
-                j;
+        source_boundary_neighbor_list[i * MAX_SOURCE_BOUNDARY_NEIGHBORS +
+                                      local_source_boundary_count] = j;
         local_source_boundary_count++;
       } else {
         source_boundary_overflow = true;
@@ -207,9 +205,8 @@ __global__ void build_neighbor_lists_kernel(
 
     if (r2 < H_FORCE * H_FORCE) {
       if (local_receiver_boundary_count < MAX_RECEIVER_BOUNDARY_NEIGHBORS) {
-        receiver_boundary_neighbor_list
-            [i * MAX_RECEIVER_BOUNDARY_NEIGHBORS +
-             local_receiver_boundary_count] = j;
+        receiver_boundary_neighbor_list[i * MAX_RECEIVER_BOUNDARY_NEIGHBORS +
+                                        local_receiver_boundary_count] = j;
         local_receiver_boundary_count++;
       } else {
         receiver_boundary_overflow = true;
@@ -375,8 +372,9 @@ __global__ void compute_density_pressure_neighbor_kernel(
       receiver_boundary_neighbor_count[i];
 
   for (int n = 0; n < local_receiver_boundary_neighbor_count; n++) {
-    int j = receiver_boundary_neighbor_list
-        [i * MAX_RECEIVER_BOUNDARY_NEIGHBORS + n];
+    int j =
+        receiver_boundary_neighbor_list[i * MAX_RECEIVER_BOUNDARY_NEIGHBORS +
+                                        n];
 
     float dx = receiver_compute_boundary_particles[j].x - p_i_x;
     float dy = receiver_compute_boundary_particles[j].y - p_i_y;
@@ -396,12 +394,13 @@ __global__ void compute_density_pressure_neighbor_kernel(
 }
 
 // Compute forces with all pairs
-__global__ void compute_forces_bruteforce_kernel(
-    Particle *fluid_particles, int num_fluid_particles,
-    Particle *source_compute_boundary_particles,
-    int num_source_compute_boundary_particles,
-    Particle *receiver_compute_boundary_particles,
-    int num_receiver_compute_boundary_particles) {
+__global__ void
+compute_forces_bruteforce_kernel(Particle *fluid_particles,
+                                 int num_fluid_particles,
+                                 Particle *source_compute_boundary_particles,
+                                 int num_source_compute_boundary_particles,
+                                 Particle *receiver_compute_boundary_particles,
+                                 int num_receiver_compute_boundary_particles) {
 
   // Get the thread index
   int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -446,10 +445,10 @@ __global__ void compute_forces_bruteforce_kernel(
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
 
       float p_term =
-          -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                   fluid_particles[j].p /
-                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho,
-                             EPS));
+          -MASS *
+          (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
+           fluid_particles[j].p /
+               fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS));
 
       pressure_fx += p_term * grad_coeff * dx / r;
       pressure_fy += p_term * grad_coeff * dy / r;
@@ -573,10 +572,10 @@ __global__ void compute_forces_neighbor_kernel(
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
 
       float p_term =
-          -MASS * (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
-                   fluid_particles[j].p /
-                       fmaxf(fluid_particles[j].rho * fluid_particles[j].rho,
-                             EPS));
+          -MASS *
+          (p_i_p / fmaxf(p_i_rho * p_i_rho, EPS) +
+           fluid_particles[j].p /
+               fmaxf(fluid_particles[j].rho * fluid_particles[j].rho, EPS));
 
       pressure_fx += p_term * grad_coeff * dx / r;
       pressure_fy += p_term * grad_coeff * dy / r;
@@ -629,7 +628,8 @@ __global__ void compute_forces_neighbor_kernel(
 
   for (int n = 0; n < local_receiver_boundary_neighbor_count; n++) {
     int j =
-        receiver_boundary_neighbor_list[i * MAX_RECEIVER_BOUNDARY_NEIGHBORS + n];
+        receiver_boundary_neighbor_list[i * MAX_RECEIVER_BOUNDARY_NEIGHBORS +
+                                        n];
 
     float dx = p_i_x - receiver_compute_boundary_particles[j].x;
     float dy = p_i_y - receiver_compute_boundary_particles[j].y;
@@ -670,12 +670,12 @@ void build_neighbor_lists() {
   // Reset the overflow counters
   cuda_check(cudaMemset(fluid_neighbor_overflow_particles, 0, sizeof(int)),
              "cudaMemset(fluid_neighbor_overflow_particles)");
-  cuda_check(cudaMemset(source_boundary_neighbor_overflow_particles, 0,
-                        sizeof(int)),
-             "cudaMemset(source_boundary_neighbor_overflow_particles)");
-  cuda_check(cudaMemset(receiver_boundary_neighbor_overflow_particles, 0,
-                        sizeof(int)),
-             "cudaMemset(receiver_boundary_neighbor_overflow_particles)");
+  cuda_check(
+      cudaMemset(source_boundary_neighbor_overflow_particles, 0, sizeof(int)),
+      "cudaMemset(source_boundary_neighbor_overflow_particles)");
+  cuda_check(
+      cudaMemset(receiver_boundary_neighbor_overflow_particles, 0, sizeof(int)),
+      "cudaMemset(receiver_boundary_neighbor_overflow_particles)");
 
   // Build the launch shape
   int threads_per_block = 256;
@@ -685,7 +685,8 @@ void build_neighbor_lists() {
   // Build the lists
   build_neighbor_lists_kernel<<<blocks_per_grid, threads_per_block>>>(
       fluid_particles, num_fluid_particles, source_compute_boundary_particles,
-      num_source_compute_boundary_particles, receiver_compute_boundary_particles,
+      num_source_compute_boundary_particles,
+      receiver_compute_boundary_particles,
       num_receiver_compute_boundary_particles, fluid_neighbor_count,
       fluid_neighbor_list, source_boundary_neighbor_count,
       source_boundary_neighbor_list, receiver_boundary_neighbor_count,
@@ -714,8 +715,8 @@ void compute_density_pressure() {
   if (simulation_mode == SIM_MODE_GPU_BRUTE_FORCE) {
     compute_density_pressure_bruteforce_kernel<<<blocks_per_grid,
                                                  threads_per_block>>>(
-        fluid_particles, num_fluid_particles,
-        source_compute_boundary_particles, num_source_compute_boundary_particles,
+        fluid_particles, num_fluid_particles, source_compute_boundary_particles,
+        num_source_compute_boundary_particles,
         receiver_compute_boundary_particles,
         num_receiver_compute_boundary_particles);
     cuda_check(cudaDeviceSynchronize(),
@@ -744,8 +745,8 @@ void compute_forces() {
   // Run the chosen mode
   if (simulation_mode == SIM_MODE_GPU_BRUTE_FORCE) {
     compute_forces_bruteforce_kernel<<<blocks_per_grid, threads_per_block>>>(
-        fluid_particles, num_fluid_particles,
-        source_compute_boundary_particles, num_source_compute_boundary_particles,
+        fluid_particles, num_fluid_particles, source_compute_boundary_particles,
+        num_source_compute_boundary_particles,
         receiver_compute_boundary_particles,
         num_receiver_compute_boundary_particles);
     cuda_check(cudaDeviceSynchronize(), "compute_forces_bruteforce_kernel");
@@ -1083,27 +1084,26 @@ int main(int argc, char **argv) {
   cuda_check(cudaMallocManaged(&fluid_neighbor_count,
                                MAX_FLUID_PARTICLES * sizeof(int)),
              "cudaMallocManaged(fluid_neighbor_count)");
-  cuda_check(cudaMallocManaged(
-                 &fluid_neighbor_list,
-                 static_cast<size_t>(MAX_FLUID_PARTICLES) *
-                     static_cast<size_t>(MAX_FLUID_NEIGHBORS) * sizeof(int)),
+  cuda_check(cudaMallocManaged(&fluid_neighbor_list,
+                               static_cast<size_t>(MAX_FLUID_PARTICLES) *
+                                   static_cast<size_t>(MAX_FLUID_NEIGHBORS) *
+                                   sizeof(int)),
              "cudaMallocManaged(fluid_neighbor_list)");
 
   // Allocate the source boundary neighbor arrays
   cuda_check(cudaMallocManaged(&source_boundary_neighbor_count,
                                MAX_FLUID_PARTICLES * sizeof(int)),
              "cudaMallocManaged(source_boundary_neighbor_count)");
-  cuda_check(cudaMallocManaged(
-                 &source_boundary_neighbor_list,
-                 static_cast<size_t>(MAX_FLUID_PARTICLES) *
-                     static_cast<size_t>(MAX_SOURCE_BOUNDARY_NEIGHBORS) *
-                     sizeof(int)),
-             "cudaMallocManaged(source_boundary_neighbor_list)");
+  cuda_check(
+      cudaMallocManaged(&source_boundary_neighbor_list,
+                        static_cast<size_t>(MAX_FLUID_PARTICLES) *
+                            static_cast<size_t>(MAX_SOURCE_BOUNDARY_NEIGHBORS) *
+                            sizeof(int)),
+      "cudaMallocManaged(source_boundary_neighbor_list)");
 
   // Allocate the receiver boundary neighbor arrays
-  cuda_check(cudaMallocManaged(
-                 &receiver_boundary_neighbor_count,
-                 MAX_FLUID_PARTICLES * sizeof(int)),
+  cuda_check(cudaMallocManaged(&receiver_boundary_neighbor_count,
+                               MAX_FLUID_PARTICLES * sizeof(int)),
              "cudaMallocManaged(receiver_boundary_neighbor_count)");
   cuda_check(cudaMallocManaged(
                  &receiver_boundary_neighbor_list,
@@ -1130,8 +1130,8 @@ int main(int argc, char **argv) {
             << std::endl;
 
   if (simulation_mode == SIM_MODE_GPU_NEIGHBOR_LIST) {
-    std::cout << "Neighbor rebuild frequency = "
-              << neighbor_rebuild_frequency << std::endl;
+    std::cout << "Neighbor rebuild frequency = " << neighbor_rebuild_frequency
+              << std::endl;
   }
 
   initialize_scene(target_tilt_deg);
@@ -1185,10 +1185,9 @@ int main(int argc, char **argv) {
       auto boundary_start = clock_type::now();
       rebuild_source_compute_boundary_particles();
       auto boundary_end = clock_type::now();
-      total_boundary_rebuild_ms +=
-          std::chrono::duration<double, std::milli>(boundary_end -
-                                                    boundary_start)
-              .count();
+      total_boundary_rebuild_ms += std::chrono::duration<double, std::milli>(
+                                       boundary_end - boundary_start)
+                                       .count();
 
       // Build neighbor lists at the chosen rebuild rate
       long long global_substep_index =
@@ -1204,10 +1203,9 @@ int main(int argc, char **argv) {
         auto neighbor_start = clock_type::now();
         build_neighbor_lists();
         auto neighbor_end = clock_type::now();
-        total_neighbor_build_ms +=
-            std::chrono::duration<double, std::milli>(neighbor_end -
-                                                      neighbor_start)
-                .count();
+        total_neighbor_build_ms += std::chrono::duration<double, std::milli>(
+                                       neighbor_end - neighbor_start)
+                                       .count();
         total_neighbor_rebuild_calls++;
       }
 
@@ -1231,10 +1229,9 @@ int main(int argc, char **argv) {
       auto integration_start = clock_type::now();
       integrate_fluid_particles();
       auto integration_end = clock_type::now();
-      total_integration_ms +=
-          std::chrono::duration<double, std::milli>(integration_end -
-                                                    integration_start)
-              .count();
+      total_integration_ms += std::chrono::duration<double, std::milli>(
+                                  integration_end - integration_start)
+                                  .count();
     }
 
     // Stop the frame timer
@@ -1249,9 +1246,8 @@ int main(int argc, char **argv) {
     max_frame_ms = std::max(max_frame_ms, frame_ms);
 
     // Print the frame timing
-    std::cout << std::fixed << std::setprecision(3)
-              << "FrameTiming " << frame_index << " " << frame_ms
-              << std::endl;
+    std::cout << std::fixed << std::setprecision(3) << "FrameTiming "
+              << frame_index << " " << frame_ms << std::endl;
 
     // Export this frame when needed
     if (frame_index % EXPORT_EVERY == 0) {
@@ -1273,10 +1269,8 @@ int main(int argc, char **argv) {
   // Print the timing summary
   std::cout << std::fixed << std::setprecision(3)
             << "TimingSummary mode=" << mode_to_string(simulation_mode)
-            << " total_ms=" << total_compute_ms
-            << " avg_ms=" << avg_frame_ms
-            << " min_ms=" << min_frame_ms
-            << " max_ms=" << max_frame_ms
+            << " total_ms=" << total_compute_ms << " avg_ms=" << avg_frame_ms
+            << " min_ms=" << min_frame_ms << " max_ms=" << max_frame_ms
             << " boundary_rebuild_ms=" << total_boundary_rebuild_ms
             << " neighbor_build_ms=" << total_neighbor_build_ms
             << " density_ms=" << total_density_ms
@@ -1292,8 +1286,7 @@ int main(int argc, char **argv) {
             << " source_boundary_particles="
             << total_source_boundary_neighbor_overflow_particles
             << " receiver_boundary_particles="
-            << total_receiver_boundary_neighbor_overflow_particles
-            << std::endl;
+            << total_receiver_boundary_neighbor_overflow_particles << std::endl;
 
   std::cout << "Done" << std::endl;
 

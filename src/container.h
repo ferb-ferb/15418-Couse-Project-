@@ -5,6 +5,7 @@
 
 #include "sph_baseline.h"
 
+// Store one cup state and its rotation values
 struct Cup {
   float center_x;
   float center_y;
@@ -60,7 +61,7 @@ const int TILT_FRAMES = 100;
 const bool DEBUG_NO_TILT = false;
 const bool DEBUG_STATIC_TILT = false;
 
-// Share the cups
+// Share the cup states
 extern Cup source_cup;
 extern Cup receiver_cup;
 
@@ -68,46 +69,46 @@ extern Cup receiver_cup;
 extern Particle *boundary_particles;
 extern int num_boundary_particles;
 
-// Share the source compute boundary
+// Share the moving source compute boundary
 extern Particle *source_compute_boundary_particles;
 extern int num_source_compute_boundary_particles;
 
-// Share the receiver compute boundary
+// Share the static receiver compute boundary
 extern Particle *receiver_compute_boundary_particles;
 extern int num_receiver_compute_boundary_particles;
 
-// Build one cup
+// Build one cup with its starting rotation
 Cup make_cup(float center_x, float center_y, float center_z, float width,
              float height, float depth, float wall_thickness, float tilt_deg);
 
-// Update one cup rotation
+// Update one cup rotation for a new tilt angle
 void update_cup_rotation(Cup &cup, float tilt_deg);
 
-// Build the whole scene
+// Build the full scene with cups fluid and boundaries
 void initialize_scene(float target_tilt_deg);
 
-// Update the cups for one frame
+// Update cup motion for one frame or substep
 void update_scene_for_frame(float frame_index, float target_tilt_deg);
 
-// Rebuild the source compute boundary
+// Rebuild the moving source compute boundary
 void rebuild_source_compute_boundary_particles();
 
-// Rebuild the receiver compute boundary
+// Rebuild the static receiver compute boundary
 void rebuild_receiver_compute_boundary_particles();
 
 // Rebuild the dense render boundary
 void rebuild_boundary_particles_for_export();
 
-// Push one fluid particle out of one cup wall
+// Push one fluid particle out of cup walls if needed
 void resolve_cup_collision(Particle &particle, const Cup &cup);
 
-// Reset the penetration stats
+// Reset wall penetration debug counters
 void reset_penetration_stats();
 
-// Print the penetration stats
+// Print wall penetration debug counters
 void print_penetration_stats(int frame_index);
 
-// Print the source cup setup stats
+// Print source cup setup debug stats
 void print_source_cup_setup_stats();
 
 #endif

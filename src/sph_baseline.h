@@ -3,6 +3,7 @@
 
 #include <string>
 
+// Store one fluid or boundary particle
 struct Particle {
   float x;
   float y;
@@ -19,6 +20,7 @@ struct Particle {
   int kind;
 };
 
+// Select which GPU simulation path to run
 enum SimulationMode {
   SIM_MODE_GPU_BRUTE_FORCE = 0,
   SIM_MODE_GPU_NEIGHBOR_LIST = 1,
@@ -73,33 +75,33 @@ const float BOX_Z_MAX = 0.7f;
 const float WALL_EPS = 0.002f;
 const float WALL_RESTITUTION = 0.05f;
 
-// Share the fluid particles
+// Share the main fluid particle array
 extern Particle *fluid_particles;
 extern int num_fluid_particles;
 extern SimulationMode simulation_mode;
 
-// Build the neighbor lists
+// Build neighbor lists for fluid and boundary neighbors
 void build_neighbor_lists();
 
-// Run the density pass
+// Compute density and pressure for every fluid particle
 void compute_density_pressure();
 
-// Run the force pass
+// Compute pressure viscosity and gravity forces for every fluid particle
 void compute_forces();
 
-// Move the fluid particles
+// Integrate velocity and position for every fluid particle
 void integrate_fluid_particles();
 
-// Export the scene to csv
+// Export the current fluid and boundary state to csv
 void export_csv(int frame_index);
 
-// Print the frame stats
+// Print frame level density pressure and speed stats
 void print_stats(int frame_index);
 
-// Print the initial stats
+// Print the first density and pressure stats after setup
 void print_initial_density_stats();
 
-// Print fluid only stats
+// Print fluid only stats with a custom label
 void print_fluid_only_stats(const std::string &label);
 
 #endif

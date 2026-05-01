@@ -11,35 +11,41 @@
 
 Particle *fluid_particles;
 int num_fluid_particles;
-/* =========================================================
- * DENSITY PRESSURE KERNEL
- * =========================================================*/
+
+// Compute density and pressure on the GPU
+// One CUDA thread owns one fluid particle
+// Each thread scans all fluid particles and all boundary particles
 __global__ void compute_density_pressure_kernel(Particle *fluid_particles,
                                                 int num_fluid_particles,
                                                 Particle *boundary_particles,
                                                 int num_boundary_particles) {
-  // 1. Get the thread ID. This replaces the OUTER 'for' loop.
+  // Map this CUDA thread to one fluid particle
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-  // 2. Safety check: don't do work if the thread ID is higher than our particle
-  // count
+  // Skip threads outside the fluid particle range
   if (i >= num_fluid_particles)
     return;
 
-  // Cache the current particle's position to avoid repeated global memory reads
+  // Cache the query particle position
   float p_i_x = fluid_particles[i].x;
   float p_i_y = fluid_particles[i].y;
   float p_i_z = fluid_particles[i].z;
 
+  // Start the density accumulator
   float density = 0.0f;
 
-  // --- FLUID-FLUID INTERACTIONS (INNER LOOP) ---
+  // Sum density from all fluid particles
   for (int j = 0; j < num_fluid_particles; j++) {
+
+    // Build the fluid to fluid offset
     float dx = fluid_particles[j].x - p_i_x;
     float dy = fluid_particles[j].y - p_i_y;
     float dz = fluid_particles[j].z - p_i_z;
+
+    // Build squared distance
     float r2 = dx * dx + dy * dy + dz * dz;
 
+    // Add contribution if inside the density radius
     if (r2 < H_DENS * H_DENS) {
       float h2_minus_r2 = H_DENS * H_DENS - r2;
       float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
@@ -47,46 +53,51 @@ __global__ void compute_density_pressure_kernel(Particle *fluid_particles,
     }
   }
 
-  // --- BOUNDARY INTERACTIONS (INNER LOOP) ---
+  // Sum density from all boundary particles
   for (int j = 0; j < num_boundary_particles; j++) {
+
+    // Build the fluid to boundary offset
     float dx = boundary_particles[j].x - p_i_x;
     float dy = boundary_particles[j].y - p_i_y;
     float dz = boundary_particles[j].z - p_i_z;
+
+    // Build squared distance
     float r2 = dx * dx + dy * dy + dz * dz;
 
+    // Add contribution if inside the density radius
     if (r2 < H_DENS * H_DENS) {
       float h2_minus_r2 = H_DENS * H_DENS - r2;
       float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-      density += MASS * POLY6 * weight; // Assuming boundary particles have same
+      density += MASS * POLY6 * weight;
     }
   }
 
-  // Write the final density and pressure back to global memory
-  // (Check your baseline to ensure this pressure formula matches yours!)
+  // Store the final density and pressure
   fluid_particles[i].rho = fmaxf(density, REST_DENS * 0.1f);
   fluid_particles[i].p = fmaxf(GAS_CONST * (density - REST_DENS), 0.0f);
 }
 
-// Run the density pass
+// Run the CPU density pass
+// This is kept as the original sequential version for comparison
 void compute_density_pressure() {
 
-  // Loop over the fluid particles
+  // Loop over every fluid particle
   for (int i = 0; i < num_fluid_particles; i++) {
     Particle &particle_i = fluid_particles[i];
 
-    // Reset the density
+    // Reset density before accumulation
     particle_i.rho = 0.0f;
 
-    // Sum the nearby density values
+    // Sum density from all fluid particles
     for (int j = 0; j < num_fluid_particles; j++) {
       Particle &particle_j = fluid_particles[j];
 
-      // Build the particle offset
+      // Build the fluid to fluid offset
       float dx = particle_j.x - particle_i.x;
       float dy = particle_j.y - particle_i.y;
       float dz = particle_j.z - particle_i.z;
 
-      // Build the squared distance
+      // Build squared distance
       float r2 = dx * dx + dy * dy + dz * dz;
 
       // Skip particles outside the density radius
@@ -94,53 +105,35 @@ void compute_density_pressure() {
         continue;
       }
 
-      // Add the density weight
+      // Add the density kernel weight
       float h2_minus_r2 = H_DENS * H_DENS - r2;
       float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
       particle_i.rho += MASS * POLY6 * weight;
     }
-    // for(int j = 0; j < num_fluid_particles; j++) {
-    //   Particle &particle = fluid_particles[j];
-    //
-    //   // Build the particle offset
-    //   float dx = particle_j.x - particle_i.x;
-    //   float dy = particle_j.y - particle_i.y;
-    //   float dz = particle_j.z - particle_i.z;
-    //
-    //   // Build the squared distance
-    //   float r2 = dx * dx + dy * dy + dz * dz;
-    //
-    //   // Skip particles outside the density radius
-    //   if (r2 >= H_DENS * H_DENS) {
-    //     continue;
-    //   }
-    //
-    //   // Add the density weight
-    //   float h2_minus_r2 = H_DENS * H_DENS - r2;
-    //   float weight = h2_minus_r2 * h2_minus_r2 * h2_minus_r2;
-    //   particle_i.rho += MASS * POLY6 * weight;
-    // }
 
-    // Clamp the density
+    // Clamp density away from zero
     particle_i.rho = std::max(particle_i.rho, REST_DENS * 0.1f);
 
-    // Build the pressure
+    // Convert density into pressure
     particle_i.p = std::max(GAS_CONST * (particle_i.rho - REST_DENS), 0.0f);
   }
 }
-/* ==========================================================================
- * FOCES KERNEL
- * ==========================================================================*/
 
+// Compute forces on the GPU
+// One CUDA thread owns one fluid particle
+// Each thread scans all fluid particles and all boundary particles
 __global__ void compute_forces_kernel(Particle *fluid_particles,
                                       int num_fluid_particles,
                                       Particle *boundary_particles,
                                       int num_boundary_particles) {
+  // Map this CUDA thread to one fluid particle
   int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+  // Skip threads outside the fluid particle range
   if (i >= num_fluid_particles)
     return;
 
-  // Cache properties
+  // Cache the query particle state
   float p_i_x = fluid_particles[i].x;
   float p_i_y = fluid_particles[i].y;
   float p_i_z = fluid_particles[i].z;
@@ -150,6 +143,7 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   float p_i_rho = fluid_particles[i].rho;
   float p_i_p = fluid_particles[i].p;
 
+  // Start force accumulators
   float pressure_fx = 0.0f;
   float pressure_fy = 0.0f;
   float pressure_fz = 0.0f;
@@ -157,24 +151,30 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
   float viscosity_fy = 0.0f;
   float viscosity_fz = 0.0f;
 
-  // --- FLUID-FLUID FORCES ---
+  // Sum pressure and viscosity from all fluid particles
   for (int j = 0; j < num_fluid_particles; j++) {
+
+    // Skip self interaction
     if (i == j)
-      continue; // Don't interact with yourself
+      continue;
+
+    // Build the fluid to fluid offset
     float dx = p_i_x - fluid_particles[j].x;
     float dy = p_i_y - fluid_particles[j].y;
     float dz = p_i_z - fluid_particles[j].z;
+
+    // Build squared distance and true distance
     float r2 = dx * dx + dy * dy + dz * dz;
+    float r = sqrtf(r2);
 
-    float r = sqrtf(r2); // Use CUDA's sqrtf
-    // NORMAL CHECKS R AGAINST EPS
+    // Add force contribution if inside the force radius
     if (r2 < H_FORCE * H_FORCE && r >= EPS) {
-      float h_minus_r = H_FORCE - r;
 
+      // Build smoothing values
+      float h_minus_r = H_FORCE - r;
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
-      // Pressure Force
-      // float p_term = -MASS * (p_i_p + fluid_particles[j].p) /
-      //                (2.0f * fluid_particles[j].rho) * grad_coeff;
+
+      // Accumulate pressure force
       float p_term =
           -MASS * (p_i_p / std::fmaxf(p_i_rho * p_i_rho, EPS) +
                    fluid_particles[j].p / std::fmaxf(fluid_particles[j].rho *
@@ -184,9 +184,7 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
       pressure_fy += p_term * grad_coeff * dy / r;
       pressure_fz += p_term * grad_coeff * dz / r;
 
-      // Viscosity Force
-      // float v_term =
-      //     VISCOSITY * MASS / fluid_particles[j].rho * VISC_LAP * h_minus_r;
+      // Accumulate viscosity force
       float visc_coeff = VISC_LAP * h_minus_r;
       float inv_rho_j = 1.0f / std::fmaxf(fluid_particles[j].rho, EPS);
       viscosity_fx += VISCOSITY * MASS * (fluid_particles[j].vx - p_i_vx) *
@@ -195,30 +193,33 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
                       inv_rho_j * visc_coeff;
       viscosity_fz += VISCOSITY * MASS * (fluid_particles[j].vz - p_i_vz) *
                       inv_rho_j * visc_coeff;
-
-      // fx += p_term * dx / r + v_term * (fluid_particles[j].vx - p_i_vx);
-      // fy += p_term * dy / r + v_term * (fluid_particles[j].vy - p_i_vy);
-      // fz += p_term * dz / r + v_term *
-      // (fluid_particles[j].vz - p_i_vz);
     }
   }
 
-  // --- BOUNDARY FORCES ---
+  // Sum pressure force from all boundary particles
   for (int j = 0; j < num_boundary_particles; j++) {
+
+    // Build the fluid to boundary offset
     float dx = p_i_x - boundary_particles[j].x;
     float dy = p_i_y - boundary_particles[j].y;
     float dz = p_i_z - boundary_particles[j].z;
-    float r2 = dx * dx + dy * dy + dz * dz;
 
+    // Build squared distance and true distance
+    float r2 = dx * dx + dy * dy + dz * dz;
     float r = sqrtf(r2);
+
+    // Add wall pressure if inside the force radius
     if (r2 < H_FORCE * H_FORCE && r >= EPS) {
+
+      // Build smoothing values
       float h_minus_r = H_FORCE - r;
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
 
-      // Calculate pressure from the wall pushing back
+      // Use the fluid pressure as the wall pressure response
       float pb = p_i_p;
       float rhob = boundary_particles[j].rho;
 
+      // Accumulate boundary pressure force
       float p_term = -MASS * (p_i_p / std::fmaxf(p_i_rho * p_i_rho, EPS) +
                               pb / std::fmaxf(rhob * rhob, EPS));
 
@@ -226,28 +227,25 @@ __global__ void compute_forces_kernel(Particle *fluid_particles,
       pressure_fy += p_term * grad_coeff * dy / r;
       pressure_fz += p_term * grad_coeff * dz / r;
 
-      // Notice: NO VISCOSITY calculation here. This allows water to slide
-      // freely!
+      // Skip boundary viscosity so water can slide along walls
     }
   }
-  // Add Gravity
-  // fy += GRAVITY * MASS;
-  // fy += GRAVITY * p_i_rho;
 
-  // Write back to global memory
+  // Store the final force with gravity
   fluid_particles[i].fx = pressure_fx + viscosity_fx;
   fluid_particles[i].fy = pressure_fy + viscosity_fy + p_i_rho * GRAVITY;
   fluid_particles[i].fz = pressure_fz + viscosity_fz;
 }
 
-// Run the force pass
+// Run the CPU force pass
+// This is kept as the original sequential version for comparison
 void compute_forces() {
 
-  // Loop over the fluid particles
+  // Loop over every fluid particle
   for (int i = 0; i < num_fluid_particles; i++) {
     Particle &particle_i = fluid_particles[i];
 
-    // Reset the force sums
+    // Reset force accumulators
     float pressure_fx = 0.0f;
     float pressure_fy = 0.0f;
     float pressure_fz = 0.0f;
@@ -255,21 +253,21 @@ void compute_forces() {
     float viscosity_fy = 0.0f;
     float viscosity_fz = 0.0f;
 
-    // Sum the nearby forces
+    // Sum pressure and viscosity from all fluid particles
     for (int j = 0; j < num_fluid_particles; j++) {
       Particle &particle_j = fluid_particles[j];
 
-      // Skip the same particle
+      // Skip self interaction
       if (&particle_i == &particle_j) {
         continue;
       }
 
-      // Build the particle offset
+      // Build the fluid to fluid offset
       float dx = particle_i.x - particle_j.x;
       float dy = particle_i.y - particle_j.y;
       float dz = particle_i.z - particle_j.z;
 
-      // Build the squared distance
+      // Build squared distance
       float r2 = dx * dx + dy * dy + dz * dz;
 
       // Skip particles outside the force radius
@@ -277,20 +275,20 @@ void compute_forces() {
         continue;
       }
 
-      // Build the true distance
+      // Build true distance
       float r = std::sqrt(r2);
 
-      // Skip very small distances
+      // Skip nearly overlapping particles
       if (r < EPS) {
         continue;
       }
 
-      // Build the direction
+      // Build direction from neighbor to query particle
       float dir_x = dx / r;
       float dir_y = dy / r;
       float dir_z = dz / r;
 
-      // Build the pressure term
+      // Accumulate pressure force
       float h_minus_r = H_FORCE - r;
       float grad_coeff = SPIKY_GRAD * h_minus_r * h_minus_r;
       float pressure_term =
@@ -301,7 +299,7 @@ void compute_forces() {
       pressure_fy += pressure_term * grad_coeff * dir_y;
       pressure_fz += pressure_term * grad_coeff * dir_z;
 
-      // Build the viscosity term
+      // Accumulate viscosity force
       float visc_coeff = VISC_LAP * h_minus_r;
       float inv_rho_j = 1.0f / std::max(particle_j.rho, EPS);
       viscosity_fx += VISCOSITY * MASS * (particle_j.vx - particle_i.vx) *
@@ -312,7 +310,7 @@ void compute_forces() {
                       inv_rho_j * visc_coeff;
     }
 
-    // Store the final force
+    // Store the final force with gravity
     particle_i.fx = pressure_fx + viscosity_fx;
     particle_i.fy = pressure_fy + viscosity_fy + particle_i.rho * GRAVITY;
     particle_i.fz = pressure_fz + viscosity_fz;
@@ -322,157 +320,98 @@ void compute_forces() {
 // Push one fluid particle back into the world box
 static void apply_world_box_collision(Particle &particle) {
 
-  // Resolve the left wall
+  // Resolve the left world wall
   if (particle.x < BOX_X_MIN) {
     particle.x = BOX_X_MIN + WALL_EPS;
 
     if (particle.vx < 0.0f) {
       particle.vx = -particle.vx * WALL_RESTITUTION;
     }
-
-    // particle.vy *= WALL_TANGENTIAL_DAMPING;
-    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.x > BOX_X_MAX) {
+
+    // Resolve the right world wall
     particle.x = BOX_X_MAX - WALL_EPS;
 
     if (particle.vx > 0.0f) {
       particle.vx = -particle.vx * WALL_RESTITUTION;
     }
-
-    // particle.vy *= WALL_TANGENTIAL_DAMPING;
-    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   }
 
-  // Resolve the floor and ceiling
+  // Resolve the floor
   if (particle.y < BOX_Y_MIN) {
     particle.y = BOX_Y_MIN + WALL_EPS;
 
     if (particle.vy < 0.0f) {
       particle.vy = -particle.vy * WALL_RESTITUTION;
     }
-
-    // particle.vx *= WALL_TANGENTIAL_DAMPING;
-    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.y > BOX_Y_MAX) {
+
+    // Resolve the ceiling
     particle.y = BOX_Y_MAX - WALL_EPS;
 
     if (particle.vy > 0.0f) {
       particle.vy = -particle.vy * WALL_RESTITUTION;
     }
-
-    // particle.vx *= WALL_TANGENTIAL_DAMPING;
-    // particle.vz *= WALL_TANGENTIAL_DAMPING;
   }
 
-  // Resolve the front and back walls
+  // Resolve the front world wall
   if (particle.z < BOX_Z_MIN) {
     particle.z = BOX_Z_MIN + WALL_EPS;
 
     if (particle.vz < 0.0f) {
       particle.vz = -particle.vz * WALL_RESTITUTION;
     }
-
-    // particle.vx *= WALL_TANGENTIAL_DAMPING;
-    // particle.vy *= WALL_TANGENTIAL_DAMPING;
   } else if (particle.z > BOX_Z_MAX) {
+
+    // Resolve the back world wall
     particle.z = BOX_Z_MAX - WALL_EPS;
 
     if (particle.vz > 0.0f) {
       particle.vz = -particle.vz * WALL_RESTITUTION;
     }
-
-    // particle.vx *= WALL_TANGENTIAL_DAMPING;
-    // particle.vy *= WALL_TANGENTIAL_DAMPING;
   }
 }
 
+// Integrate velocity and position on the CPU
 void integrate_fluid_particles() {
+
+  // Loop over every fluid particle
   for (int i = 0; i < num_fluid_particles; i++) {
-    // THE '&' HERE IS THE MOST IMPORTANT CHARACTER IN THIS FILE!
-    // Without it, you are modifying a copy, not the actual global array!
+
+    // Get a reference to the actual particle in memory
     Particle &p = fluid_particles[i];
 
-    // 1. Calculate Acceleration (a = F / density)
+    // Convert force into acceleration
     float ax = p.fx / std::fmaxf(p.rho, EPS);
     float ay = p.fy / std::fmaxf(p.rho, EPS);
     float az = p.fz / std::fmaxf(p.rho, EPS);
 
-    // 2. IDIOT-PROOF GRAVITY: Just add it directly here so we KNOW it works
-
-    // 3. Update Velocities
+    // Update velocity from acceleration
     p.vx += ax * DT;
     p.vy += ay * DT;
     p.vz += az * DT;
 
-    // Apply Damping
+    // Apply global damping to reduce instability
     p.vx *= VELOCITY_DAMPING;
     p.vy *= VELOCITY_DAMPING;
     p.vz *= VELOCITY_DAMPING;
 
-    // 4. Update Positions
+    // Update particle position
     p.x += p.vx * DT;
     p.y += p.vy * DT;
     p.z += p.vz * DT;
 
-    // 5. Boundary collisions (This is what was bulldozing the water!)
+    // Resolve collisions with cups and world bounds
     resolve_cup_collision(p, source_cup);
     resolve_cup_collision(p, receiver_cup);
     apply_world_box_collision(p);
   }
 }
-// // Move the fluid particles
-// void integrate_fluid_particles() {
-//
-//   // Loop over the fluid particles
-//   for (int i = 0; i < num_fluid_particles; i++) {
-//     Particle &particle = fluid_particles[i];
-//
-//     // Build the acceleration
-//     float ax = particle.fx / std::max(particle.rho, EPS);
-//     float ay = particle.fy / std::max(particle.rho, EPS);
-//     float az = particle.fz / std::max(particle.rho, EPS);
-//
-//     // Update the velocity
-//     particle.vx += ax * DT;
-//     particle.vy += ay * DT;
-//     particle.vz += az * DT;
-//
-//     // Dampen the velocity
-//     particle.vx *= VELOCITY_DAMPING;
-//     particle.vy *= VELOCITY_DAMPING;
-//     particle.vz *= VELOCITY_DAMPING;
-//
-//     // Update the position
-//     particle.x += particle.vx * DT;
-//     particle.y += particle.vy * DT;
-//     particle.z += particle.vz * DT;
-//
-//     // Resolve the cup collisions
-//     resolve_cup_collision(particle, source_cup);
-//     resolve_cup_collision(particle, receiver_cup);
-//
-//     // Resolve the world box collisions
-//     apply_world_box_collision(particle);
-//
-//     // Clamp extreme particle speeds
-//     float speed =
-//         std::sqrt(particle.vx * particle.vx + particle.vy * particle.vy +
-//                   particle.vz * particle.vz);
-//     const float MAX_SPEED = 2000000.0f;
-//
-//     if (speed > MAX_SPEED) {
-//       float scale = MAX_SPEED / speed;
-//       particle.vx *= scale;
-//       particle.vy *= scale;
-//       particle.vz *= scale;
-//     }
-//   }
-// }
 
-// Export the scene to csv
+// Export the current scene to csv
 void export_csv(int frame_index) {
 
-  // Build the current boundary particles
+  // Rebuild boundary particles for the current cup positions
   rebuild_boundary_particles_for_export();
 
   // Build the output file name
@@ -484,10 +423,10 @@ void export_csv(int frame_index) {
   // Open the output file
   std::ofstream file(file_name);
 
-  // Write the header
+  // Write the csv header
   file << "x,y,z,rho,p,is_boundary,kind\n";
 
-  // Write the fluid particles
+  // Write all fluid particles
   for (int i = 0; i < num_fluid_particles; i++) {
     Particle &particle = fluid_particles[i];
     file << particle.x << "," << particle.y << "," << particle.z << ","
@@ -495,7 +434,7 @@ void export_csv(int frame_index) {
          << "," << particle.kind << "\n";
   }
 
-  // Write the boundary particles
+  // Write all boundary particles
   for (int i = 0; i < num_boundary_particles; i++) {
     Particle &particle = boundary_particles[i];
     file << particle.x << "," << particle.y << "," << particle.z << ","
@@ -504,15 +443,15 @@ void export_csv(int frame_index) {
   }
 }
 
-// Print the frame stats
+// Print summary stats for one frame
 void print_stats(int frame_index) {
 
-  // Skip the stats when there is no fluid
+  // Skip stats when there is no fluid
   if (num_fluid_particles == 0) {
     return;
   }
 
-  // Start the stat values
+  // Start stat accumulators
   float min_rho = fluid_particles[0].rho;
   float max_rho = fluid_particles[0].rho;
   float min_p = fluid_particles[0].p;
@@ -521,7 +460,7 @@ void print_stats(int frame_index) {
   float sum_speed = 0.0f;
   float max_speed = 0.0f;
 
-  // Accumulate the stats
+  // Accumulate density pressure and speed values
   for (int i = 0; i < num_fluid_particles; i++) {
     Particle &particle = fluid_particles[i];
     min_rho = std::min(min_rho, particle.rho);
@@ -537,11 +476,11 @@ void print_stats(int frame_index) {
     max_speed = std::max(max_speed, speed);
   }
 
-  // Build the averages
+  // Compute average stats
   float avg_rho = sum_rho / static_cast<float>(num_fluid_particles);
   float avg_speed = sum_speed / static_cast<float>(num_fluid_particles);
 
-  // Print the values
+  // Print frame stats
   std::cout << "Frame " << frame_index << " | rho: [" << min_rho << ", "
             << max_rho << "] avg=" << avg_rho << " | p: [" << min_p << ", "
             << max_p << "]"
@@ -549,10 +488,10 @@ void print_stats(int frame_index) {
             << std::endl;
 }
 
-// Print the initial stats
+// Print density and pressure stats after setup
 void print_initial_density_stats() {
 
-  // Skip the stats when there is no fluid
+  // Skip stats when there is no fluid
   if (num_fluid_particles == 0) {
     return;
   }
@@ -560,7 +499,7 @@ void print_initial_density_stats() {
   // Run the first density pass
   compute_density_pressure();
 
-  // Start the stat values
+  // Start stat accumulators
   float min_rho = fluid_particles[0].rho;
   float max_rho = fluid_particles[0].rho;
   float min_p = fluid_particles[0].p;
@@ -568,7 +507,7 @@ void print_initial_density_stats() {
   float sum_rho = 0.0f;
   float sum_p = 0.0f;
 
-  // Accumulate the stats
+  // Accumulate density and pressure values
   for (int i = 0; i < num_fluid_particles; i++) {
     Particle &particle = fluid_particles[i];
     min_rho = std::min(min_rho, particle.rho);
@@ -579,26 +518,26 @@ void print_initial_density_stats() {
     sum_p += particle.p;
   }
 
-  // Build the averages
+  // Compute average stats
   float avg_rho = sum_rho / static_cast<float>(num_fluid_particles);
   float avg_p = sum_p / static_cast<float>(num_fluid_particles);
 
-  // Print the values
+  // Print initial density stats
   std::cout << "Initial density stats | rho: [" << min_rho << ", " << max_rho
             << "] avg = " << avg_rho << " | p: [" << min_p << ", " << max_p
             << "] avg = " << avg_p << std::endl;
 }
 
-// Print fluid only stats
+// Print detailed fluid only stats with a label
 void print_fluid_only_stats(const std::string &label) {
 
-  // Skip the stats when there is no fluid
+  // Skip stats when there is no fluid
   if (num_fluid_particles == 0) {
     std::cout << label << " | no fluid particles" << std::endl;
     return;
   }
 
-  // Start the stat values
+  // Start detailed stat accumulators
   float min_rho = fluid_particles[0].rho;
   float max_rho = fluid_particles[0].rho;
   float min_p = fluid_particles[0].p;
@@ -613,7 +552,7 @@ void print_fluid_only_stats(const std::string &label) {
   int rho_floor_count = 0;
   int zero_pressure_count = 0;
 
-  // Accumulate the stats
+  // Accumulate detailed fluid stats
   for (int i = 0; i < num_fluid_particles; i++) {
     Particle &particle = fluid_particles[i];
     float speed =
@@ -640,12 +579,12 @@ void print_fluid_only_stats(const std::string &label) {
     }
   }
 
-  // Build the averages
+  // Compute detailed averages
   float avg_rho = sum_rho / static_cast<float>(num_fluid_particles);
   float avg_p = sum_p / static_cast<float>(num_fluid_particles);
   float avg_speed = sum_speed / static_cast<float>(num_fluid_particles);
 
-  // Print the values
+  // Print detailed fluid stats
   std::cout << label << " | fluid_count = " << num_fluid_particles
             << " | rho = [" << min_rho << ", " << max_rho
             << "] avg = " << avg_rho << " | p = [" << min_p << ", " << max_p
@@ -655,9 +594,10 @@ void print_fluid_only_stats(const std::string &label) {
             << " | zero_pressure_count = " << zero_pressure_count << std::endl;
 }
 
-// Run the full simulation
+// Run the full CUDA baseline simulation
 int main(int argc, char **argv) {
-  // Seed the random generator
+
+  // Seed random jitter for repeatable initialization
   srand(0);
 
   // Read the target tilt angle
@@ -666,20 +606,24 @@ int main(int argc, char **argv) {
   if (argc >= 2) {
     target_tilt_deg = std::stof(argv[1]);
   }
+
   // Clamp the target tilt angle
   target_tilt_deg = std::max(0.0f, std::min(180.0f, target_tilt_deg));
 
+  // Allocate unified memory for fluid and boundary arrays
   cudaError_t err1 = cudaMallocManaged(&fluid_particles,
                                        MAX_FLUID_PARTICLES * sizeof(Particle));
   cudaError_t err2 = cudaMallocManaged(
       &boundary_particles, MAX_BOUNDARY_PARTICLES * sizeof(Particle));
 
+  // Check fluid allocation
   if (err1 != cudaSuccess) {
     std::cerr << "Fluid allocation failed: " << cudaGetErrorString(err1)
               << std::endl;
     return -1;
   }
 
+  // Check boundary allocation
   if (err2 != cudaSuccess) {
     std::cerr << "Boundary allocation failed: " << cudaGetErrorString(err2)
               << std::endl;
@@ -691,48 +635,56 @@ int main(int argc, char **argv) {
             << std::endl;
   initialize_scene(target_tilt_deg);
 
+  // Build the CUDA launch shape
   int threadsPerBlock = 256;
   int blocksPerGrid =
       (num_fluid_particles + threadsPerBlock - 1) / threadsPerBlock;
-  // Print the initial stats
+
+  // Print setup and first pass debug stats
   print_initial_density_stats();
   print_fluid_only_stats("Frame 0 fluid stats");
   print_source_cup_setup_stats();
 
-  // Print the particle counts
+  // Print initial particle counts
   std::cout << "Fluid particles = " << num_fluid_particles << std::endl;
   std::cout << "Boundary particles = " << num_boundary_particles << std::endl;
 
-  // Export the first frame
+  // Export the starting frame
   export_csv(0);
 
   // Run the frame loop
   for (int frame_index = 1; frame_index <= FRAME_COUNT; frame_index++) {
 
-    // Reset the penetration stats
+    // Reset penetration debug stats for this frame
     reset_penetration_stats();
 
-    // Run the substeps
+    // Run all substeps inside this frame
     for (int step_index = 0; step_index < SUBSTEPS_PER_FRAME; step_index++) {
 
-      // Update the scene for this substep
+      // Compute the fractional frame value for this substep
       float substep_frame_index = static_cast<float>(frame_index - 1) +
                                   static_cast<float>(step_index + 1) /
                                       static_cast<float>(SUBSTEPS_PER_FRAME);
+
+      // Update cup position and angular velocity
       update_scene_for_frame(substep_frame_index, target_tilt_deg);
 
+      // Rebuild boundary particles for the current cup pose
       rebuild_boundary_particles_for_export();
-      // Run the fluid step
-      // compute_density_pressure();
+
+      // Run density and pressure on the GPU
       compute_density_pressure_kernel<<<blocksPerGrid, threadsPerBlock>>>(
           fluid_particles, num_fluid_particles, boundary_particles,
           num_boundary_particles);
       cudaDeviceSynchronize();
-      // compute_forces();
+
+      // Run force computation on the GPU
       compute_forces_kernel<<<blocksPerGrid, threadsPerBlock>>>(
           fluid_particles, num_fluid_particles, boundary_particles,
           num_boundary_particles);
-      cudaDeviceSynchronize(); // MUST WAIT FOR GPU
+      cudaDeviceSynchronize();
+
+      // Integrate particle motion on the CPU
       integrate_fluid_particles();
     }
 
@@ -741,7 +693,7 @@ int main(int argc, char **argv) {
       export_csv(frame_index / EXPORT_EVERY);
     }
 
-    // Print the stats sometimes
+    // Print debug stats every 20 frames
     if (frame_index % 20 == 0) {
       print_stats(frame_index);
       print_fluid_only_stats("Frame " + std::to_string(frame_index) +
@@ -750,6 +702,7 @@ int main(int argc, char **argv) {
     }
   }
 
+  // Print completion message
   std::cout << "Done" << std::endl;
   return 0;
 }
